@@ -43,7 +43,7 @@
 
 .outdoorCardClockContainer {
     color: white;
-    font-size: 80px;
+    font-size: 70px;
 }
 
 .outdoorCardWeatherContainer {
@@ -61,7 +61,7 @@
 
 .outdoorCardWeatherTemperatureContainer {
     color: white;
-    font-size: 60px;    
+    font-size: 50px;    
 }
 
 .outdoorCardWeatherSkyContainer {
@@ -73,12 +73,12 @@
 
 .outdoorCardWeatherUVindexContainer {
     color: white;
-    font-size: 40px;    
+    font-size: 35px;    
 }
 
 .outdoorCardWeatherAQIContainer {
     color: white;
-    font-size: 40px;    
+    font-size: 35px;    
 }
 
 .outdoorCardWindContainer {
@@ -91,7 +91,7 @@
     padding-left: 30px;
     padding-right: 30px;
     color: white;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .alertsNormal {
