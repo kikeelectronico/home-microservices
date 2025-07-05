@@ -1,18 +1,15 @@
-import "./home.css"
-import Clock from "../components/Clock"
-import Internet from "../components/Internet"
-import Spotify from "../components/Spotify"
-import Thermostat from "../components/Thermostat"
-import Power from "../components/Power"
-import Weather from "../components/Weather"
-import Air from "../components/Air"
-import Alerts from "../components/Alerts"
-// import Launches from "../components/Launches"
-import Shower from "../components/Shower"
-import Bedroom from "../components/Bedroom"
-import NotAtHome from "../components/NotAtHome"
-import LightingScene from "../components/LightingScene"
 import React, { useState, useEffect } from "react";
+
+import Outdoors from "./components/Outdoors"
+import Livingroom from "./components/rooms/Livingroom";
+import Bathroom from "./components/rooms/Bathroom";
+import Bedroom from "./components/rooms/Bedroom";
+import Power from "./components/Power";
+import NotAtHome from "../../components/NotAtHome"
+import Connection from "./components/Connection";
+import Spotify from "./components/Spotify";
+
+import "./home.css"
 
 const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
@@ -140,11 +137,8 @@ export default function Home(props) {
   const [water, setWater] = useState(null)
   const [weather, setWeather] = useState(null)
   const [weather_flag, setWeatherFlag] = useState(null)
-  // const [launches, setLaunches] = useState(null)
-  // const [launches_flag, setLaunchesFlag] = useState(null)
   const [spotify, setSpotify] = useState(null)
   const [spotify_playing, setSpotifyPlaying] = useState(false);
-  const [weather_alerts, setWeatherAlerts] = useState(null)
   const [see_closed, setSeeClosed] = useState(false)
 
   useEffect(() => {
@@ -156,7 +150,6 @@ export default function Home(props) {
       else if (event.type === "home") {setHome(event.data); setHomeFlag(event.flags)}
       else if (event.type === "water") {setWater(event.data);}
       else if (event.type === "weather") {setWeather(event.data); setWeatherFlag(event.flags)}
-      // else if (event.type === "launches") {setLaunches(event.data); setLaunchesFlag(event.flags)}
       else if (event.type === "spotify") {setSpotify(event.data)}
     };
     sse.onerror = () => {
@@ -180,28 +173,6 @@ export default function Home(props) {
     }
   }, [props.setBackgroundImage, spotify])
 
-  useEffect(() => {
-    if (weather_flag) {
-      let _weather_alerts = []
-      for (let i = 0; i < weather.alerts.alert.length; i++) {
-        let alert = weather.alerts.alert[i]
-        console.log(alert)
-        let severity = "low"
-        if (alert.category.includes("Extreme")) severity = "critical"
-        else if (alert.event.includes("Moderate")) severity = "middle"
-        else if (alert.event.includes("amarillo")) severity = "low"
-        else if (alert.event.includes("naranja")) severity = "middle"
-        _weather_alerts.push(
-          {
-            "text": alert.event + (alert.event[alert.event.length-1] !== "." ? "." : "") + (alert.desc !== "" ? " " + alert.desc : "") + (alert.desc[alert.desc.length-1] !== "." ? "." : "") + (alert.areas !== "" ? " " + alert.areas : ""),
-            "severity": severity,
-            "image": null
-          }
-        )
-        setWeatherAlerts(_weather_alerts)
-      }
-    }
-  }, [weather, weather_flag])
 
   const assertAlert = (conditions) => {
     for (let i = 0; i < conditions.length; i++) {
@@ -241,22 +212,27 @@ export default function Home(props) {
 
   return (
     <div className="homePage">
-        <div className="title">
-          <h1>La fábrica</h1>
-        </div>
-        <div className={"homeCardsContainer" + (spotify_playing ? " homeCardsContainerPlaying" : " homeCardsContainerNotPlaying")}>
-          <Clock/>
-          { home && home_flag ? <Thermostat data={home}/> : <></> }
-          { weather && weather_flag.current ? <Weather data={weather.current}/> : <></> }
-          { weather && weather_flag.current ? <Air data={weather.current}/> : <></> }
-          { home && home_flag ? <Power data={home}/> : <></> }
-          { home && home_flag ? <Shower data={home}/> : <></> }
-          { home && home_flag ? <Bedroom data={home}/> : <></> }
+        <div className="homeCardsContainer">
+          <div className="homeCardsColumn">
+            { weather && weather_flag.current ? <Outdoors weather={weather} water={water}/> : <></> }
+            { home && home_flag ? <Power home={home}/> : <></> }
+            { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }
+            { spotify ? <Spotify spotify={spotify}/> : <></> } 
+          </div>
+          <div className="homeCardsColumn">
+            { home && home_flag ?
+              <>
+                <Livingroom home={home}/>
+                <Bathroom home={home}/>
+                <Bedroom home={home}/>
+              </> 
+            : <></> }
+
+          </div>
+
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
-          {
-            //{ launches && launches_flag ? <Launches data={launches}/> : <></> }
-          }
-          { spotify ? <Spotify data={spotify}/> : <></> }
+
+          {/* 
           { 
             home ? 
               scenes_to_show.map((scene, index) => {
@@ -272,25 +248,7 @@ export default function Home(props) {
               })
             : <></>
           }
-          { 
-            weather_alerts ? 
-              weather_alerts.map((alert, index) => {
-                  return <Alerts alert={alert} key={index} wide={true}/>
-              })
-            : <></>
-          }
-          {
-            water ? 
-              <>
-                { 
-                  water.water.level < 50 ?
-                    <Alerts alert={{text: "Nivel de embalses: " + water.water.level + " %", severity: (water.water.level < 40 ? "normal" : "low")}}/>
-                  : <></>}
-              </>
-              : <></>
-          }
-          { see_closed ? <Alerts alert={{text: "Sin conexión con la API", severity: "critical"}}/> : <></>}
-          { internet ? <Internet data={internet}/> : <></> }
+           */}
         </div>
     </div>
   )
