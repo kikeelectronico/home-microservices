@@ -88,8 +88,8 @@
 
 .outdoorCardAlertContainer {
     padding: 15px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 15%;
+    padding-right: 15%;
     color: white;
     font-size: 25px;
 }
