@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./livingroom.css"
+import "./room.css"
 
 export default function Livingroom(props) {
 
