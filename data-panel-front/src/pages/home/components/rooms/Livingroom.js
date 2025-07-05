@@ -31,7 +31,7 @@ export default function Livingroom(props) {
         </div>
         {
             thermostatMode() !== "" ?
-                <div className="roomCardRow no-border" style={{marginBottom: 10}}>
+                <div className="roomCardRow no-border">
                     <div className="roomCardThermostatContainer">
                         {thermostatMode()}
                     </div>
