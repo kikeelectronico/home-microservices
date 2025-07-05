@@ -47,9 +47,9 @@
   flex-direction: row;
 }
 
-.no-border {
+.homeCardRowNoBorder {
   min-height: 0px;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 
 }
 
@@ -57,7 +57,7 @@
   position: relative;
 }
 
-.homeCardRow + .homeCardRow:not(.no-border)::before {
+.homeCardRow + .homeCardRow:not(.homeCardRowNoBorder)::before {
   content: "";
   position: absolute;
   left: 10%;

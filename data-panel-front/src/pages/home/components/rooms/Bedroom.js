@@ -29,7 +29,7 @@ export default function Bedroom(props) {
         </div>
         {
             thermostatMode() !== "" ?
-                <div className="homeCardRow no-border">
+                <div className="homeCardRow homeCardRowNoBorder">
                     <div className="roomCardThermostatContainer">
                         {thermostatMode()}
                     </div>
