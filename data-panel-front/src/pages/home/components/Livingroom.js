@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "./room.css"
+import "./livingroom.css"
 
-export default function Room(props) {
+export default function Livingroom(props) {
 
     const thermostatMode = () => {
         var mode = props.home.status.thermostat_livingroom.thermostatMode

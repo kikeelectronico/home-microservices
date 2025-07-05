@@ -10,6 +10,10 @@
     overflow: hidden;
 }
 
+.roomCard + .roomCard {
+    margin-top: 25px;
+}
+
 .roomCardTitle {
     margin-top: 20px;
     color: white;

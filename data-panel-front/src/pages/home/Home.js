@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import Outdoors from "./components/Outdoors"
-import Room from "./components/Room";
+import Livingroom from "./components/Livingroom";
 
 import "./home.css"
 
@@ -237,7 +237,11 @@ export default function Home(props) {
             { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }           
           </div>
           <div className="homeCardsColumn">
-            { home && home_flag ? <Room home={home}/> : <></> }
+            { home && home_flag ?
+              <>
+                <Livingroom home={home}/>
+              </> 
+            : <></> }
 
           </div>
           {/* { home && home_flag ? <Thermostat data={home}/> : <></> }
