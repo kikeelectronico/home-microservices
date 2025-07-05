@@ -10,7 +10,7 @@ export default function Spotify(props) {
     const [progress, setProgress] = useState(0)
 
     return (
-        <div className="spotifyCard">
+        <div className={"spotifyCard" + (props.spotify.playing.playing ? " homeCardAlphaChannel" : "")}>
             <div
                 className="spotifyImageCard"
                 style={{ 

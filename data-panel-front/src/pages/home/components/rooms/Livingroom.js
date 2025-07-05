@@ -20,7 +20,7 @@ export default function Livingroom(props) {
     }
 
   return (
-    <div className="homeCard" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
+    <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")} style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
         <div className="homeCardTitle">
             Salón
         </div>

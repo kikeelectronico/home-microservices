@@ -214,17 +214,17 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather} water={water}/> : <></> }
-            { home && home_flag ? <Power home={home}/> : <></> }
-            { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }
+            { weather && weather_flag.current ? <Outdoors weather={weather} water={water} playing={spotify_playing}/> : <></> }
+            { home && home_flag ? <Power home={home} playing={spotify_playing}/> : <></> }
+            { internet ? <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/> : <></> }
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 
           </div>
           <div className="homeCardsColumn">
             { home && home_flag ?
               <>
-                <Livingroom home={home}/>
-                <Bathroom home={home}/>
-                <Bedroom home={home}/>
+                <Livingroom home={home} playing={spotify_playing}/>
+                <Bathroom home={home} playing={spotify_playing}/>
+                <Bedroom home={home} playing={spotify_playing}/>
               </> 
             : <></> }
 

@@ -5,7 +5,7 @@ export default function Connection(props) {
 
     return (
         (!props.internet.connected) || props.see_closed ? 
-            <div className="homeCard">
+            <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")}>
                 <div className="homeCardTitle">
                     Conectividad
                 </div>

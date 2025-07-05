@@ -21,7 +21,7 @@ export default function Outdoors(props) {
     }
 
   return (
-    <div className="homeCard">
+    <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")}>
         <div className="outdoorCardRow">
             <div className="outdoorCardColumn outdoorCardClockContainer">
                 {time}
