@@ -5,10 +5,6 @@
     flex-direction: row;
 }
 
-.no-border {
-    padding-bottom: 10px;
-}
-
 .roomCardRow + .roomCardRow {
     position: relative;
 }
