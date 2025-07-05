@@ -1,5 +1,6 @@
 .outdoorCard {
     min-height: 200px;
+    padding: 20px;
     border-radius: 20px;
     background-color: rgb(44, 43, 43);
     position: relative;
@@ -59,8 +60,7 @@
 }
 
 .outdoorCardWeatherContainer {
-    margin-top: 20px;
-    margin-bottom: 20px;
+    
 }
 
 .outdoorCardWeatherRow {
