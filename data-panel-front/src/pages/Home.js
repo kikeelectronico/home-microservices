@@ -12,7 +12,10 @@ import Shower from "../components/Shower"
 import Bedroom from "../components/Bedroom"
 import NotAtHome from "../components/NotAtHome"
 import LightingScene from "../components/LightingScene"
+
 import React, { useState, useEffect } from "react";
+
+import Outdoors from "../components/Outdoors"
 
 const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
@@ -241,12 +244,15 @@ export default function Home(props) {
 
   return (
     <div className="homePage">
-        <div className="title">
-          <h1>La fábrica</h1>
-        </div>
-        <div className={"homeCardsContainer" + (spotify_playing ? " homeCardsContainerPlaying" : " homeCardsContainerNotPlaying")}>
-          <Clock/>
-          { home && home_flag ? <Thermostat data={home}/> : <></> }
+        <div className="homeCardsContainer">
+          <div className="homeCardsColumn">
+            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }           
+          </div>
+          <div className="homeCardsColumn">
+            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }
+
+          </div>
+          {/* { home && home_flag ? <Thermostat data={home}/> : <></> }
           { weather && weather_flag.current ? <Weather data={weather.current}/> : <></> }
           { weather && weather_flag.current ? <Air data={weather.current}/> : <></> }
           { home && home_flag ? <Power data={home}/> : <></> }
@@ -290,7 +296,7 @@ export default function Home(props) {
               : <></>
           }
           { see_closed ? <Alerts alert={{text: "Sin conexión con la API", severity: "critical"}}/> : <></>}
-          { internet ? <Internet data={internet}/> : <></> }
+          { internet ? <Internet data={internet}/> : <></> } */}
         </div>
     </div>
   )
