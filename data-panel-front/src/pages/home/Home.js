@@ -6,6 +6,7 @@ import Bathroom from "./components/rooms/Bathroom";
 import Bedroom from "./components/rooms/Bedroom";
 import Power from "./components/Power";
 import NotAtHome from "../../components/NotAtHome"
+import Connection from "./components/Connection";
 
 import "./home.css"
 
@@ -237,6 +238,7 @@ export default function Home(props) {
           <div className="homeCardsColumn">
             { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts} water={water}/> : <></> }
             { home && home_flag ? <Power home={home}/> : <></> }     
+            { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }     
           </div>
           <div className="homeCardsColumn">
             { home && home_flag ?
@@ -252,7 +254,6 @@ export default function Home(props) {
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
 
           {/* 
-          { home && home_flag ? <NotAtHome data={home}/> : <></> }
           
           { spotify ? <Spotify data={spotify}/> : <></> }
           { 
@@ -270,8 +271,7 @@ export default function Home(props) {
               })
             : <></>
           }
-          { see_closed ? <Alerts alert={{text: "Sin conexión con la API", severity: "critical"}}/> : <></>}
-          { internet ? <Internet data={internet}/> : <></> } */}
+           */}
         </div>
     </div>
   )
