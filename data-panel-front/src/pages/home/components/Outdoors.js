@@ -56,23 +56,24 @@ export default function Outdoors(props) {
             </div>
         </div>
         {
-            props.weather_alerts ? 
-                props.weather_alerts.map((alert, index) => {
+            props.weather.alerts.alert ? 
+                props.weather.alerts.alert.map((alert, index) => {
 
                     const getStyle = () => {
-                        var style_name = "alertsCritical"
-                        if (alert['severity'] === "normal") style_name = "alertsNormal"
-                        else if (alert['severity'] === "high") style_name = "alertsHigh"
-                        else if (alert['severity'] === "middle") style_name = "alertsMiddle"
-                        else if (alert['severity'] === "low") style_name = "alertsLow"
-                        return style_name
+                        let severity = "alertsCritical"
+                        if (alert.category.includes("Extreme")) severity = "alertsCritical"
+                        else if (alert.event.includes("Moderate")) severity = "alertsMiddle"
+                        else if (alert.event.includes("rojo")) severity = "alertsCritical"
+                        else if (alert.event.includes("naranja")) severity = "alertsMiddle"
+                        else if (alert.event.includes("amarillo")) severity = "alertsLow"
+                        return severity
                     }
                     
                     return (
                         <div className="outdoorCardRow" key={index}>
                             <div className="outdoorCardWeatherRow">
                                 <div className={"outdoorCardAlertContainer " +  getStyle()}>
-                                    {alert.text}
+                                    {alert.event + (alert.event[alert.event.length-1] !== "." ? "." : "") + (alert.desc !== "" ? " " + alert.desc : "") + (alert.desc[alert.desc.length-1] !== "." ? "." : "") + (alert.areas !== "" ? " " + alert.areas : "")}
                                 </div>
                             </div>
                         </div>

@@ -138,7 +138,6 @@ export default function Home(props) {
   const [weather_flag, setWeatherFlag] = useState(null)
   const [spotify, setSpotify] = useState(null)
   const [spotify_playing, setSpotifyPlaying] = useState(false);
-  const [weather_alerts, setWeatherAlerts] = useState(null)
   const [see_closed, setSeeClosed] = useState(false)
 
   useEffect(() => {
@@ -173,28 +172,6 @@ export default function Home(props) {
     }
   }, [props.setBackgroundImage, spotify])
 
-  useEffect(() => {
-    if (weather_flag) {
-      let _weather_alerts = []
-      for (let i = 0; i < weather.alerts.alert.length; i++) {
-        let alert = weather.alerts.alert[i]
-        console.log(alert)
-        let severity = "low"
-        if (alert.category.includes("Extreme")) severity = "critical"
-        else if (alert.event.includes("Moderate")) severity = "middle"
-        else if (alert.event.includes("amarillo")) severity = "low"
-        else if (alert.event.includes("naranja")) severity = "middle"
-        _weather_alerts.push(
-          {
-            "text": alert.event + (alert.event[alert.event.length-1] !== "." ? "." : "") + (alert.desc !== "" ? " " + alert.desc : "") + (alert.desc[alert.desc.length-1] !== "." ? "." : "") + (alert.areas !== "" ? " " + alert.areas : ""),
-            "severity": severity,
-            "image": null
-          }
-        )
-        setWeatherAlerts(_weather_alerts)
-      }
-    }
-  }, [weather, weather_flag])
 
   const assertAlert = (conditions) => {
     for (let i = 0; i < conditions.length; i++) {
@@ -236,7 +213,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather} weather_alerts={weather_alerts} water={water}/> : <></> }
+            { weather && weather_flag.current ? <Outdoors weather={weather} water={water}/> : <></> }
             { home && home_flag ? <Power home={home}/> : <></> }     
             { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }     
           </div>
