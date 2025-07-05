@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import Outdoors from "./components/Outdoors"
-import Livingroom from "./components/Livingroom";
+import Livingroom from "./components/rooms/Livingroom";
 
 import "./home.css"
 
