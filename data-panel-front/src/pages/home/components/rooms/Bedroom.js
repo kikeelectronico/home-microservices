@@ -18,7 +18,7 @@ export default function Bedroom(props) {
     }
 
   return (
-    <div className="homeCard homeCardTopPadding" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
+    <div className="homeCard" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
         <div className="homeCardTitle">
             Dormitorio
         </div>
@@ -27,11 +27,15 @@ export default function Bedroom(props) {
                 {props.home.status.thermostat_dormitorio.thermostatTemperatureAmbient} ºC
             </div>
         </div>
-        <div className="roomCardRow no-border" style={{marginBottom: 10}}>
-            <div className="roomCardThermostatContainer">
-                {thermostatMode()}
-            </div>
-        </div>
+        {
+            thermostatMode() !== "" ?
+                <div className="roomCardRow no-border" style={{marginBottom: 10}}>
+                    <div className="roomCardThermostatContainer">
+                        {thermostatMode()}
+                    </div>
+                </div>
+            : <></>
+        }
         {
             props.home.status["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"].openPercent === 100 ?
                 <div className="roomCardRow">

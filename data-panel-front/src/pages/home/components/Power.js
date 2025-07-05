@@ -8,24 +8,24 @@ export default function Power(props) {
     }
 
   return (
-    <div className="homeCard homeCardTopPadding" style={{boxShadow: "0 0.1rem 1rem rgba(" + (props.home.status.current001.brightness > 90 ? "255,0,0" : "0,0,0")  + ", 0.8)"}}>
+    <div className="homeCard" style={{boxShadow: "0 0.1rem 1rem rgba(" + (props.home.status.current001.brightness > 90 ? "255,0,0" : "0,0,0")  + ", 0.8)"}}>
         <div className="homeCardTitle">
             Potencia
         </div>
-        <div className="roomCardRow" style={{marginTop: 5}}>
+        <div className="roomCardRow">
             <div className="roomCardAmbientContainer">
                 {props.home.status.thermostat_livingroom.thermostatTemperatureAmbient} ºC
             </div>
         </div>
-        {
-            false ?
+        {/* {
+            true ?
                 <div className="roomCardRow">
                     <div className="roomCardAlertContainer">
                         Ventana abierta
                     </div>
                 </div>
             : <></>
-        }
+        } */}
     </div>
   )
 }

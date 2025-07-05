@@ -19,7 +19,7 @@ export default function Bathroom(props) {
 
   return (
     props.home.status.scene_ducha.enable ?
-        <div className="homeCard homeCardTopPadding" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
+        <div className="homeCard" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
             <div className="homeCardTitle">
                 Baño
             </div>
@@ -28,11 +28,15 @@ export default function Bathroom(props) {
                     {props.home.status.thermostat_bathroom.thermostatTemperatureAmbient} ºC
                 </div>
             </div>
-            <div className="roomCardRow no-border" style={{marginBottom: 10}}>
-                <div className="roomCardThermostatContainer">
-                    {thermostatMode()}
-                </div>
-            </div>
+            {
+                thermostatMode() !== "" ?
+                    <div className="roomCardRow no-border" style={{marginBottom: 10}}>
+                        <div className="roomCardThermostatContainer">
+                            {thermostatMode()}
+                        </div>
+                    </div>
+                : <></>
+            }
             {
                 props.home.status.scene_ducha.enable ?
                     <div className="roomCardRow">
