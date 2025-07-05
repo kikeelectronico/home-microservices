@@ -12,14 +12,14 @@ export default function Power(props) {
         <div className="homeCardTitle">
             Potencia
         </div>
-        <div className="roomCardRow">
+        <div className="homeCardRow">
             <div className="roomCardAmbientContainer">
                 {calcPower()} W
             </div>
         </div>
         {
             props.home.status.current001.brightness > 90 ?
-                <div className="roomCardRow">
+                <div className="homeCardRow">
                     <div className="roomCardAlertContainer">
                         Sobrecarga de potencia
                     </div>

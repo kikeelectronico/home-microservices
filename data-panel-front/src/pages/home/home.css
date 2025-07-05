@@ -39,3 +39,30 @@
   font-size: 30px;
   font-weight: bold;
 }
+
+.homeCardRow {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  flex-direction: row;
+}
+
+.no-border {
+  min-height: 0px;
+  padding-bottom: 10px;
+
+}
+
+.homeCardRow + .homeCardRow {
+  position: relative;
+}
+
+.homeCardRow + .homeCardRow:not(.no-border)::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 0;
+  height: 1px;
+  background-color: #555;
+}

@@ -24,14 +24,14 @@ export default function Livingroom(props) {
         <div className="homeCardTitle">
             Salón
         </div>
-        <div className="roomCardRow" style={{marginTop: 5}}>
+        <div className="homeCardRow" style={{marginTop: 5}}>
             <div className="roomCardAmbientContainer">
                 {props.home.status.thermostat_livingroom.thermostatTemperatureAmbient} ºC
             </div>
         </div>
         {
             thermostatMode() !== "" ?
-                <div className="roomCardRow no-border">
+                <div className="homeCardRow no-border">
                     <div className="roomCardThermostatContainer">
                         {thermostatMode()}
                     </div>
@@ -40,7 +40,7 @@ export default function Livingroom(props) {
         }
         {
             props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 100 ?
-                <div className="roomCardRow">
+                <div className="homeCardRow">
                     <div className="roomCardAlertContainer">
                         Ventana abierta
                     </div>

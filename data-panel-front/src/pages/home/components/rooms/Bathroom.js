@@ -23,14 +23,14 @@ export default function Bathroom(props) {
             <div className="homeCardTitle">
                 Baño
             </div>
-            <div className="roomCardRow" style={{marginTop: 5}}>
+            <div className="homeCardRow" style={{marginTop: 5}}>
                 <div className="roomCardAmbientContainer">
                     {props.home.status.thermostat_bathroom.thermostatTemperatureAmbient} ºC
                 </div>
             </div>
             {
                 thermostatMode() !== "" ?
-                    <div className="roomCardRow no-border">
+                    <div className="homeCardRow no-border">
                         <div className="roomCardThermostatContainer">
                             {thermostatMode()}
                         </div>
@@ -39,7 +39,7 @@ export default function Bathroom(props) {
             }
             {
                 props.home.status.scene_ducha.enable ?
-                    <div className="roomCardRow">
+                    <div className="homeCardRow">
                         <div className="roomCardAlertContainer">
                             Modo ducha activo
                         </div>
