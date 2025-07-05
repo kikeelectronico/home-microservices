@@ -149,7 +149,6 @@ export default function Home(props) {
       else if (event.type === "home") {setHome(event.data); setHomeFlag(event.flags)}
       else if (event.type === "water") {setWater(event.data);}
       else if (event.type === "weather") {setWeather(event.data); setWeatherFlag(event.flags)}
-      // else if (event.type === "launches") {setLaunches(event.data); setLaunchesFlag(event.flags)}
       else if (event.type === "spotify") {setSpotify(event.data)}
     };
     sse.onerror = () => {
