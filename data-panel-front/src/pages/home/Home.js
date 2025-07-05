@@ -7,6 +7,7 @@ import Bedroom from "./components/rooms/Bedroom";
 import Power from "./components/Power";
 import NotAtHome from "../../components/NotAtHome"
 import Connection from "./components/Connection";
+import Spotify from "./components/Spotify";
 
 import "./home.css"
 
@@ -231,8 +232,6 @@ export default function Home(props) {
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
 
           {/* 
-          
-          { spotify ? <Spotify data={spotify}/> : <></> }
           { 
             home ? 
               scenes_to_show.map((scene, index) => {
@@ -250,6 +249,8 @@ export default function Home(props) {
           }
            */}
         </div>
+        
+        { spotify ? <Spotify spotify={spotify}/> : <></> }
     </div>
   )
 }
