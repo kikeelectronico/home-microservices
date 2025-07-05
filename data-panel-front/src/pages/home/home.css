@@ -15,3 +15,23 @@
 .homeCardsColumn {
   flex: 1;
 }
+
+.homeCard {
+  min-height: 100px;
+  border-radius: 20px;
+  background-color: rgb(44, 43, 43);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.homeCard + .homeCard {
+  margin-top: 25px;
+}
+
+.homeCardTopPadding {
+  padding-top: 20px;
+}
