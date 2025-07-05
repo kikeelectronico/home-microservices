@@ -5,6 +5,7 @@ import Livingroom from "./components/rooms/Livingroom";
 import Bathroom from "./components/rooms/Bathroom";
 import Bedroom from "./components/rooms/Bedroom";
 import Power from "./components/Power";
+import NotAtHome from "../../components/NotAtHome"
 
 import "./home.css"
 
@@ -250,6 +251,9 @@ export default function Home(props) {
             : <></> }
 
           </div>
+
+          { home && home_flag ? <NotAtHome data={home}/> : <></> }
+
           {/* 
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
           
