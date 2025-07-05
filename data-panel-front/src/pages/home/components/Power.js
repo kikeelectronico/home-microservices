@@ -14,18 +14,18 @@ export default function Power(props) {
         </div>
         <div className="roomCardRow">
             <div className="roomCardAmbientContainer">
-                {props.home.status.thermostat_livingroom.thermostatTemperatureAmbient} ºC
+                {calcPower()} W
             </div>
         </div>
-        {/* {
-            true ?
+        {
+            props.home.status.current001.brightness > 90 ?
                 <div className="roomCardRow">
                     <div className="roomCardAlertContainer">
-                        Ventana abierta
+                        Sobrecarga de potencia
                     </div>
                 </div>
             : <></>
-        } */}
+        }
     </div>
   )
 }
