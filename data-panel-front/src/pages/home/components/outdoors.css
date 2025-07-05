@@ -1,6 +1,5 @@
 .outdoorCard {
     min-height: 200px;
-    padding: 20px;
     border-radius: 20px;
     background-color: rgb(44, 43, 43);
     position: relative;
@@ -9,6 +8,10 @@
     justify-content: center;
     align-items: center; 
     overflow: hidden;
+}
+
+.outdoorCardTopPadding {
+    padding-top: 20px;
 }
 
 .outdoorCardRow {
@@ -101,6 +104,8 @@
 
 .outdoorCardAlertContainer {
     padding: 15px;
+    padding-left: 30px;
+    padding-right: 30px;
     color: white;
     font-size: 20px;
 }

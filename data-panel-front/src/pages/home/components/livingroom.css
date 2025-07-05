@@ -14,8 +14,11 @@
     margin-top: 25px;
 }
 
+.roomCardTopPadding {
+    padding-top: 20px;
+}
+
 .roomCardTitle {
-    margin-top: 20px;
     color: white;
     font-size: 30px;
     font-weight: bold;

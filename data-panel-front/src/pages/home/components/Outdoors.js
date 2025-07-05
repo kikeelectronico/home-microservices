@@ -21,7 +21,7 @@ export default function Outdoors(props) {
     }
 
   return (
-    <div className="outdoorCard">
+    <div className="outdoorCard outdoorCardTopPadding">
         <div className="outdoorCardRow">
             <div className="outdoorCardColumn outdoorCardClockContainer">
                 {time}
