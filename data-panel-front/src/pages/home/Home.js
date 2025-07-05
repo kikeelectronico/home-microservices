@@ -4,6 +4,7 @@ import Outdoors from "./components/Outdoors"
 import Livingroom from "./components/rooms/Livingroom";
 import Bathroom from "./components/rooms/Bathroom";
 import Bedroom from "./components/rooms/Bedroom";
+import Power from "./components/Power";
 
 import "./home.css"
 
@@ -236,7 +237,8 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }           
+            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }
+            { home && home_flag ? <Power home={home}/> : <></> }     
           </div>
           <div className="homeCardsColumn">
             { home && home_flag ?
