@@ -237,7 +237,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }
+            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts} water={water}/> : <></> }
             { home && home_flag ? <Power home={home}/> : <></> }     
           </div>
           <div className="homeCardsColumn">
@@ -250,16 +250,9 @@ export default function Home(props) {
             : <></> }
 
           </div>
-          {/* { home && home_flag ? <Thermostat data={home}/> : <></> }
-          { weather && weather_flag.current ? <Weather data={weather.current}/> : <></> }
-          { weather && weather_flag.current ? <Air data={weather.current}/> : <></> }
-          { home && home_flag ? <Power data={home}/> : <></> }
-          { home && home_flag ? <Shower data={home}/> : <></> }
-          { home && home_flag ? <Bedroom data={home}/> : <></> }
+          {/* 
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
-          {
-            //{ launches && launches_flag ? <Launches data={launches}/> : <></> }
-          }
+          
           { spotify ? <Spotify data={spotify}/> : <></> }
           { 
             home ? 
@@ -275,23 +268,6 @@ export default function Home(props) {
                   return <Alerts alert={alert} key={index} wide={false}/>
               })
             : <></>
-          }
-          { 
-            weather_alerts ? 
-              weather_alerts.map((alert, index) => {
-                  return <Alerts alert={alert} key={index} wide={true}/>
-              })
-            : <></>
-          }
-          {
-            water ? 
-              <>
-                { 
-                  water.water.level < 50 ?
-                    <Alerts alert={{text: "Nivel de embalses: " + water.water.level + " %", severity: (water.water.level < 40 ? "normal" : "low")}}/>
-                  : <></>}
-              </>
-              : <></>
           }
           { see_closed ? <Alerts alert={{text: "Sin conexión con la API", severity: "critical"}}/> : <></>}
           { internet ? <Internet data={internet}/> : <></> } */}
