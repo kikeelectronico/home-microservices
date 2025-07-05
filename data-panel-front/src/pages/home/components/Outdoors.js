@@ -29,18 +29,18 @@ export default function Outdoors(props) {
             <div className="outdoorCardColumn outdoorCardWeatherContainer">
                 <div className="outdoorCardWeatherRow">
                     <div className="outdoorCardWeatherTemperatureContainer">
-                            {props.weather.temp_c} ºC
+                            {props.weather.current.temp_c} ºC
                         </div>
                     </div>
                 <div className="outdoorCardWeatherRow">
                     <div className="outdoorCardWeatherSkyContainer">
-                        <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.weather.condition.icon}/>
+                        <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.weather.current.condition.icon}/>
                     </div>
                     <div className="outdoorCardWeatherUVindexContainer">
-                        {props.weather.uv}
+                        {props.weather.current.uv}
                     </div>
                     <div className="outdoorCardWeatherAQIContainer">
-                        {props.weather.air_quality['us-epa-index']}
+                        {props.weather.current.air_quality['us-epa-index']}
                     </div>
                 </div>
             </div>
@@ -48,10 +48,10 @@ export default function Outdoors(props) {
         <div className="outdoorCardRow">
             <div className="outdoorCardWeatherRow">
                 <div className="outdoorCardWindContainer">
-                    {props.weather.wind_kph} km/h
+                    {props.weather.current.wind_kph} km/h
                 </div>
                 <div className="outdoorCardWindContainer">
-                    {props.weather.wind_dir}
+                    {props.weather.current.wind_dir}
                 </div>
             </div>
         </div>

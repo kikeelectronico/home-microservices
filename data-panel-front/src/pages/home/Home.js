@@ -236,7 +236,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts} water={water}/> : <></> }
+            { weather && weather_flag.current ? <Outdoors weather={weather} weather_alerts={weather_alerts} water={water}/> : <></> }
             { home && home_flag ? <Power home={home}/> : <></> }     
             { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }     
           </div>
