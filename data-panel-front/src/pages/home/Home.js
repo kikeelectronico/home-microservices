@@ -215,8 +215,9 @@ export default function Home(props) {
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
             { weather && weather_flag.current ? <Outdoors weather={weather} water={water}/> : <></> }
-            { home && home_flag ? <Power home={home}/> : <></> }     
-            { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }     
+            { home && home_flag ? <Power home={home}/> : <></> }
+            { internet ? <Connection internet={internet} see_closed={see_closed}/> : <></> }
+            { spotify ? <Spotify spotify={spotify}/> : <></> } 
           </div>
           <div className="homeCardsColumn">
             { home && home_flag ?
@@ -249,8 +250,6 @@ export default function Home(props) {
           }
            */}
         </div>
-        
-        { spotify ? <Spotify spotify={spotify}/> : <></> }
     </div>
   )
 }
