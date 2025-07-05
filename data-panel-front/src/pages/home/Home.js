@@ -1,21 +1,9 @@
-import "./home.css"
-import Clock from "../components/Clock"
-import Internet from "../components/Internet"
-import Spotify from "../components/Spotify"
-import Thermostat from "../components/Thermostat"
-import Power from "../components/Power"
-import Weather from "../components/Weather"
-import Air from "../components/Air"
-import Alerts from "../components/Alerts"
-// import Launches from "../components/Launches"
-import Shower from "../components/Shower"
-import Bedroom from "../components/Bedroom"
-import NotAtHome from "../components/NotAtHome"
-import LightingScene from "../components/LightingScene"
-
 import React, { useState, useEffect } from "react";
 
-import Outdoors from "../components/Outdoors"
+import Outdoors from "./components/Outdoors"
+import Room from "./components/Room";
+
+import "./home.css"
 
 const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
@@ -249,7 +237,7 @@ export default function Home(props) {
             { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }           
           </div>
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }
+            { home && home_flag ? <Room name="Salón" home={home}/> : <></> }
 
           </div>
           {/* { home && home_flag ? <Thermostat data={home}/> : <></> }
