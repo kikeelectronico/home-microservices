@@ -35,3 +35,9 @@
 .homeCardTopPadding {
   padding-top: 20px;
 }
+
+.homeCardTitle {
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+}

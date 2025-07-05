@@ -19,7 +19,7 @@ export default function Bedroom(props) {
 
   return (
     <div className="homeCard homeCardTopPadding" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
-        <div className="roomCardTitle">
+        <div className="homeCardTitle">
             Dormitorio
         </div>
         <div className="roomCardRow" style={{marginTop: 5}}>

@@ -20,7 +20,7 @@ export default function Bathroom(props) {
   return (
     props.home.status.scene_ducha.enable ?
         <div className="homeCard homeCardTopPadding" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
-            <div className="roomCardTitle">
+            <div className="homeCardTitle">
                 Baño
             </div>
             <div className="roomCardRow" style={{marginTop: 5}}>
