@@ -237,7 +237,7 @@ export default function Home(props) {
             { weather && weather_flag.current ? <Outdoors weather={weather.current} weather_alerts={weather_alerts}/> : <></> }           
           </div>
           <div className="homeCardsColumn">
-            { home && home_flag ? <Room name="Salón" home={home}/> : <></> }
+            { home && home_flag ? <Room home={home}/> : <></> }
 
           </div>
           {/* { home && home_flag ? <Thermostat data={home}/> : <></> }

@@ -1,0 +1,95 @@
+.roomCard {
+    min-height: 100px;
+    border-radius: 20px;
+    background-color: rgb(44, 43, 43);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.roomCardTitle {
+    margin-top: 20px;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.roomCardRow {
+    width: 100%;
+    min-height: 60px;
+    display: flex;
+    flex-direction: row;
+}
+
+.no-border {
+    min-height: 0px;
+    padding-bottom: 10px;
+
+}
+
+.roomCardRow + .roomCardRow {
+    position: relative;
+}
+
+.roomCardRow + .roomCardRow:not(.no-border)::before {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 0;
+    height: 1px;
+    background-color: #555;
+}
+
+.roomCardColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.roomCardColumn + .roomCardColumn {
+    position: relative;
+}
+
+.roomCardColumn + .roomCardColumn::before {
+    content: "";
+    position: absolute;
+    top: 25%;
+    bottom: 25%;
+    left: 0;
+    width: 1px;
+    background-color: #555;
+}
+
+.roomCardAmbientContainer {flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 35px;
+}
+
+.roomCardThermostatContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 25px;
+}
+
+.roomCardAlertContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 25px;
+}
