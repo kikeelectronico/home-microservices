@@ -135,8 +135,6 @@ export default function Home(props) {
   const [water, setWater] = useState(null)
   const [weather, setWeather] = useState(null)
   const [weather_flag, setWeatherFlag] = useState(null)
-  // const [launches, setLaunches] = useState(null)
-  // const [launches_flag, setLaunchesFlag] = useState(null)
   const [spotify, setSpotify] = useState(null)
   const [spotify_playing, setSpotifyPlaying] = useState(false);
   const [weather_alerts, setWeatherAlerts] = useState(null)
