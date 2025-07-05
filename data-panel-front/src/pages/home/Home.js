@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import Outdoors from "./components/Outdoors"
 import Livingroom from "./components/rooms/Livingroom";
+import Bathroom from "./components/rooms/Bathroom";
 
 import "./home.css"
 
@@ -240,6 +241,7 @@ export default function Home(props) {
             { home && home_flag ?
               <>
                 <Livingroom home={home}/>
+                <Bathroom home={home}/>
               </> 
             : <></> }
 
