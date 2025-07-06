@@ -13,122 +13,6 @@ import "./home.css"
 
 const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
-const scenes_to_show = [
-  {
-    "name": "Luz indirecta",
-    "id": "scene_dim"
-  }
-]
-
-const home_alerts = [
-  {
-    "text": "Humedad baja",
-    "severity": "normal",
-    "image": "drops.png",
-    "conditions": [
-      {
-        "device_id": "thermostat_livingroom",
-        "param": "thermostatHumidityAmbient",
-        "value": 30,
-        "comparator": "<"
-      }
-    ]
-  },
-  {
-    "text": "Humedad alta",
-    "severity": "normal",
-    "image": "drops.png",
-    "conditions": [
-      {
-        "device_id": "thermostat_livingroom",
-        "param": "thermostatHumidityAmbient",
-        "value": 55,
-        "comparator": ">"
-      }
-    ]
-  },
-  {
-    "text": "Salón",
-    "severity": "normal",
-    "image": "window.png",
-    "conditions": [
-      {
-        "device_id": "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
-        "param": "openPercent",
-        "value": 100,
-        "comparator": "="
-      }
-    ]
-  },
-  {
-    "text": "Dormitorio",
-    "severity": "normal",
-    "image": "window.png",
-    "conditions": [
-      {
-        "device_id": "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
-        "param": "openPercent",
-        "value": 100,
-        "comparator": "="
-      }
-    ]
-  },
-  {
-    "text": "Abre la ventana",
-    "severity": "low",
-    "conditions": [
-      {
-        "device_id": "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
-        "param": "openPercent",
-        "value": 0,
-        "comparator": "="
-      },
-      {
-        "device_id": "thermostat_livingroom",
-        "param": "thermostatMode",
-        "value": "cool",
-        "comparator": "="
-      },
-      {
-        "device_id": "thermostat_livingroom",
-        "param": "thermostatTemperatureAmbient",
-        "value": {
-          "device_id": "temperature_001",
-          "param": "temperatureAmbientCelsius"
-        },
-        "comparator": ">"
-      }
-    ]
-  },
-  {
-    "text": "Cierra la ventana",
-    "severity": "low",
-    "conditions": [
-      {
-        "device_id": "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
-        "param": "openPercent",
-        "value": 100,
-        "comparator": "="
-      },
-      {
-        "device_id": "scene_summer",
-        "param": "thermostatMode",
-        "value": true,
-        "comparator": "="
-      },
-      {
-        "device_id": "thermostat_livingroom",
-        "param": "thermostatTemperatureAmbient",
-        "value": {
-          "device_id": "temperature_001",
-          "param": "temperatureAmbientCelsius"
-        },
-        "comparator": "<"
-      }
-    ]
-  }
-]
-
 export default function Home(props) {
 
   const [internet, setInternet] = useState(null)
@@ -173,43 +57,6 @@ export default function Home(props) {
     }
   }, [props.setBackgroundImage, spotify])
 
-
-  const assertAlert = (conditions) => {
-    for (let i = 0; i < conditions.length; i++) {
-      let condition = conditions[i]
-      switch(condition.comparator) {
-        case "<":
-          if (typeof(condition.value) === "object"){
-            if (!(home.status[condition.device_id][condition.param] < home.status[condition.value.device_id][condition.value.param]))
-              return false
-          } else {
-            if (!(home.status[condition.device_id][condition.param] < condition.value))
-              return false
-          }
-          break
-        case "=":
-          if (typeof(condition.value) === "object") {
-            if (!(home.status[condition.device_id][condition.param] === home.status[condition.value.device_id][condition.value.param]))
-              return false
-          } else {
-            if (!(home.status[condition.device_id][condition.param] === condition.value))
-              return false
-          }
-          break
-        case ">":
-          if (typeof(condition.value) === "object") {
-            if (!(home.status[condition.device_id][condition.param] > home.status[condition.value.device_id][condition.value.param]))
-              return false
-          } else {
-            if (!(home.status[condition.device_id][condition.param] > condition.value))
-              return false
-          }
-          break
-      }
-    }
-    return true
-  }
-
   return (
     <div className="homePage">
         <div className="homeCardsContainer">
@@ -229,26 +76,7 @@ export default function Home(props) {
             : <></> }
 
           </div>
-
           { home && home_flag ? <NotAtHome data={home}/> : <></> }
-
-          {/* 
-          { 
-            home ? 
-              scenes_to_show.map((scene, index) => {
-                return <LightingScene data={home} scene={scene} key={index}/>
-              })
-            : <></>
-          }
-          { 
-            home ? 
-              home_alerts.map((alert, index) => {
-                if (assertAlert(alert.conditions))
-                  return <Alerts alert={alert} key={index} wide={false}/>
-              })
-            : <></>
-          }
-           */}
         </div>
     </div>
   )
