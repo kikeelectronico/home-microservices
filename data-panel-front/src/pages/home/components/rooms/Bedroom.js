@@ -45,6 +45,16 @@ export default function Bedroom(props) {
                 </div>
             : <></>
         }
+        {
+            props.home.status["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"].openPercent === 100 && 
+            props.home.status.thermostat_livingroom.thermostatMode === "cool" ?
+                <div className="homeCardRow">
+                    <div className="roomCardAlertContainer">
+                        Cierra la ventana
+                    </div>
+                </div>
+            : <></>
+        }
     </div>
   )
 }
