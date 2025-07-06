@@ -3,11 +3,21 @@ import "./spotify.css"
 
 export default function Spotify(props) {
 
-    useEffect(() => {
-        setProgress((props.spotify.playing.time/props.spotify.playing.duration)*100)
-    }, [props])
+    const [time, setTime] = useState(0)
 
-    const [progress, setProgress] = useState(0)
+    useEffect(() => {
+        setTime(props.spotify.playing.time)
+    }, [props.spotify])
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setTime(prevTime => prevTime + 1)
+        }, 1000)
+
+        return () => {
+            clearInterval(intervalId)
+        }
+    }, [])
 
     return (
         <div className={"spotifyCard" + (props.spotify.playing.playing ? " homeCardAlphaChannel" : "")}>
@@ -30,7 +40,10 @@ export default function Spotify(props) {
                 </div>
                 <div className="spotifyBarContainer">
                     <div className="spotifyProgressBar">
-                        <div className="spotifyProgressBarCompleted" style={{width: progress.toString() + "%"}}>
+                        <div
+                            className="spotifyProgressBarCompleted"
+                            style={{width: ((time/props.spotify.playing.duration)*100).toString() + "%"}}
+                        >
                         
                         </div>
                     </div>
