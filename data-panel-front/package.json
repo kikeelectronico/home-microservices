@@ -12,7 +12,7 @@
     "react-bootstrap": "^2.10.9",
     "react-router-dom": "^7.6.3",
     "react-scripts": "5.0.1",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^5.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
