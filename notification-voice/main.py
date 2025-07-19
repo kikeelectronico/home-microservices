@@ -41,8 +41,9 @@ def on_message(client, userdata, msg):
       mqtt_client.publish("heartbeats", SERVICE)
     elif msg.topic == "voice-alert/text":
       # Send the message to the Smart Speakers
-      payload = msg.payload.decode('utf-8').replace("\'", "\"")
-      voice.getAndPlay(payload)
+      if homeware.get("scene_awake", "enable"):
+        payload = msg.payload.decode('utf-8').replace("\'", "\"")
+        voice.getAndPlay(payload)
     elif msg.topic == "voice-alert/speakers":
       voice.setSpeakers(msg.payload.decode('utf-8'))
 
