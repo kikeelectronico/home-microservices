@@ -1,4 +1,3 @@
-import imp
 import paho.mqtt.client as mqtt
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse

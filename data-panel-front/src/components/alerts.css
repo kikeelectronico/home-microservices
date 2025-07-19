@@ -33,13 +33,18 @@
   100% { color: white; }
 }
 
-.alertsLow {
+.alertsNormal {
   color: lightgreen;
   font-size: 25px;
 }
 
-.alertsNormal {
+.alertsLow {
   color: yellow;
+  font-size: 25px;
+}
+
+.alertsMiddle {
+  color: orange;
   font-size: 25px;
 }
 
