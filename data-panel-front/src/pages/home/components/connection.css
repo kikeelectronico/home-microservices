@@ -1,0 +1,17 @@
+.connectionCardAlertContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: red;
+    animation: color-change 2s infinite;
+    font-size: 25px;
+}
+
+@keyframes color-change {
+    0% { color: white; }
+    50% { color: red; }
+    100% { color: white; }
+  }
+  
