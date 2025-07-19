@@ -120,11 +120,19 @@ def main():
           homeware.execute("thermostat_livingroom", "thermostatMode", "heat")
           homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
           homeware.execute("thermostat_bathroom", "thermostatMode", "heat")
+    elif hour == "08:00:00" and not hour == just_executed:
+      just_executed = hour
+      weekday = today.weekday()
+      if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
+        if homeware.get("scene_summer", "enable"):
+          homeware.execute("thermostat_livingroom", "thermostatTemperatureSetpoint", 26.5)
+          homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
     elif hour == "08:55:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         alert.voice("5 minutos para las nueve.")
+      homeware.execute("hue_4", "color", {"temperatureK": 4000})
     elif hour == "09:00:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
@@ -134,6 +142,8 @@ def main():
           homeware.execute("thermostat_dormitorio", "thermostatMode", "heat")
           homeware.execute("thermostat_livingroom", "thermostatTemperatureSetpoint", 22)
           homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
+        elif homeware.get("scene_summer", "enable"):
+          homeware.execute("thermostat_livingroom", "thermostatMode", "off")
     elif hour == "10:00:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
@@ -155,7 +165,7 @@ def main():
       just_executed = hour
       if homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         if homeware.get("scene_dim", "enable") and homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "occupancy") == "OCCUPIED":
-          alert.voice("Luz tenue activada.")
+          alert.voice("Luz indirecta activada.")
       weekday = today.weekday()
       if (weekday in [5,6] or homeware.get("scene_on_vacation", "enable")) and homeware.get("switch_at_home", "on"):
         if homeware.get("scene_winter", "enable"):
@@ -168,6 +178,9 @@ def main():
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         if homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "brightness") < 20 and homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "occupancy") == "OCCUPIED":
           alert.voice("Poca luz.")
+    elif hour == "21:00:00" and not hour == just_executed:
+      just_executed = hour
+      homeware.execute("hue_4", "color", {"temperatureK": 2700})
     elif hour == "22:00:00" and not hour == just_executed:
       just_executed = hour
       if homeware.get("scene_winter", "enable"):

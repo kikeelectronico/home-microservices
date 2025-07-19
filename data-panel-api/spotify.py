@@ -2,7 +2,7 @@ import os
 import requests
 from io import BytesIO
 import time
-from keras.models import load_model
+# from keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
 
@@ -34,9 +34,9 @@ class Spotify:
       logger.log("COVERS_DDBB no set", severity="ERROR")
     # Initialize the keras model
     np.set_printoptions(suppress=True)
-    self._track_image_model = load_model("track_image_model/keras_model.h5", compile=False)
-    self._track_image_class_names = open("track_image_model/labels.txt", "r").readlines()
-    self._track_image_data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+    # self._track_image_model = load_model("track_image_model/keras_model.h5", compile=False)
+    # self._track_image_class_names = open("track_image_model/labels.txt", "r").readlines()
+    # self._track_image_data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
     # Set the logger
     self.logger = logger
 
@@ -232,16 +232,17 @@ class Spotify:
 
       if response.status_code == 200:
         try:
-          size = (224, 224)
-          image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
-          image_array = np.asarray(image)
-          normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
-          self._track_image_data[0] = normalized_image_array
+          pass
+          # size = (224, 224)
+          # image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+          # image_array = np.asarray(image)
+          # normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
+          # self._track_image_data[0] = normalized_image_array
 
-          prediction = self._track_image_model.predict(self._track_image_data)
-          index = np.argmax(prediction)
-          class_name = self._track_image_class_names[index]
-          self._track_image_position = class_name[2:-1]
+          # prediction = self._track_image_model.predict(self._track_image_data)
+          # index = np.argmax(prediction)
+          # class_name = self._track_image_class_names[index]
+          # self._track_image_position = class_name[2:-1]
         except:
           self.logger.log("Fail to analyze a track image from Spotify", severity="WARNING")
       else:
