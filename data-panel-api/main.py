@@ -1,4 +1,3 @@
-import imp
 import paho.mqtt.client as mqtt
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
@@ -12,7 +11,7 @@ from spotify import Spotify
 from water import Water
 from weather import Weather
 from homeware import Homeware
-from launches import Launches
+# from launches import Launches
 from internet import Internet
 from logger import Logger
 
@@ -64,7 +63,7 @@ spotify = Spotify(logger)
 water = Water(logger)
 weatherapi = Weather(logger)
 homeware = Homeware(logger)
-launchesapi = Launches(logger)
+# launchesapi = Launches(logger)
 internet = Internet(logger)
 
 @app.get("/")
@@ -146,20 +145,20 @@ async def streamEvents():
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Launches
-    (fail_to_update, launches_flag, launches) = launchesapi.getLaunches()
-    if not last.get("launches", {}) == launches:
-      event = {
-        "type": "launches",
-        "data": {
-          "launches": launches
-        },
-        "flags": {
-          "launches": launches_flag
-        }
-      }
-      last["launches"] = launches
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
+    # (fail_to_update, launches_flag, launches) = launchesapi.getLaunches()
+    # if not last.get("launches", {}) == launches:
+    #   event = {
+    #     "type": "launches",
+    #     "data": {
+    #       "launches": launches
+    #     },
+    #     "flags": {
+    #       "launches": launches_flag
+    #     }
+    #   }
+    #   last["launches"] = launches
+    #   yield f"data: {json.dumps(event)}\n\n"
+    #   await sleep(0.1)
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",

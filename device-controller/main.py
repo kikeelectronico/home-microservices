@@ -66,7 +66,7 @@ def on_message(client, userdata, msg):
         lights.resetEdisonBulb(homeware, msg.topic, payload)
         lights.mirrorPyramids(homeware, msg.topic, payload)
         lights.sofaLight(homeware, msg.topic, payload)
-        scenes.livingroomLight(homeware, msg.topic, payload)
+        # scenes.livingroomLight(homeware, msg.topic, payload)
   except Exception as e:
     logger.log("Excepción en Logic pool mqtt", severity="WARNING")
     logger.log(str(e), severity="WARNING") 

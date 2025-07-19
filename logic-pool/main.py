@@ -60,6 +60,7 @@ TOPICS = [
   "device/pressure001/occupancy",
   "device/pressure002/occupancy",
   "device/scene_astro_day/enable",
+  "device/scene_headphones/enable",
   "device/thermostat_bathroom/thermostatHumidityAmbient",
   "device/control"
 ]
@@ -99,6 +100,7 @@ def on_message(client, userdata, msg):
         scenes.powerAlert(homeware, alert, msg.topic, payload)
         scenes.sensors(homeware, alert, msg.topic, payload)
         scenes.astro_day(homeware, alert, msg.topic, payload)
+        scenes.headphones(homeware, alert, msg.topic, payload)
         sensors.livingroom(homeware, msg.topic, payload)
         sensors.sofa(homeware, msg.topic, payload)
         sensors.bedroom(homeware, msg.topic, payload)
