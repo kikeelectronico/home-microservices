@@ -36,6 +36,7 @@ jobs:
     name: Create rollback for ${{ inputs.service }}
     runs-on: ubuntu-latest
     needs: path-filter
+    continue-on-error: true
     permissions:
       contents: read
       packages: write

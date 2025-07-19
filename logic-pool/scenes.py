@@ -86,9 +86,15 @@ def shower(homeware, alert, topic, payload):
         homeware.execute("hue_sensor_14","on",False)
   # Announce that the bathroom is ready to taking a shower
   if topic == "device/thermostat_bathroom" and waiting_for_shower:
-    if payload["thermostatTemperatureAmbient"] >= payload["thermostatTemperatureSetpoint"]:
-      waiting_for_shower = False
-      alert.voice("El baño está listo.")
+    if homeware.get("scene_winter", "enable"):
+      if payload["thermostatTemperatureAmbient"] >= payload["thermostatTemperatureSetpoint"]:
+        waiting_for_shower = False
+        alert.voice("El baño está listo.")
+    else:
+      if homeware.get("current001", "brightness") < 50:
+        waiting_for_shower = False
+        alert.voice("El baño está listo.")
+
 
 def disableShowerScene(homeware, alert, topic, payload):
   global waiting_for_shower
@@ -101,12 +107,12 @@ def disableShowerScene(homeware, alert, topic, payload):
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/occupancy":
     if payload == "OCCUPIED":
       if homeware.get("scene_ducha", "enable"):
-        if homeware.get("e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", "openPercent") == 0:
-          if shower_initiated:
-            homeware.execute("scene_ducha", "enable", False)
-            waiting_for_shower = False
-            shower_initiated = False
-            alert.voice("Veo que ya te has duchado. Dejo de priorizar el baño.")
+        # if homeware.get("e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", "openPercent") == 0:
+        if shower_initiated:
+          homeware.execute("scene_ducha", "enable", False)
+          waiting_for_shower = False
+          shower_initiated = False
+          alert.voice("Veo que ya te has duchado. Dejo de priorizar el baño.")
 
 # Set the power alert scene
 def powerAlert(homeware, alert, topic, payload):
@@ -160,3 +166,11 @@ def astro_day(homeware, alert, topic, payload):
   if topic == "device/scene_astro_day/enable":
     if not payload:
       homeware.execute("scene_dim", "enable", True)
+
+# Headphones related logic
+def headphones(homeware, alert, topic, payload):
+  if topic == "device/scene_headphones/enable":
+    if not homeware.get("ac_001", "currentFanSpeedSetting") == "Media":
+      if homeware.get("thermostat_livingroom", "thermostatMode") in ["cool", "fan-only"]:
+        if homeware.get("thermostat_livingroom", "thermostatTemperatureAmbient") > homeware.get("thermostat_livingroom", "thermostatTemperatureSetpoint"):
+          homeware.execute("ac_001", "currentFanSpeedSetting", "Alta" if payload else "Baja")

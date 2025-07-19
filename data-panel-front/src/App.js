@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import Home from "./pages/Home.js"
+import Home from "./pages/home/Home.js"
 import React, { useState } from "react";
 
 function App() {
