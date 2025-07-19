@@ -1,4 +1,4 @@
-import "./home.css"
+import "./cards.css"
 import Clock from "../components/Clock"
 import Internet from "../components/Internet"
 import Spotify from "../components/Spotify"
@@ -18,7 +18,7 @@ const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
 const scenes_to_show = [
   {
-    "name": "Luz tenue",
+    "name": "Luz indirecta",
     "id": "scene_dim"
   }
 ]
@@ -188,9 +188,9 @@ export default function Home(props) {
         console.log(alert)
         let severity = "low"
         if (alert.category.includes("Extreme")) severity = "critical"
-        else if (alert.event.includes("Moderate")) severity = "normal"
-        else if (alert.event.includes("amarillo")) severity = "normal"
-        else if (alert.severity === "Moderate") severity = "normal"
+        else if (alert.event.includes("Moderate")) severity = "middle"
+        else if (alert.event.includes("amarillo")) severity = "low"
+        else if (alert.event.includes("naranja")) severity = "middle"
         _weather_alerts.push(
           {
             "text": alert.event + (alert.event[alert.event.length-1] !== "." ? "." : "") + (alert.desc !== "" ? " " + alert.desc : "") + (alert.desc[alert.desc.length-1] !== "." ? "." : "") + (alert.areas !== "" ? " " + alert.areas : ""),

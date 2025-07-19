@@ -1,11 +1,13 @@
 import time
+import json
 
 prev_player_playing_state = False 
 prev_status = {}
 
-def playingLights(homeware):
+def playingLights(homeware, mqtt_client):
   global prev_player_playing_state
   if not prev_player_playing_state:
+    mqtt_client.publish("tasks", json.dumps({"id": "thermostat_livingroom", "action": "delete"}))
     if homeware.get("hue_4", "on"):
       prev_status.setdefault("hue_4", {})
       prev_status.setdefault("hue_5", {})
@@ -20,16 +22,31 @@ def playingLights(homeware):
     homeware.execute("hue_10", "on", False)
     prev_status.setdefault("thermostat_livingroom", {})
     prev_status["thermostat_livingroom"]["thermostatMode"] = homeware.get("thermostat_livingroom", "thermostatMode")
-    if prev_status["thermostat_livingroom"]["thermostatMode"] == "cool":
+    if prev_status["thermostat_livingroom"]["thermostatMode"] == "cool" and (not homeware.get("scene_headphones", "enable")):
       homeware.execute("thermostat_livingroom", "thermostatMode", "off")
     prev_player_playing_state = True
       
-def notPlayingLights(homeware):
+def notPlayingLights(homeware, mqtt_client):
   global prev_player_playing_state
   if prev_player_playing_state:
     if homeware.get("hue_4","on"):
       homeware.execute("hue_4", "brightness", prev_status["hue_4"]["brightness"])
       homeware.execute("hue_5", "brightness", prev_status["hue_5"]["brightness"])
     if prev_status["thermostat_livingroom"]["thermostatMode"] == "cool":
-      homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
+      mqtt_client.publish("tasks", 
+        json.dumps(
+          {
+            "id": "thermostat_livingroom",
+            "action": "set",
+            "delta": 30,
+            "target": {
+              "device_id": "thermostat_livingroom",
+              "param": "thermostatMode",
+              "value": "cool"
+            },
+            "asserts": []
+          }
+        )
+      )
+      # homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
     prev_player_playing_state = False
