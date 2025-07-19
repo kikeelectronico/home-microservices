@@ -130,6 +130,11 @@ def powerManagment(homeware, topic, payload):
     homeware.execute("radiator002","on",bedroom_radiator)
     homeware.execute("hue_12","on",bathroom_radiator)
     homeware.execute("ac_001","on",livingroom_ac)
+
+    # Check power budget
+    if water_heater and (not homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on")) and (homeware.get("current001", "brightness") > 40):
+      water_heater = False
+
     homeware.execute("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1","on",water_heater)
 
 

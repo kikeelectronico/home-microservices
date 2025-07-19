@@ -1,0 +1,111 @@
+.outdoorCardRow {
+    width: 100%;
+    min-height: 60px;
+    display: flex;
+    flex-direction: row;
+}
+
+.outdoorCardRow + .outdoorCardRow {
+    position: relative;
+}
+
+.outdoorCardRow + .outdoorCardRow::before {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 0;
+    height: 1px;
+    background-color: #555;
+}
+
+.outdoorCardColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+}
+
+.outdoorCardColumn + .outdoorCardColumn {
+    position: relative;
+}
+
+.outdoorCardColumn + .outdoorCardColumn::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10%;
+    bottom: 10%;
+    width: 1px;
+    background-color: #555;
+}
+
+.outdoorCardClockContainer {
+    color: white;
+    font-size: 70px;
+}
+
+.outdoorCardWeatherContainer {
+    
+}
+
+.outdoorCardWeatherRow {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; 
+    gap: 20px;
+}
+
+.outdoorCardWeatherTemperatureContainer {
+    color: white;
+    font-size: 45px;    
+}
+
+.outdoorCardWeatherSkyContainer {
+}
+
+.outdoorCardWeatherSkyIcon {
+    height: 60px;
+}
+
+.outdoorCardWeatherUVindexContainer {
+    color: white;
+    font-size: 35px;    
+}
+
+.outdoorCardWeatherAQIContainer {
+    color: white;
+    font-size: 35px;    
+}
+
+.outdoorCardWindContainer {
+    color: white;
+    font-size: 30px;
+}
+
+.outdoorCardAlertContainer {
+    padding: 15px;
+    padding-left: 15%;
+    padding-right: 15%;
+    color: white;
+    font-size: 25px;
+}
+
+.alertsNormal {
+    color: lightgreen;
+}
+
+.alertsLow {
+    color: yellow;
+}
+
+.alertsMiddle {
+    color: orange;
+}
+
+.alertsHigh {
+    color: red;
+}
