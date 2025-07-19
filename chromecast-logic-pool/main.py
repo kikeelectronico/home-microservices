@@ -58,8 +58,8 @@ if __name__ == "__main__":
     if not device.app_display_name == None:
       device_controller = device.media_controller
       device_controller.block_until_active(5)
-      if device_controller.status.player_state in ["IDLE", "UNKNOWN"]:
-        logic.notPlayingLights(homeware)
+      if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
+        logic.notPlayingLights(homeware, mqtt_client)
       if device_controller.status.player_state == "PLAYING":
-        logic.playingLights(homeware)
+        logic.playingLights(homeware, mqtt_client)
     time.sleep(5)
