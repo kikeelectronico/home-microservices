@@ -4,6 +4,7 @@
     height: 160px;
     border-radius: 20px;
     background-color: rgb(44, 43, 43);
+    box-shadow: 0 0.1rem 1rem rgba(0,0,0,0.8);
     display: flex;
     flex-direction: row;
     justify-content: start;

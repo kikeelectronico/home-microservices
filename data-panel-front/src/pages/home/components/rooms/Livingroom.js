@@ -20,7 +20,7 @@ export default function Livingroom(props) {
     }
 
   return (
-    <div className="homeCard" style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
+    <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")} style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
         <div className="homeCardTitle">
             Salón
         </div>
@@ -43,6 +43,47 @@ export default function Livingroom(props) {
                 <div className="homeCardRow">
                     <div className="roomCardAlertContainer">
                         Ventana abierta
+                    </div>
+                </div>
+            : <></>
+        }
+        {
+            props.home.status.thermostat_livingroom.thermostatHumidityAmbient < 30 ?
+                <div className="homeCardRow">
+                    <div className="roomCardAlertContainer">
+                        Humedad baja
+                    </div>
+                </div>
+            : <></>
+        }
+        {
+            props.home.status.thermostat_livingroom.thermostatHumidityAmbient > 55 ?
+                <div className="homeCardRow">
+                    <div className="roomCardAlertContainer">
+                        Humedad alta
+                    </div>
+                </div>
+            : <></>
+        }
+        {
+            props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 0 && 
+            props.home.status.thermostat_livingroom.thermostatMode === "cool" &&
+            props.home.status.thermostat_livingroom.thermostatTemperatureAmbient > props.home.status.temperature_001.temperatureAmbientCelsius ?
+                <div className="homeCardRow">
+                    <div className="roomCardAlertContainer">
+                        Abre la ventana
+                    </div>
+                </div>
+            : <></>
+        }
+        {
+            props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 100 && 
+            props.home.status.scene_summer.enable &&
+            props.home.status.thermostat_livingroom.thermostatMode === "off" &&
+            props.home.status.thermostat_livingroom.thermostatTemperatureAmbient < props.home.status.temperature_001.temperatureAmbientCelsius ?
+                <div className="homeCardRow">
+                    <div className="roomCardAlertContainer">
+                        Abre la ventana
                     </div>
                 </div>
             : <></>

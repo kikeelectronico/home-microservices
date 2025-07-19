@@ -22,12 +22,18 @@
   min-height: 100px;
   border-radius: 20px;
   background-color: rgb(44, 43, 43);
+  box-shadow: 0 0.1rem 1rem rgba(0,0,0,0.8);
+  transition: background-color 2s ease;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+}
+
+.homeCardAlphaChannel {
+  background-color: rgba(44, 43, 43, 0.7);
 }
 
 .homeCard + .homeCard {
