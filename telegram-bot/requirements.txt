@@ -1,4 +1,4 @@
-google-auth-oauthlib==1.2.1
+google-auth-oauthlib==1.2.2
 pyTelegramBotAPI==4.26.0
 google-api-python-client==2.176.0
 google-auth-httplib2==0.2.0
