@@ -7,23 +7,6 @@ def resetEdisonBulb(homeware, topic, payload):
     if int(payload) > 35:
         homeware.execute("hue_11","brightness", 35)
 
-def mirrorPyramids(homeware, topic, payload):
-  if topic == "device/hue_4/brightness":
-    if not int(payload) == homeware.get("hue_5", "brightness"):
-      homeware.execute("hue_5", "brightness", int(payload))
-
-  if topic == "device/hue_5/brightness":
-    if not int(payload) == homeware.get("hue_4", "brightness"):
-      homeware.execute("hue_4", "brightness", int(payload))
-
-  if topic == "device/hue_4/color":
-    if not payload["temperatureK"] == homeware.get("hue_5", "color")["temperatureK"]:
-      homeware.execute("hue_5", "color", payload)
-
-  if topic == "device/hue_5/color":
-    if not payload["temperatureK"] == homeware.get("hue_4", "color")["temperatureK"]:
-      homeware.execute("hue_4", "color", payload)
-
 MIN_LIVINGROOM_DARKNESS_TRIGGER = 20
 
 def sofaLight(homeware, topic, payload):
