@@ -8,12 +8,9 @@ def playingLights(homeware, mqtt_client):
   global prev_player_playing_state
   if not prev_player_playing_state:
     mqtt_client.publish("tasks", json.dumps({"id": "thermostat_livingroom", "action": "delete"}))
-    if homeware.get("hue_4", "on") and homeware.get("pressure001", "occupancy") == "OCCUPIED":
-      prev_status.setdefault("hue_4", {})
+    if homeware.get("hue_5", "on") and homeware.get("pressure001", "occupancy") == "OCCUPIED":
       prev_status.setdefault("hue_5", {})
-      prev_status["hue_4"]["brightness"] = homeware.get("hue_4","brightness")
       prev_status["hue_5"]["brightness"] = homeware.get("hue_5","brightness")
-      homeware.execute("hue_4", "brightness", 20)
       homeware.execute("hue_5", "brightness", 20)
     time.sleep(0.5)
     homeware.execute("hue_1", "on", False)
@@ -29,8 +26,7 @@ def playingLights(homeware, mqtt_client):
 def notPlayingLights(homeware, mqtt_client):
   global prev_player_playing_state
   if prev_player_playing_state:
-    if homeware.get("hue_4","on"):
-      homeware.execute("hue_4", "brightness", prev_status["hue_4"]["brightness"])
+    if homeware.get("hue_5","on"):
       homeware.execute("hue_5", "brightness", prev_status["hue_5"]["brightness"])
     if prev_status["thermostat_livingroom"]["thermostatMode"] == "cool":
       mqtt_client.publish("tasks", 

@@ -31,10 +31,8 @@ TOPICS = [
   "device/e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4/openPercent",
   "device/hue_11/color",
   "device/hue_11/brightness",
-  "device/hue_4/brightness",
-  "device/hue_5/brightness",
-  "device/hue_4/color",
   "device/hue_5/color",
+  "device/hue_5/brightness",
   "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness",
   "device/pressure001/occupancy",
   "device/scene_dim/enable"
@@ -64,7 +62,6 @@ def on_message(client, userdata, msg):
       if payload is not None:
         air.hood(homeware, msg.topic, payload)
         lights.resetEdisonBulb(homeware, msg.topic, payload)
-        lights.mirrorPyramids(homeware, msg.topic, payload)
         lights.sofaLight(homeware, msg.topic, payload)
         # scenes.livingroomLight(homeware, msg.topic, payload)
   except Exception as e:
