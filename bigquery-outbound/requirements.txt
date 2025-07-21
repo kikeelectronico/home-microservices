@@ -1,5 +1,5 @@
 paho-mqtt==2.1.0
 requests==2.32.4
-google-cloud-bigquery==3.34.0
+google-cloud-bigquery==3.35.0
 python-dotenv==1.1.1
 
