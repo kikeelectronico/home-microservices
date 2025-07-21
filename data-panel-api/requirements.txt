@@ -6,5 +6,5 @@ uvicorn==0.35.0
 # tensorflow==2.14.0
 Pillow==11.3.0
 paho-mqtt==2.1.0
-numpy<2
+numpy<3
 lxml==6.0.0
