@@ -43,7 +43,7 @@ def on_message(ws, message):
   event = json.loads(message)
   # print(event)
   data = event["data"]
-  if data["type"] == "outlet":
+  if data["deviceType"] == "outlet":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
     if "isOn" in data["attributes"]:
