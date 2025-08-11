@@ -41,7 +41,6 @@ homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
 
 def on_message(ws, message):
   event = json.loads(message)
-  # print(event)
   data = event["data"]
   if data["deviceType"] == "outlet":
     if "isReachable" in data:
@@ -50,6 +49,12 @@ def on_message(ws, message):
       homeware.execute(data["id"], "on", data["attributes"]["isOn"])
     if "currentAmps" in data["attributes"]:
       homeware.execute(data["id"], "isRunning", data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD)
+  elif data["deviceType"] == "motionSensor":
+    if "isReachable" in data:
+      homeware.execute(data["id"], "online", data["isReachable"])
+    if "isDetected" in data["attributes"]:
+      homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
+
 
 def on_error(ws, error):
   logger.log("Error: " + error , severity="WARNING")
