@@ -31,7 +31,7 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.1
+OUTLET_CURRENT_THRESHOLD = 0.05
 
 
 # Instantiate objects
