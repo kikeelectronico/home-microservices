@@ -4,7 +4,6 @@ import time
 import json
 import ssl
 import threading
-import time
 import uuid
 from websocket import WebSocketApp
 
@@ -31,8 +30,10 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.05
+OUTLET_CURRENT_THRESHOLD = 0.1
 
+# Variables
+last_trigger = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
@@ -48,7 +49,17 @@ def on_message(ws, message):
     if "isOn" in data["attributes"]:
       homeware.execute(data["id"], "on", data["attributes"]["isOn"])
     if "currentAmps" in data["attributes"]:
-      homeware.execute(data["id"], "isRunning", data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD)
+      if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
+        homeware.execute(data["id"], "isRunning", True)
+        last_trigger[data["id"]] = None
+      else:
+        last_time = last_trigger.get(data["id"])
+        if last_time is None:
+          last_trigger[data["id"]] = time.time()
+        else:
+            if (time.time() - last_time) > 10:
+              homeware.execute(data["id"], "isRunning", False)
+        
   elif data["deviceType"] == "motionSensor":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
