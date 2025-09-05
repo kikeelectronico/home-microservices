@@ -61,7 +61,6 @@ TOPICS = [
   "device/scene_astro_day/enable",
   "device/scene_headphones/enable",
   "device/thermostat_bathroom/thermostatHumidityAmbient",
-  "device/0b97c3c8-cb02-4f6d-9e60-d5755b25b968_1/occupancy",
   "device/control"
 ]
 SERVICE = "logic-pool-" + ENV
@@ -104,7 +103,6 @@ def on_message(client, userdata, msg):
         sensors.livingroom(homeware, msg.topic, payload)
         sensors.sofa(homeware, msg.topic, payload)
         sensors.bedroom(homeware, msg.topic, payload)
-        sensors.workTable(homeware, msg.topic, payload)
         switches.bedroom(homeware, msg.topic, payload)
         switches.bathroom(homeware, msg.topic, payload)
         switches.mirror(homeware, msg.topic, payload)
