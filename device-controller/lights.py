@@ -36,7 +36,14 @@ def workbenchLight(homeware, topic, payload):
     if payload:
       homeware.execute("hue_4", "color", {"temperatureK": 5000})
       homeware.execute("hue_4", "brightness", 100)
-    homeware.execute("hue_4", "on", payload)
+      homeware.execute("hue_4", "on", True)
+    else:
+      if homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "brightness") < MIN_LIVINGROOM_DARKNESS_TRIGGER:
+        homeware.execute("hue_4", "color", {"temperatureK": 2700})
+        homeware.execute("hue_4", "brightness", 10)
+        homeware.execute("hue_4", "on", True)
+      else:
+        homeware.execute("hue_4", "on", False)
 
 def worktableLight(homeware, topic, payload):
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness":
