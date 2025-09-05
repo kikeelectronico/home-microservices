@@ -37,3 +37,15 @@ def workbenchLight(homeware, topic, payload):
       homeware.execute("hue_4", "color", {"temperatureK": 5000})
       homeware.execute("hue_4", "brightness", 100)
     homeware.execute("hue_4", "on", payload)
+
+def worktableLight(homeware, topic, payload):
+  if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness":
+    if homeware.get("scene_awake", "enable"):
+      light_level = int(payload)
+      if light_level < MIN_LIVINGROOM_DARKNESS_TRIGGER:
+        homeware.execute("hue_9", "brightness", 10)
+        homeware.execute("hue_10", "brightness", 10)
+      else:
+        if homeware.get("hue_9", "brightness") == 10:
+          homeware.execute("hue_9", "brightness", 30)
+          homeware.execute("hue_10", "brightness", 30)
