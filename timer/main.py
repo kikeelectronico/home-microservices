@@ -132,9 +132,6 @@ def main():
       weekday = today.weekday()
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         alert.voice("5 minutos para las nueve.")
-      homeware.execute("hue_5", "color", {"temperatureK": 4000})
-      homeware.execute("hue_9", "color", {"temperatureK": 4000})
-      homeware.execute("hue_10", "color", {"temperatureK": 4000})
     elif hour == "09:00:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
@@ -180,11 +177,6 @@ def main():
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         if homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "brightness") < 20 and homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "occupancy") == "OCCUPIED":
           alert.voice("Poca luz.")
-    elif hour == "21:00:00" and not hour == just_executed:
-      just_executed = hour
-      homeware.execute("hue_5", "color", {"temperatureK": 2700})
-      homeware.execute("hue_9", "color", {"temperatureK": 2700})
-      homeware.execute("hue_10", "color", {"temperatureK": 2700})
     elif hour == "22:00:00" and not hour == just_executed:
       just_executed = hour
       if homeware.get("scene_winter", "enable"):
