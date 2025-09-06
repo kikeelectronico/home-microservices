@@ -58,6 +58,6 @@ def worktableLight(homeware, topic, payload):
           homeware.execute("hue_10", "brightness", 30)
 
   if topic == "device/0b97c3c8-cb02-4f6d-9e60-d5755b25b968_1/occupancy":
-    if payload == "OCCUPIED" and homeware.get("pressure001", "occupancy" == "UNOCCUPIED"):
+    if payload == "OCCUPIED" and homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
       homeware.execute("hue_9", "on", True)
       homeware.execute("hue_10", "on", True)
