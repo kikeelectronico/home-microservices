@@ -44,7 +44,7 @@ alert = Alert(mqtt_client, SERVICE)
 def updateAstroData():
   try:
     url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
-    response = requests.request("GET", url, verify=False, timeout=5)
+    response = requests.request("GET", url, timeout=5)
     if response.status_code == 200:
       global astro_data
       data = response.json()

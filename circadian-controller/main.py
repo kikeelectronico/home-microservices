@@ -42,7 +42,7 @@ homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, SERVICE)
 def updateSolarData():
   try:
     url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
-    response = requests.request("GET", url, verify=False, timeout=5)
+    response = requests.request("GET", url, timeout=5)
     if response.status_code == 200:
       global solar_cycle
       data = response.json()
