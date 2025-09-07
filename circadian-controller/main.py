@@ -3,7 +3,7 @@ import datetime
 import os
 import time
 import requests
-import json
+import math
 
 from homeware import Homeware
 from logger import Logger
@@ -68,7 +68,7 @@ def colorTemperature(hour, sunrise, sunset, Tmin=2200, Tmax=6500):
     if sunrise <= hour <= sunset:
         angle = math.pi * (hour - h_mid) / (day_length / 2)
         temp = Tmin + (Tmax - Tmin) * (0.5 * math.cos(angle) + 0.5)
-        return temp
+        return int(temp)
     else:
         return Tmin
 
