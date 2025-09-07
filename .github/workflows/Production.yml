@@ -18,6 +18,7 @@ jobs:
           - bigquery-outbound
           - ble-inbound
           - chromecast-logic-pool
+          - circadian-controller
           - data-panel-api
           - data-panel-front
           - device-controller

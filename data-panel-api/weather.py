@@ -36,7 +36,7 @@ class Weather:
     else:
       try:
         url = "https://api.weatherapi.com/v1/forecast.json?key=" + self.__api_key + "&q=" + self._query + "&days=2&aqi=yes&alerts=yes"
-        response = requests.request("GET", url, verify=False, timeout=5)
+        response = requests.request("GET", url, timeout=5)
         if response.status_code == 200:
           self._weather = response.json()
           # Delete repeated alerts
