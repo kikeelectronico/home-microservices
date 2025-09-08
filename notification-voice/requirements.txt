@@ -1,4 +1,4 @@
 paho-mqtt==2.1.0
 catt==0.12.13
-google-cloud-texttospeech==2.27.0
+google-cloud-texttospeech==2.29.0
 python-dotenv==1.1.1
