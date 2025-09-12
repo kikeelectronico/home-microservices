@@ -3,8 +3,6 @@ import os
 import time
 import paho.mqtt.client as mqtt
 
-from logger import Logger
-
 # Load env vars
 if os.environ.get("GET_IP_ENDPOINT", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -31,7 +29,6 @@ last_ip = "unknown"
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 
 def main():
   global last_ip
@@ -52,7 +49,7 @@ def main():
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Main loop
   while True:
     # Get current public IP
@@ -70,9 +67,9 @@ def main():
       response = requests.request("PATCH", url, headers=headers, data=payload).json()
       # Verify the response from Cloudflare
       if response["success"]:
-        logger.log("IP de Homeware actualizada", severity="INFO")
+        logging.info("IP de Homeware actualizada")
       else:
-        logger.log("Problemas al actualizar la IP de Homeware", severity="ERROR")
+        logging.error("Problemas al actualizar la IP de Homeware")
         mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de Homeware")
       # DIP
       # Make an update request to the Cloudflare API
@@ -85,9 +82,9 @@ def main():
       response = requests.request("PATCH", url, headers=headers, data=payload).json()
       # Verify the response from Cloudflare
       if response["success"]:
-        logger.log("IP de DIP actualizada", severity="INFO")
+        logging.info("IP de DIP actualizada")
       else:
-        logger.log("Problemas al actualizar la IP de DIP", severity="ERROR")
+        logging.error("Problemas al actualizar la IP de DIP")
         mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de DIP")
       # PB
       # Make an update request to the Cloudflare API
@@ -100,9 +97,9 @@ def main():
       response = requests.request("PATCH", url, headers=headers, data=payload).json()
       # Verify the response from Cloudflare
       if response["success"]:
-        logger.log("IP de PB actualizada", severity="INFO")
+        logging.info("IP de PB actualizada")
       else:
-        logger.log("Problemas al actualizar la IP de PB", severity="ERROR")
+        logging.error("Problemas al actualizar la IP de PB")
         mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de PB")
       last_ip = ip
     # Send heartbeat

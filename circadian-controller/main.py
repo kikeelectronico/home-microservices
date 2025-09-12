@@ -4,9 +4,9 @@ import os
 import time
 import requests
 import math
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -36,7 +36,6 @@ solar_cycle = {
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, SERVICE)
 
 def updateSolarData():
@@ -55,9 +54,9 @@ def updateSolarData():
         "sunset": sunset
       }
     else:
-      logger.log("Fail to update weather data. Status code: " + str(response.status_code), severity="WARNING")
+      logging.warning("Fail to update weather data. Status code: " + str(response.status_code))
   except (requests.ConnectionError, requests.Timeout) as exception:
-    logger.log("Fail to update weather data. Conection error.", severity="WARNING")
+    logging.warning("Fail to update weather data. Conection error.")
 
 def colorTemperature(hour, sunrise, sunset, Tmin=2200, Tmax=6500):
     h_mid = (sunrise + sunset) / 2
@@ -92,8 +91,8 @@ def main():
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
   today = datetime.datetime.now()
   hour = today.strftime("%H:%M:%S")
-  logger.log("Starting " + SERVICE , severity="INFO")
-  logger.log("Hora local " + str(hour), severity="INFO")
+  logging.info("Starting " + SERVICE)
+  logging.info("Hora local " + str(hour))
   # Get astro data
   updateSolarData()
   # Main loop

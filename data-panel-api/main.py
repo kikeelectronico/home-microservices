@@ -13,7 +13,6 @@ from weather import Weather
 from homeware import Homeware
 # from launches import Launches
 from internet import Internet
-from logger import Logger
 
 # Load env vars
 if os.environ.get("ENV", "dev") == "dev":
@@ -32,12 +31,10 @@ SERVICE = "data-panel-api-" + ENV
 # Instantiate objects
 app = FastAPI()
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id=SERVICE) 
-logger = Logger(mqtt_client, SERVICE)
 
 # Check env vars
 def report(message):
   print(message)
-  #logger.log(message, severity="ERROR")
   exit()
 if MQTT_USER == "no_set":
   report("MQTT_USER env vars no set")
@@ -49,7 +46,7 @@ if MQTT_HOST == "no_set":
  # Connect to the mqtt broker
 mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-logger.log("Starting " + SERVICE , severity="INFO")
+logging.info("Starting " + SERVICE)
 
 app.add_middleware(
     CORSMiddleware,
@@ -59,12 +56,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-spotify = Spotify(logger)
-water = Water(logger)
-weatherapi = Weather(logger)
-homeware = Homeware(logger)
+spotify = Spotify()
+water = Water()
+weatherapi = Weather()
+homeware = Homeware()
 # launchesapi = Launches(logger)
-internet = Internet(logger)
+internet = Internet()
 
 @app.get("/")
 async def root():
