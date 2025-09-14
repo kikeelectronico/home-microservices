@@ -6,12 +6,12 @@ import os
 import json
 from asyncio import sleep
 import time
+import logging
 
 from spotify import Spotify
 from water import Water
 from weather import Weather
 from homeware import Homeware
-# from launches import Launches
 from internet import Internet
 
 # Load env vars
