@@ -37,7 +37,7 @@ astro_data = {
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-alert = Alert(mqtt_client, SERVICE)
+alert = Alert(mqtt_client)
 
 def updateAstroData():
   try:
