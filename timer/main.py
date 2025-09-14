@@ -4,6 +4,7 @@ import os
 import time
 import requests
 import json
+import logging
 
 from homeware import Homeware
 from Alert import Alert
