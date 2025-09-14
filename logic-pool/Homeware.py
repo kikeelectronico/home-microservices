@@ -34,7 +34,10 @@ class Homeware:
       logging.error("Homeware env vars aren't set")
     else:
       try:
-        url = self.__url + "/api/devices/" + id + "/states/" + param
+        if param == "all":
+          url = self.__url + "/api/devices/" + id + "/states"
+        else:
+          url = self.__url + "/api/devices/" + id + "/states/" + param
         headers = {"Authorization": "bearer " + self.__token}
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
