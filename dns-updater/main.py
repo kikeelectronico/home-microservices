@@ -2,6 +2,7 @@ import requests
 import os
 import time
 import paho.mqtt.client as mqtt
+import logging
 
 # Load env vars
 if os.environ.get("GET_IP_ENDPOINT", "no_set") == "no_set":
