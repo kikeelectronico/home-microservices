@@ -5,6 +5,7 @@ import time
 # from keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
+import logging
 
 class Spotify:
 
