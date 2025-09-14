@@ -1,5 +1,6 @@
 import json
 import requests
+import logging
 
 class Homeware:
 
@@ -7,11 +8,10 @@ class Homeware:
   __url = "localhost"
   __token = "token"
 
-  def __init__(self, mqtt_client, host, token, logger):
+  def __init__(self, mqtt_client, host, token):
     self.__mqtt_client = mqtt_client
     self.__url = host
     self.__token = token
-    self.logger = logger
 
   # Make an execution request to Homeware API
   def execute(self, id, param, value):    
@@ -21,13 +21,17 @@ class Homeware:
       "value": value,
       "intent": "execute"
     }
-    self.__mqtt_client.publish("device/control", json.dumps(control_payload))
+    self.__mqtt_client.reconnect()
+    response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
+    if response.rc == 7:
+      self.__mqtt_client.reconnect()
+      response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
 
   # Make a get status request to Homeware API
   def get(self, id, param):
     if self.__token == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
-      self.logger.log("Homeware env vars aren't set", severity="ERROR")
+      logging.error("Homeware env vars aren't set")
     else:
       try:
         url = self.__url + "/api/devices/" + id + "/states/" + param
@@ -36,21 +40,21 @@ class Homeware:
         if response.status_code == 200:
           return response.json()
         else:
-          self.logger.log("Fail to get Homeware status. Status code: " + str(response.status_code), severity="WARNING")
+          logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
           return (False, {})
       except (requests.ConnectionError, requests.Timeout) as exception:
-        self.logger.log("Fail to get Homeware status. Conection error.", severity="WARNING")
+        logging.warning("Fail to get Homeware status. Conection error.")
         self._fail_to_update = False
 
   def getDevices(self):
-    if self.__token == "no_set" or self.__url == "no_set":
+    if self.__api_key == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
-      self.logger.log("Homeware env vars aren't set", severity="ERROR")
+      logging.error("Homeware env vars aren't set")
     else:
       try:
         url = self.__url + "/api/devices/get/"
         headers = {
-            "Authorization": "bearer " + self.__token
+            "Authorization": "bearer " + self.__api_key
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
@@ -60,8 +64,8 @@ class Homeware:
               devices[device['id']] = device
           return (True, devices)
         else:
-          self.logger.log("Fail to get Homeware devices. Status code: " + str(response.status_code), severity="WARNING")
+          logging.warning("Fail to get Homeware devices. Status code: " + str(response.status_code))
           return (False, {})    
       except (requests.ConnectionError, requests.Timeout) as exception:
-        self.logger.log("Fail to get Homeware devices. Conection error.", severity="WARNING")
+        logging.warning("Fail to get Homeware devices. Conection error.")
         self._fail_to_update = False

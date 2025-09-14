@@ -2,10 +2,9 @@ import requests
 import paho.mqtt.client as mqtt
 import json
 import os
-
+import logging
 
 from ikea import Ikea
-from logger import Logger
 
 import urllib3
 urllib3.disable_warnings()
@@ -34,8 +33,7 @@ SERVICE = "ikea-outbound-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-ikea = Ikea(IKEA_HOST, IKEA_TOKEN, logger)
+ikea = Ikea(IKEA_HOST, IKEA_TOKEN)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -74,7 +72,7 @@ if __name__ == "__main__":
 	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-	logger.log("Starting " + SERVICE , severity="INFO")
+	logging.info("Starting " + SERVICE)
 	# Main loop
 	mqtt_client.loop_forever()
  

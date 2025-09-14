@@ -2,8 +2,7 @@ import requests
 import paho.mqtt.client as mqtt
 import json
 import os
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -39,7 +38,6 @@ SERVICE = "hue-outbound-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -73,9 +71,9 @@ def sendToHue(hue_id, hue_status):
 		}
 		response = requests.put(url, data = json.dumps(hue_status), headers = headers)
 		if not response.status_code == 200:
-			logger.log("Fail to update to Hue Bridge lights. Status code: " + str(response.status_code), severity="WARNING")
+			logging.warning("Fail to update to Hue Bridge lights. Status code: " + str(response.status_code))
 	except (requests.ConnectionError, requests.Timeout) as exception:
-		logger.log("Fail to update Hue Bridge lights. Conection error.", severity="WARNING")
+		logging.warning("Fail to update Hue Bridge lights. Conection error.")
 
 
 # Main entry point
@@ -96,7 +94,7 @@ if __name__ == "__main__":
 	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-	logger.log("Starting " + SERVICE , severity="INFO")
+	logging.info("Starting " + SERVICE)
 	# Main loop
 	mqtt_client.loop_forever()
  

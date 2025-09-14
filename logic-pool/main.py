@@ -1,10 +1,10 @@
 from cmath import e
 import paho.mqtt.client as mqtt
 import os
+import logging
 
 import functions
 from Homeware import Homeware
-from logger import Logger
 from Alert import Alert
 import alerts
 import power
@@ -65,9 +65,8 @@ SERVICE = "logic-pool-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
-alert = Alert(mqtt_client, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+alert = Alert(mqtt_client)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -105,14 +104,14 @@ def on_message(client, userdata, msg):
         switches.mirror(homeware, msg.topic, payload)
         thermostats.livingroom(homeware, msg.topic, payload)
   except Exception as e:
-    logger.log("Excepción en Logic pool mqtt", severity="WARNING")
-    logger.log(str(e), severity="WARNING") 
+    logging.warning("Excepción en Logic pool mqtt")
+    logging.warning(str(e)) 
 
 if __name__ == "__main__":
   # Check env vars
   def report(message):
     print(message)
-    #logger.log(message, severity="ERROR")
+    #logging.error(message)
     exit()
   if MQTT_USER == "no_set":
     report("MQTT_USER env vars no set")
@@ -130,6 +129,6 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Main loop
   mqtt_client.loop_forever()

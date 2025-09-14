@@ -60,7 +60,6 @@ spotify = Spotify()
 water = Water()
 weatherapi = Weather()
 homeware = Homeware()
-# launchesapi = Launches(logger)
 internet = Internet()
 
 @app.get("/")
@@ -141,21 +140,6 @@ async def streamEvents():
       last["forecast"] = forecast
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Launches
-    # (fail_to_update, launches_flag, launches) = launchesapi.getLaunches()
-    # if not last.get("launches", {}) == launches:
-    #   event = {
-    #     "type": "launches",
-    #     "data": {
-    #       "launches": launches
-    #     },
-    #     "flags": {
-    #       "launches": launches_flag
-    #     }
-    #   }
-    #   last["launches"] = launches
-    #   yield f"data: {json.dumps(event)}\n\n"
-    #   await sleep(0.1)
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",
