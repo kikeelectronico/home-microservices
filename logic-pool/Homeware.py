@@ -50,14 +50,14 @@ class Homeware:
         self._fail_to_update = False
 
   def getDevices(self):
-    if self.__api_key == "no_set" or self.__url == "no_set":
+    if self.__token == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
       logging.error("Homeware env vars aren't set")
     else:
       try:
         url = self.__url + "/api/devices/get/"
         headers = {
-            "Authorization": "bearer " + self.__api_key
+            "Authorization": "bearer " + self.__token
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:

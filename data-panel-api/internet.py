@@ -16,12 +16,12 @@ class Internet:
       logging.warning("Fail to reach Google. Conection error.")
       self._connected = False
       
-    try:
-      requests.get("https://www.cloudflare.com/", timeout=2)
-      self._connected = True
-    except (requests.ConnectionError, requests.Timeout) as exception:
-      logging.warning("Fail to reach Cloudflare. Conection error.")
-      self._connected = self._connected and False
+    # try:
+    #   requests.get("https://www.cloudflare.com/", timeout=2)
+    #   self._connected = True
+    # except (requests.ConnectionError, requests.Timeout) as exception:
+    #   logging.warning("Fail to reach Cloudflare. Conection error.")
+    #   self._connected = self._connected and False
     
     return self._connected
 
