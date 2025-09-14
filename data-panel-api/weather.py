@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import logging
 
 RELOAD_TIME = 60
 
