@@ -6,9 +6,9 @@ import ssl
 import threading
 import uuid
 from websocket import WebSocketApp
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 import urllib3
 urllib3.disable_warnings()
@@ -37,8 +37,7 @@ last_trigger = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 def on_message(ws, message):
   event = json.loads(message)
@@ -68,13 +67,13 @@ def on_message(ws, message):
 
 
 def on_error(ws, error):
-  logger.log("Error: " + error , severity="WARNING")
+  logging.warning("Error: " + error)
 
 def on_close(ws, close_status_code, close_msg):
-  logger.log("Conexión cerrada", severity="INFO")
+  logging.info("Conexión cerrada")
 
 def on_open(ws):
-  logger.log("Conexión abierta", severity="INFO")
+  logging.info("Conexión abierta")
 
   def run():
     while True:
@@ -111,7 +110,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   
   # Open WebSocket
   url = f"wss://{IKEA_HOST}:8443/v1"

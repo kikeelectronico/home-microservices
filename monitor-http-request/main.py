@@ -2,8 +2,7 @@ import paho.mqtt.client as mqtt
 import os
 import time
 import functions
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "pass") == "pass":
@@ -27,7 +26,6 @@ SERVICE = "monitor-http-request-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE) 
-logger = Logger(mqtt_client, SERVICE)
 
 # Main entry point
 if __name__ == "__main__":
@@ -46,19 +44,19 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Main loop
   while True:
     # Verify Homeware connectivity
-    if not functions.homewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY, logger):
-      logger.log("Homeware no responde", severity="WARNING")
+    if not functions.homewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY):
+      logging.warning("Homeware no responde")
       mqtt_client.publish("voice-alert/text", "Homeware no responde")
       mqtt_client.publish("message-alerts", "Homeware no responde")
       time.sleep(BLOCK_TIME)
     # Verify Hue Bridge connectivity
-    if not functions.hueTest(HUE_HOST, HUE_TOKEN, logger):
-      logger.log("Hue bridge no responde", severity="WARNING")
+    if not functions.hueTest(HUE_HOST, HUE_TOKEN):
+      logging.warning("Hue bridge no responde")
       mqtt_client.publish("voice-alert/text", "Hue bridge no responde")
       mqtt_client.publish("message-alerts", "Hue bridge no responde")
       time.sleep(BLOCK_TIME)

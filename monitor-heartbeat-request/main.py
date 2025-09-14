@@ -1,8 +1,7 @@
 import paho.mqtt.client as mqtt
 import os
 import time
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -21,7 +20,6 @@ SERVICE = "monitor-heartbeat-request-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 
 # Main entry point
 if __name__ == "__main__":
@@ -36,7 +34,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Wake up alert
   while True:
     # Send the heartbeat request and wait

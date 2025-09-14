@@ -1,8 +1,7 @@
 import paho.mqtt.client as mqtt
 import telebot
 import os
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -23,7 +22,6 @@ SERVICE = "notification-message-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 bot = telebot.TeleBot(token=BOT_TOKEN)
 
 # Suscribe to topics on connect
@@ -59,7 +57,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Main loop
   mqtt_client.loop_forever()
 

@@ -2,9 +2,9 @@ import paho.mqtt.client as mqtt
 import time
 import os
 import json
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -31,7 +31,6 @@ tasks = []
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, SERVICE)
 
 # Suscribe to topics on connect
@@ -81,7 +80,7 @@ def main():
   if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Declare the callback functions
   mqtt_client.on_message = on_message
