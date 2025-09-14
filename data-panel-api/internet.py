@@ -6,6 +6,7 @@ class Internet:
   _connected = True
 
   def __init__(self):
+    pass
 
   def checkConnectivity(self):
     try:
