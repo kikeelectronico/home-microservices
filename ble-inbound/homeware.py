@@ -21,7 +21,6 @@ class Homeware:
       "value": value,
       "intent": "execute"
     }
-    self.__mqtt_client.reconnect()
     response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
     if response.rc == 7:
       self.__mqtt_client.reconnect()
