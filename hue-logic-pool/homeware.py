@@ -22,11 +22,10 @@ class Homeware:
       "intent": "execute"
     }
     response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
-    print(response.rc, id, param, value)
     if response.rc == 4 or response.rc == 7:
+      logging.error("MQTT auth fail")
       self.__mqtt_client.reconnect()
       response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
-      print(response.rc, id, param, value)
 
   # Make a get status request to Homeware API
   def get(self, id, param):
