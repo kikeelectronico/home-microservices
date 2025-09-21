@@ -19,7 +19,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["heartbeats/request","voice-alert/text", "voice-alert/speakers"]
+TOPICS = ["voice-alert/text", "voice-alert/speakers"]
 SERVICE = "notification-voice-" + ENV
 
 # Instantiate objects
@@ -34,17 +34,13 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic in TOPICS:
-    if msg.topic == "heartbeats/request":
-      # Send heartbeart
-      mqtt_client.publish("heartbeats", SERVICE)
-    elif msg.topic == "voice-alert/text":
-      # Send the message to the Smart Speakers
-      if homeware.get("scene_awake", "enable"):
-        payload = msg.payload.decode('utf-8').replace("\'", "\"")
-        voice.getAndPlay(payload)
-    elif msg.topic == "voice-alert/speakers":
-      voice.setSpeakers(msg.payload.decode('utf-8'))
+  if msg.topic == "voice-alert/text":
+    # Send the message to the Smart Speakers
+    if homeware.get("scene_awake", "enable"):
+      payload = msg.payload.decode('utf-8').replace("\'", "\"")
+      voice.getAndPlay(payload)
+  elif msg.topic == "voice-alert/speakers":
+    voice.setSpeakers(msg.payload.decode('utf-8'))
 
 # Main entry point
 if __name__ == "__main__":

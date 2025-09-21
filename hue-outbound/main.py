@@ -20,7 +20,6 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 POWER_CONSTANT = 35
 TOPICS = [
-	"heartbeats/request",
 	"device/hue_1",
 	"device/hue_2",
 	"device/hue_3",
@@ -47,20 +46,17 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
 	if msg.topic in TOPICS:
-		if msg.topic == "heartbeats/request":
-			mqtt_client.publish("heartbeats", SERVICE)
-		else:
-			topic = msg.topic
-			payload = json.loads(msg.payload)
-			hue_id = topic.split("hue_")[1]
-			hue_status = {}
-			if "on" in payload:
-				hue_status["on"] = payload["on"]
-			if "brightness" in payload:
-				hue_status["bri"] = round((payload["brightness"]/100)*254)
-			if "color" in payload:
-				hue_status["ct"] = round(1000000/payload["color"]["temperatureK"])
-			sendToHue(hue_id, hue_status)
+		topic = msg.topic
+		payload = json.loads(msg.payload)
+		hue_id = topic.split("hue_")[1]
+		hue_status = {}
+		if "on" in payload:
+			hue_status["on"] = payload["on"]
+		if "brightness" in payload:
+			hue_status["bri"] = round((payload["brightness"]/100)*254)
+		if "color" in payload:
+			hue_status["ct"] = round(1000000/payload["color"]["temperatureK"])
+		sendToHue(hue_id, hue_status)
 
 # Send an update request to Hue bridge API
 def sendToHue(hue_id, hue_status):

@@ -22,7 +22,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = [ "tasks", "heartbeats/request" ]
+TOPICS = [ "tasks", "heartbeats/system" ]
 SERVICE = "task-scheduler-" + ENV
 
 # Declare variables
@@ -41,9 +41,7 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   global tasks
-  if msg.topic == "heartbeats/request":
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
+  if msg.topic == "heartbeats/system":
     for index, task in enumerate(tasks):
       if task["time"] < time.time():
         assert_pass = True

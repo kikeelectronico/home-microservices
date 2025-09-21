@@ -24,7 +24,6 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 TOPICS = [
-  "heartbeats/request",
   "device/thermostat_bathroom",
   "device/switch_hood/on",
   "device/e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4/openPercent",
@@ -53,19 +52,15 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   try:
-    if msg.topic == "heartbeats/request":
-      # Send heartbeat
-      mqtt_client.publish("heartbeats", SERVICE)
-    else:
-      # Exec the logic
-      payload = functions.loadPayload(msg.payload)
-      if payload is not None:
-        air.hood(homeware, msg.topic, payload)
-        lights.resetEdisonBulb(homeware, msg.topic, payload)
-        lights.sofaLight(homeware, msg.topic, payload)
-        lights.workbenchLight(homeware, msg.topic, payload)
-        lights.worktableLight(homeware, msg.topic, payload)
-        # scenes.livingroomLight(homeware, msg.topic, payload)
+    # Exec the logic
+    payload = functions.loadPayload(msg.payload)
+    if payload is not None:
+      air.hood(homeware, msg.topic, payload)
+      lights.resetEdisonBulb(homeware, msg.topic, payload)
+      lights.sofaLight(homeware, msg.topic, payload)
+      lights.workbenchLight(homeware, msg.topic, payload)
+      lights.worktableLight(homeware, msg.topic, payload)
+      # scenes.livingroomLight(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 

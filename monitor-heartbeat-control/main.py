@@ -19,7 +19,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["heartbeats", "heartbeats/request", "device/heartbeat"]
+TOPICS = ["device/heartbeat"]
 SERVICE = "monitor-heartbeat-control-" + ENV
 
 # Declare variables
@@ -37,37 +37,7 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-	if msg.topic == "heartbeats/request":
-		# Verify the last hearbeat of the microservices and devices
-		current_time = time.time()
-		# Alert if a microservice is down and queue for deletion
-		services_to_delete = []
-		for service in microservices_heartbeats.keys():
-			if current_time - microservices_heartbeats[service] > 70:
-				logging.warning(service.decode("utf-8") + ": caido")
-				services_to_delete.append(service)
-		# Delete the microservices on the delete queue
-		if len(services_to_delete) > 0:
-			for service in services_to_delete:
-				del microservices_heartbeats[service]
-		# Alert if a device is down and queue for deletion
-		services_to_delete = []
-		for service in devices_heartbeats.keys():
-			if current_time - devices_heartbeats[service] > 70:
-				logging.warning(service.decode("utf-8") + ": caido")
-				homeware.execute(service.decode("utf-8"), "online", False)
-				services_to_delete.append(service)
-		# Delete the devices on the delete queue
-		if len(services_to_delete) > 0:
-			for service in services_to_delete:
-				del devices_heartbeats[service]
-	elif msg.topic == "heartbeats":
-		# Save the timestamp when a microservice sends a heartbeat
-		service = msg.payload
-		if not service in microservices_heartbeats:
-				logging.info(service.decode("utf-8") + ": arriba")
-		microservices_heartbeats[service] = time.time()
-	elif msg.topic == "device/heartbeat":
+	if msg.topic == "device/heartbeat":
 		# Save the timestamp when a device sends a heartbeat
 		service = msg.payload
 		if not service in devices_heartbeats:

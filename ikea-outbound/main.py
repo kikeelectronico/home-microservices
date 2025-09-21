@@ -25,7 +25,6 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 POWER_CONSTANT = 35
 TOPICS = [
-	"heartbeats/request",
 	"device/b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
 	"device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1",
 ]
@@ -43,14 +42,11 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
 	if msg.topic in TOPICS:
-		if msg.topic == "heartbeats/request":
-			mqtt_client.publish("heartbeats", SERVICE)
-		else:
-			topic = msg.topic
-			payload = json.loads(msg.payload)
-			ikea_id = topic.split("/")[1]
-			if "on" in payload:
-				ikea.setDevice(ikea_id, "isOn", payload["on"])
+		topic = msg.topic
+		payload = json.loads(msg.payload)
+		ikea_id = topic.split("/")[1]
+		if "on" in payload:
+			ikea.setDevice(ikea_id, "isOn", payload["on"])
 
 
 # Main entry point

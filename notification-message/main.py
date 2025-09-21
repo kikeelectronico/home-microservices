@@ -17,7 +17,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["heartbeats/request","message-alerts"]
+TOPICS = ["message-alerts"]
 SERVICE = "notification-message-" + ENV
 
 # Instantiate objects
@@ -31,13 +31,9 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic == "heartbeats/request":
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
-  else:
-    # Send the message to the Telegram API
-    payload = msg.payload.decode('utf-8').replace("\'", "\"")
-    bot.send_message(ENRIQUE_CHAT_ID, payload)
+  # Send the message to the Telegram API
+  payload = msg.payload.decode('utf-8').replace("\'", "\"")
+  bot.send_message(ENRIQUE_CHAT_ID, payload)
 	
 # Main entry point
 if __name__ == "__main__":
