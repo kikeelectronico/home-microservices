@@ -117,6 +117,8 @@ def getSensors():
         logging.warning("Device unreachable: " + device)
         if device in last_update:
           if time.time() - last_update[device] > ONLINE_TIMEOUT:
+            if homeware.get(device, "online"):
+              mqtt_client.publish("message-alerts", device + " inaccesible")
             logging.warning("Device offline: " + device)
             homeware.execute(device,"online",False)
 
