@@ -19,7 +19,6 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 POWER_CONSTANT = 35
 TOPICS = [
-	"heartbeats/request",
 	"device/current001/brightness",
 	"device/thermostat_livingroom/thermostatTemperatureAmbient",
 	"device/thermostat_livingroom/thermostatHumidityAmbient",
@@ -69,25 +68,22 @@ def on_message(client, userdata, msg):
 	topic = msg.topic
 	payload = typifyPayload(topic, msg.payload)
 	# The request depends on the device
-	if topic == "heartbeats/request":
-		mqtt_client.publish("heartbeats", SERVICE)
-	else:
-		if payload != last_value.setdefault(topic, 0):
-			# Prepare the data
-			ts = int(time.time())
-			device_id = topic.split("/")[1]
-			param = topic.split("/")[2] if not "current001" in topic else "current"
-			value = payload if not "current001" in topic else payload * POWER_CONSTANT
-			# Insert the data
-			bigquery_client.query(
-				"""
-					INSERT INTO {}
-					(time, device_id, param, value, type)
-					VALUES ({},"{}","{}","{}", "{}");
-				""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
-			)
-			# Update last_value
-			last_value[topic] = payload
+	if payload != last_value.setdefault(topic, 0):
+		# Prepare the data
+		ts = int(time.time())
+		device_id = topic.split("/")[1]
+		param = topic.split("/")[2] if not "current001" in topic else "current"
+		value = payload if not "current001" in topic else payload * POWER_CONSTANT
+		# Insert the data
+		bigquery_client.query(
+			"""
+				INSERT INTO {}
+				(time, device_id, param, value, type)
+				VALUES ({},"{}","{}","{}", "{}");
+			""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
+		)
+		# Update last_value
+		last_value[topic] = payload
 
 # Main entry point
 if __name__ == "__main__":

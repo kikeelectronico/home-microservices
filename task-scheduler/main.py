@@ -42,8 +42,6 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_message(client, userdata, msg):
   global tasks
   if msg.topic == "heartbeats/request":
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
     for index, task in enumerate(tasks):
       if task["time"] < time.time():
         assert_pass = True
