@@ -38,7 +38,7 @@ if __name__ == "__main__":
   # Wake up alert
   while True:
     # Send the heartbeat request and wait
-    mqtt_client.publish("heartbeats/request", "are-you-there")
+    mqtt_client.publish("heartbeats/system", "are-you-there")
     time.sleep(SLEEP_TIME)
 
       
