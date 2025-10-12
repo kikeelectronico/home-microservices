@@ -83,58 +83,59 @@ def powerManagment(homeware, topic, payload):
       if homeware.get("scene_ducha", "enable"):
         # Shower state machine
         if shower_state in [0,1,2]: # Heat up water
-          livingroom_radiator = False
           bedroom_radiator = False
           bathroom_radiator = False
           water_heater = True
-          livingroom_ac = shouldCool(homeware, "thermostat_livingroom", "ac_001") or homeware.get("thermostat_livingroom", "thermostatMode") == "fan-only"
+          # heat_pump = True
           shower_state = 1
           # Give the water heater time to start and the system to detect it
           if shower_state == 1:
             time.sleep(2)
             shower_state = 2
           elif shower_state == 2:
+            # Wait for the water to finish heating up
             if not homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "isRunning"):
               shower_state == 3
         elif shower_state == 3: # If winter: heat up the bathroom air and keep the livingroom and water tank at temperature
+          bedroom_radiator = False
           bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "hue_12")
-          # -
-          livingroom_radiator = shouldHeat(homeware, "thermostat_livingroom", "hue_8", "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4") and (not homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "isRunning")) and (not bathroom_radiator)
-          bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "radiator002", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)
-          # -
-          livingroom_ac = shouldCool(homeware, "thermostat_livingroom", "ac_001") or homeware.get("thermostat_livingroom", "thermostatMode") == "fan-only"
-          water_heater = True
+          # heat_pump = True
+          water_heater = not bathroom_radiator
       else:
         shower_state = 0
         rule_14 = not homeware.get("switch_at_home", "on")
-        livingroom_radiator = shouldHeat(homeware, "thermostat_livingroom", "hue_8", "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", rule_14)
-        bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "radiator002", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)
+        heat_pump_current_status = False
+        bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "hue_8", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14) and (not heat_pump_current_status)
         bathroom_radiator = False
-        livingroom_ac = shouldCool(homeware, "thermostat_livingroom", "ac_001") or homeware.get("thermostat_livingroom", "thermostatMode") == "fan-only"
-        water_heater = not livingroom_radiator
+        # heat_pump = True
+        water_heater = True
     else:
-      livingroom_radiator = False
       bedroom_radiator = False
       bathroom_radiator = False
-      livingroom_ac = False
+      # heat_pump = False
       water_heater = False
-
-    # If the dishwasher is running
-    if homeware.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning"):
-      water_heater = False
-      bedroom_radiator = bedroom_radiator and (not livingroom_radiator)
 
     # Send new values to Homeware
-    if homeware.get("scene_winter", "enable"):
-      homeware.execute("hue_8","on",livingroom_radiator)
-    homeware.execute("radiator002","on",bedroom_radiator)
+    
+    # Check power budget for bedroom radiator
+    bedroom_radiator_current_status = homeware.get("hue_8", "on")
+    if bedroom_radiator and (not bedroom_radiator_current_status) and (homeware.get("current001", "brightness") > 70):
+      bedroom_radiator = False
+    homeware.execute("hue_8","on",bedroom_radiator)
+    
+    # Check power budget for bathroom radiator
+    bathroom_radiator_current_status = homeware.get("hue_12", "on")
+    if bathroom_radiator and (not bathroom_radiator_current_status) and (homeware.get("current001", "brightness") > 40):
+      bathroom_radiator = False
     homeware.execute("hue_12","on",bathroom_radiator)
-    homeware.execute("ac_001","on",livingroom_ac)
 
-    # Check power budget
-    if water_heater and (not homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on")) and (homeware.get("current001", "brightness") > 40):
+    # Check power budget for water heater
+    water_heater_current_status = homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on")
+    if water_heater and (not water_heater_current_status) and (homeware.get("current001", "brightness") > 40):
       water_heater = False
-
+    # Check the concurrency with the dishwasher
+    if homeware.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning"):
+      water_heater = False
     homeware.execute("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1","on",water_heater)
 
 
