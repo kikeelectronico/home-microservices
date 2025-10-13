@@ -102,6 +102,7 @@ def main():
     if hour == "04:00:00" and not hour == just_executed:
       just_executed = hour
       updateAstroData()
+      homeware.execute("scene_circadian_controller_enable", "enable", True)
     # elif hour == "06:00:00" and not hour == just_executed:
     #   just_executed = hour
     #   homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
