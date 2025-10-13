@@ -83,7 +83,7 @@ def on_message(client, userdata, msg):
       general.atHome(homeware, msg.topic, payload)
       general.prepareHome(homeware, msg.topic, payload)
       lights.pyramids(homeware, msg.topic, payload)
-      power.powerManagment(homeware, alert, msg.topic, payload)
+      power.powerManagment(homeware, msg.topic, payload)
       scenes.dim(homeware, msg.topic, payload)
       scenes.shower(homeware, alert, msg.topic, payload)
       scenes.disableShowerScene(homeware, alert, msg.topic, payload)
