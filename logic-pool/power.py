@@ -109,7 +109,7 @@ def powerManagment(homeware, alert, topic, payload):
         rule_14 = not homeware.get("switch_at_home", "on")
         heat_pump_current_status = False
         bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "hue_8", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14) and (not heat_pump_current_status)
-        bathroom_radiator = False
+        bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "hue_12") and (not heat_pump_current_status)
         # heat_pump = True
         water_heater = True
     else:
