@@ -45,7 +45,7 @@ def shouldCool(homeware, thermostat_id, ac_id):
     return False
 
 # Control the power distribution
-def powerManagment(homeware, alert, topic, payload): 
+def powerManagment(homeware, topic, payload):
   global power_timestamp
   global power_pre_alert
   global power_alert
@@ -82,28 +82,24 @@ def powerManagment(homeware, alert, topic, payload):
     if not power_alert:
       if homeware.get("scene_ducha", "enable"):
         # Shower state machine
-        if shower_state in [0,1,2]: # Heat up water
+        if shower_state in [0,1]: # Heat up water
           bedroom_radiator = False
           bathroom_radiator = False
           water_heater = True
           # heat_pump = True
-          shower_state = 1
           # Give the water heater time to start and the system to detect it
-          alert.voice("Calentando el agua.")
-          if shower_state == 1:
+          if shower_state == 0:
             time.sleep(2)
-            shower_state = 2
-          elif shower_state == 2:
+            shower_state = 1
+          elif shower_state == 1:
             # Wait for the water to finish heating up
             if not homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "isRunning"):
-              shower_state == 3
-              alert.voice("Agua preparada.")
-        elif shower_state == 3: # If winter: heat up the bathroom air and keep the livingroom and water tank at temperature
+              shower_state = 2
+        elif shower_state == 2: # If winter: heat up the bathroom air and keep the livingroom and water tank at temperature
           bedroom_radiator = False
           bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "hue_12")
           # heat_pump = True
           water_heater = not bathroom_radiator
-          alert.voice("Calentando el aire.")
       else:
         shower_state = 0
         rule_14 = not homeware.get("switch_at_home", "on")
