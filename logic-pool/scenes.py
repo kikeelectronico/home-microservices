@@ -80,6 +80,7 @@ def shower(homeware, alert, topic, payload):
       # Return the bathroom to normal
       alert.voice("Genial. Dejo de priorizar el baño.")
       homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
+      homeware.execute("thermostat_bathroom", "thermostatMode", "off")
       waiting_for_shower = False
       shower_initiated = False
       if homeware.get("hue_sensor_14","on"):
