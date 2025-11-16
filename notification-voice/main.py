@@ -29,12 +29,14 @@ voice = Voice(homeware)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
-    for topic in TOPICS:
-        client.subscribe(topic)
+  logging.info("connected to broker")
+  for topic in TOPICS:
+      client.subscribe(topic)
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   if msg.topic == "voice-alert/text":
+    logging.info(msg.payload.decode('utf-8'))
     # Send the message to the Smart Speakers
     if homeware.get("scene_awake", "enable"):
       payload = msg.payload.decode('utf-8').replace("\'", "\"")
