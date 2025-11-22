@@ -155,5 +155,5 @@ if __name__ == "__main__":
 
   while True:
     getSensors()
-    verifyPresence()
+    # verifyPresence()
     time.sleep(1)
