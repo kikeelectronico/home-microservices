@@ -110,11 +110,12 @@ def main():
       just_executed = False
 
     # Calculate color temperature and adjust lights
-    color_temperature = colorTemperature((hour + (minute/60)), solar_cycle["sunrise"], solar_cycle["sunset"])
-    homeware.execute("hue_5", "color", {"temperatureK": color_temperature})
-    homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
-    homeware.execute("hue_9", "color", {"temperatureK": color_temperature})
-    homeware.execute("hue_10", "color", {"temperatureK": color_temperature})
+    if homeware.get("scene_circadian_controller_enable", "enable"):
+      color_temperature = colorTemperature((hour + (minute/60)), solar_cycle["sunrise"], solar_cycle["sunset"])
+      homeware.execute("hue_5", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_9", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_10", "color", {"temperatureK": color_temperature})
 
     # Send the heartbeat
     if time.time() - last_heartbeat_timestamp > 10:

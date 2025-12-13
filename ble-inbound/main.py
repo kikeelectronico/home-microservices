@@ -23,7 +23,7 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ble-inbound-" + ENV
-ONLINE_TIMEOUT = 900
+ONLINE_TIMEOUT = 1800
 # API UUIDs
 API_SERVICE_UUID ="cba20d00-224d-11e6-9fb8-0002a5d5c51b"
 API_TX_CHARACTERISTIC_UUID= "cba20003-224d-11e6-9fb8-0002a5d5c51b"
