@@ -104,7 +104,6 @@ def disableShowerScene(homeware, alert, topic, payload):
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/occupancy":
     if payload == "OCCUPIED":
       if homeware.get("scene_ducha", "enable"):
-        # if homeware.get("e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", "openPercent") == 0:
         if shower_initiated:
           homeware.execute("scene_ducha", "enable", False)
           waiting_for_shower = False
