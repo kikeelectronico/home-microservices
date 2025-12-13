@@ -3,9 +3,9 @@ import os
 import json
 from sseclient import SSEClient
 import requests
+import logging
 
 from homeware import Homeware
-from logger import Logger
 import buttons
 import dimmers
 import sensors
@@ -38,8 +38,7 @@ last_pressed = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 # Main entry point
 if __name__ == "__main__":
@@ -58,7 +57,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Connect to Hue bridge
   url = "https://" + HUE_HOST + "/eventstream/clip/v2"

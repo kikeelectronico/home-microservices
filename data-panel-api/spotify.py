@@ -5,6 +5,7 @@ import time
 # from keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
+import logging
 
 class Spotify:
 
@@ -19,26 +20,24 @@ class Spotify:
   _stop_until = 0
   _service_unavailable_counter = 0
 
-  def __init__(self, logger):
+  def __init__(self):
     if os.environ.get("SPOTIFY_REFRESH_TOKEN", "no") == "no":
       from dotenv import load_dotenv
       load_dotenv(dotenv_path="../.env")
     self.__refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN", "no_set")
     if self.__refresh_token == "no_set": 
-      logger.log("SPOTIFY_REFRESH_TOKEN no set", severity="ERROR")
+      logging.error("SPOTIFY_REFRESH_TOKEN no set")
     self.__app_auth = os.environ.get("SPOTIFY_APP_AUTH", "no_set")
     if self.__app_auth == "no_set": 
-      logger.log("SPOTIFY_APP_AUTH no set", severity="ERROR")
+      logging.error("SPOTIFY_APP_AUTH no set")
     self._covers_ddbb = os.environ.get("COVERS_DDBB", "no_set")
     if self._covers_ddbb == "no_set": 
-      logger.log("COVERS_DDBB no set", severity="ERROR")
+      logging.error("COVERS_DDBB no set")
     # Initialize the keras model
     np.set_printoptions(suppress=True)
     # self._track_image_model = load_model("track_image_model/keras_model.h5", compile=False)
     # self._track_image_class_names = open("track_image_model/labels.txt", "r").readlines()
     # self._track_image_data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
-    # Set the logger
-    self.logger = logger
 
   def updatePlaying(self, max_tries=2):
     if self.__refresh_token == "no_set" or self.__app_auth == "no_set" or self._covers_ddbb == "no_set":
@@ -48,7 +47,7 @@ class Spotify:
       }
 
       self._playing = spotify
-      self.logger.log("Spotify env vars aren't set", severity="ERROR")
+      logging.warning("Spotify env vars aren't set", severity="ERROR")
     else:
       self._tries += 1
       if self.__access_token == "":
@@ -101,7 +100,7 @@ class Spotify:
                 self._playing = spotify
 
               elif response.status_code == 429:
-                self.logger.log("Spotify API quota exceeded", severity="WARNING")
+                logging.warning("Spotify API quota exceeded")
                 self._stop_until = time.time() + (int(response.headers['retry-after'])*1000)
 
                 spotify = {
@@ -146,7 +145,7 @@ class Spotify:
             self._playing = spotify
 
         elif response.status_code == 204:
-          self.logger.log("Spotify API returns a 204 code", severity="INFO")
+          logging.info("Spotify API returns a 204 code")
           spotify = {
             "playing": False,
             "quota_exceeded": False
@@ -155,7 +154,7 @@ class Spotify:
           self._playing = spotify
 
         elif response.status_code == 429:
-          self.logger.log("Spotify API quota exceeded", severity="WARNING")
+          logging.warning("Spotify API quota exceeded")
           spotify = {
             "playing": False,
             "quota_exceeded": True
@@ -164,7 +163,7 @@ class Spotify:
           self._playing = spotify
 
         elif response.status_code == 503:
-          self.logger.log("Spotify API returns a 503 code", severity="INFO")
+          logging.info("Spotify API returns a 503 code")
           if self._service_unavailable_counter == 0:
             self._service_unavailable_counter += 1
           else:
@@ -177,7 +176,7 @@ class Spotify:
 
         else:
           error = response.json()['error']
-          self.logger.log("Spotify API returns a " + str(error['status']) + " code", severity="INFO")
+          logging.info("Spotify API returns a " + str(error['status']) + " code")
           spotify = {
             "playing": False,
             "quota_exceeded": False
@@ -192,7 +191,7 @@ class Spotify:
             self._playing = spotify
 
       except (requests.ConnectionError, requests.Timeout) as exception:
-        self.logger.log("Fail to get Spotify player data. Conection error.", severity="WARNING")
+        logging.warning("Fail to get Spotify player data. Conection error.")
         spotify = {
           "playing": False,
           "quota_exceeded": False
@@ -200,7 +199,7 @@ class Spotify:
 
   def updateAccessToken(self):
     try:
-      self.logger.log("Updating Spotify access token", severity="INFO")
+      logging.info("Updating Spotify access token")
       url = "https://accounts.spotify.com/api/token"
       payload='grant_type=refresh_token&refresh_token=' + self.__refresh_token
       headers = {
@@ -211,13 +210,13 @@ class Spotify:
       response = requests.request("POST", url, headers=headers, data=payload, timeout=5)
       if response.status_code == 200:
         self.__access_token = response.json()['access_token']
-        self.logger.log("Spotify access token updated", severity="INFO")
+        logging.info("Spotify access token updated")
         return True
       else:
-        self.logger.log("Fail to update Spotify access token. Status code: " + response.status_code, severity="WARNING")
+        logging.warning("Fail to update Spotify access token. Status code: " + response.status_code)
         return False
     except (requests.ConnectionError, requests.Timeout) as exception:
-      self.logger.log("Fail to update Spotify access token. Conection error.", severity="WARNING")
+      logging.warning("Fail to update Spotify access token. Conection error.")
       return False
 
   def getPlaying(self, max_tries=2):
@@ -244,8 +243,8 @@ class Spotify:
           # class_name = self._track_image_class_names[index]
           # self._track_image_position = class_name[2:-1]
         except:
-          self.logger.log("Fail to analyze a track image from Spotify", severity="WARNING")
+          logging.warning("Fail to analyze a track image from Spotify")
       else:
-        self.logger.log("Fail to get a track image from Spotify. Error code: " + response.status_code, severity="WARNING")
+        logging.warning("Fail to get a track image from Spotify. Error code: " + response.status_code)
     except (requests.ConnectionError, requests.Timeout) as exception:
-      self.logger.log("Fail to get a track image from Spotify. Conection error.", severity="WARNING")
+      logging.warning("Fail to get a track image from Spotify. Conection error.")

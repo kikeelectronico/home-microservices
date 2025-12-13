@@ -6,14 +6,13 @@ import os
 import json
 from asyncio import sleep
 import time
+import logging
 
-from spotify import Spotify
+# from spotify import Spotify
 from water import Water
 from weather import Weather
 from homeware import Homeware
-# from launches import Launches
 from internet import Internet
-from logger import Logger
 
 # Load env vars
 if os.environ.get("ENV", "dev") == "dev":
@@ -32,12 +31,10 @@ SERVICE = "data-panel-api-" + ENV
 # Instantiate objects
 app = FastAPI()
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id=SERVICE) 
-logger = Logger(mqtt_client, SERVICE)
 
 # Check env vars
 def report(message):
   print(message)
-  #logger.log(message, severity="ERROR")
   exit()
 if MQTT_USER == "no_set":
   report("MQTT_USER env vars no set")
@@ -49,7 +46,7 @@ if MQTT_HOST == "no_set":
  # Connect to the mqtt broker
 mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-logger.log("Starting " + SERVICE , severity="INFO")
+logging.info("Starting " + SERVICE)
 
 app.add_middleware(
     CORSMiddleware,
@@ -59,12 +56,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-spotify = Spotify(logger)
-water = Water(logger)
-weatherapi = Weather(logger)
-homeware = Homeware(logger)
-# launchesapi = Launches(logger)
-internet = Internet(logger)
+# spotify = Spotify()
+water = Water()
+weatherapi = Weather()
+homeware = Homeware()
+internet = Internet()
 
 @app.get("/")
 async def root():
@@ -86,17 +82,17 @@ async def streamEvents():
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Spotify
-    playing = spotify.getPlaying(max_tries=2)
-    if not last.get("playing", {}) == playing:
-      event = {
-        "type": "spotify",
-        "data": {
-          "playing": playing
-        }
-      }
-      last["playing"] = playing
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
+    # playing = spotify.getPlaying(max_tries=2)
+    # if not last.get("playing", {}) == playing:
+    #   event = {
+    #     "type": "spotify",
+    #     "data": {
+    #       "playing": playing
+    #     }
+    #   }
+    #   last["playing"] = playing
+    #   yield f"data: {json.dumps(event)}\n\n"
+    #   await sleep(0.1)
     # Home
     (status_flag, home_status) = homeware.getStatus()
     if not last.get("home_status", {}) == home_status:
@@ -144,21 +140,6 @@ async def streamEvents():
       last["forecast"] = forecast
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Launches
-    # (fail_to_update, launches_flag, launches) = launchesapi.getLaunches()
-    # if not last.get("launches", {}) == launches:
-    #   event = {
-    #     "type": "launches",
-    #     "data": {
-    #       "launches": launches
-    #     },
-    #     "flags": {
-    #       "launches": launches_flag
-    #     }
-    #   }
-    #   last["launches"] = launches
-    #   yield f"data: {json.dumps(event)}\n\n"
-    #   await sleep(0.1)
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",

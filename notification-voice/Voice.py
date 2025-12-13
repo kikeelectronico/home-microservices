@@ -13,7 +13,7 @@ class Voice:
 
   speakers = ""
 
-  def __init__(self, logger, homeware):
+  def __init__(self, homeware):
     self.text_to_speech_client = texttospeech.TextToSpeechClient()
     self.voice = texttospeech.VoiceSelectionParams(
       language_code="es-ES",
@@ -22,7 +22,6 @@ class Voice:
     self.audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
-    self.logger = logger
     self.homeware = homeware
 
   # Genereate mp3 file if needed
