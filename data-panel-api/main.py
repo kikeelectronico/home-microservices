@@ -8,7 +8,7 @@ from asyncio import sleep
 import time
 import logging
 
-from spotify import Spotify
+# from spotify import Spotify
 from water import Water
 from weather import Weather
 from homeware import Homeware
@@ -56,7 +56,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-spotify = Spotify()
+# spotify = Spotify()
 water = Water()
 weatherapi = Weather()
 homeware = Homeware()
@@ -82,17 +82,17 @@ async def streamEvents():
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Spotify
-    playing = spotify.getPlaying(max_tries=2)
-    if not last.get("playing", {}) == playing:
-      event = {
-        "type": "spotify",
-        "data": {
-          "playing": playing
-        }
-      }
-      last["playing"] = playing
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
+    # playing = spotify.getPlaying(max_tries=2)
+    # if not last.get("playing", {}) == playing:
+    #   event = {
+    #     "type": "spotify",
+    #     "data": {
+    #       "playing": playing
+    #     }
+    #   }
+    #   last["playing"] = playing
+    #   yield f"data: {json.dumps(event)}\n\n"
+    #   await sleep(0.1)
     # Home
     (status_flag, home_status) = homeware.getStatus()
     if not last.get("home_status", {}) == home_status:
