@@ -29,8 +29,8 @@ voice = Voice(homeware)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
-    for topic in TOPICS:
-        client.subscribe(topic)
+  for topic in TOPICS:
+      client.subscribe(topic)
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
