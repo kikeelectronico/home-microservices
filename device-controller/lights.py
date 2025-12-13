@@ -7,7 +7,7 @@ def resetEdisonBulb(homeware, topic, payload):
     if int(payload) > 35:
         homeware.execute("hue_11","brightness", 35)
 
-MIN_LIVINGROOM_DARKNESS_TRIGGER = 20
+MIN_LIVINGROOM_DARKNESS_TRIGGER = 15
 
 def sofaLight(homeware, topic, payload):
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness" or topic == "device/pressure001/occupancy":
