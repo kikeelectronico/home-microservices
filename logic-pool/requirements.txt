@@ -1,3 +1,4 @@
 paho-mqtt==2.1.0
 requests==2.32.5
-python-dotenv==1.1.1
+python-dotenv==1.2.1
+sseclient-py==1.8.0
