@@ -45,6 +45,8 @@ def workbenchLight(homeware, topic, payload):
       else:
         homeware.execute("hue_4", "on", False)
 
+WORKTABLE_DYNAMIC_BRIGNTNESS_MULTIPLIER = 1.5
+
 def worktableLight(homeware, topic, payload):
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness":
     if homeware.get("scene_awake", "enable"):
@@ -53,8 +55,8 @@ def worktableLight(homeware, topic, payload):
         homeware.execute("hue_9", "brightness", 10)
         homeware.execute("hue_10", "brightness", 10)
       else:
-        homeware.execute("hue_9", "brightness", light_level*2)
-        homeware.execute("hue_10", "brightness", light_level*2)
+        homeware.execute("hue_9", "brightness", light_level*WORKTABLE_DYNAMIC_BRIGNTNESS_MULTIPLIER)
+        homeware.execute("hue_10", "brightness", light_level*WORKTABLE_DYNAMIC_BRIGNTNESS_MULTIPLIER)
 
   if topic == "device/0b97c3c8-cb02-4f6d-9e60-d5755b25b968_1/occupancy":
     if payload == "OCCUPIED" and homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
