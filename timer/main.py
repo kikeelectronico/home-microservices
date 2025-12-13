@@ -102,13 +102,14 @@ def main():
     if hour == "04:00:00" and not hour == just_executed:
       just_executed = hour
       updateAstroData()
+      homeware.execute("scene_circadian_controller_enable", "enable", True)
     # elif hour == "06:00:00" and not hour == just_executed:
     #   just_executed = hour
     #   homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
     # elif hour == "07:00:00" and not hour == just_executed:
     #   just_executed = hour
     #   homeware.execute("thermostat_livingroom", "thermostatMode", "off")
-    elif hour == "07:30:00" and not hour == just_executed:
+    elif hour == "08:30:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
