@@ -3,9 +3,9 @@ import paho.mqtt.client as mqtt
 import os
 import time
 import json
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -23,7 +23,7 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ble-inbound-" + ENV
-ONLINE_TIMEOUT = 300
+ONLINE_TIMEOUT = 1800
 # API UUIDs
 API_SERVICE_UUID ="cba20d00-224d-11e6-9fb8-0002a5d5c51b"
 API_TX_CHARACTERISTIC_UUID= "cba20003-224d-11e6-9fb8-0002a5d5c51b"
@@ -36,13 +36,11 @@ last_update = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 # Callback for BLE sensots
 class MyDelegate(btle.DefaultDelegate):
-    def __init__(self, logger, device_id):
-        self.logger = logger
+    def __init__(self, device_id):
         self.device_id = device_id
         btle.DefaultDelegate.__init__(self)
 
@@ -59,9 +57,9 @@ class MyDelegate(btle.DefaultDelegate):
                 else: homeware.execute(self.device_id,"descriptiveCapacityRemaining","CRITICALLY_LOW")
 
                 if data[1] < 5:
-                  logger.log(self.device_id + ": batería muy baja", severity="ERROR")
+                  logging.error(self.device_id + ": batería muy baja")
                 elif data[1] < 10:
-                  logger.log(self.device_id + ": batería baja", severity="WARNING")
+                  logging.warning(self.device_id + ": batería baja")
 
             elif len(data) == 4:
                 # Update temperature and humidity
@@ -77,9 +75,9 @@ class MyDelegate(btle.DefaultDelegate):
                   homeware.execute(self.device_id,"humidityAmbientPercent",hum)
                 homeware.execute(self.device_id,"online",True)
             else:
-                self.logger.log("Unknown package from " + self.device_id, severity="WARNING")
+                logging.warning("Unknown package from " + self.device_id)
         elif data[0] == 7:
-            self.logger.log("Low battery: " + self.device_id, severity="WARNING")
+            logging.warning("Low battery: " + self.device_id)
             homeware.execute(self.device_id,"descriptiveCapacityRemaining","LOW")
             homeware.execute(self.device_id,"online",False)
 
@@ -89,9 +87,9 @@ def getSensors():
       try:
         print("connecting", device)
         # Connect to device
-        logger.log("Connecting to: " + device, severity="INFO")
+        logging.info("Connecting to: " + device)
         ble_link = btle.Peripheral(BLE_SENSORS[device]["mac"], btle.ADDR_TYPE_RANDOM)
-        ble_link.withDelegate(MyDelegate(logger, device))
+        ble_link.withDelegate(MyDelegate(device))
         # Get the API service
         service_uuid = btle.UUID(API_SERVICE_UUID)
         ble_service = ble_link.getServiceByUUID(service_uuid)
@@ -116,10 +114,12 @@ def getSensors():
         # Update timestamp
         last_update[device] = time.time()
       except btle.BTLEDisconnectError:
-        logger.log("Device unreachable: " + device, severity="WARNING")
+        logging.warning("Device unreachable: " + device)
         if device in last_update:
           if time.time() - last_update[device] > ONLINE_TIMEOUT:
-            logger.log("Device offline: " + device, severity="WARNING")
+            if homeware.get(device, "online"):
+              mqtt_client.publish("message-alerts", device + " inaccesible")
+            logging.warning("Device offline: " + device)
             homeware.execute(device,"online",False)
 
 # BLE presence
@@ -151,7 +151,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   while True:
     getSensors()

@@ -1,8 +1,7 @@
 import paho.mqtt.client as mqtt
 import telebot
 import os
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -18,12 +17,11 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["heartbeats/request","message-alerts"]
+TOPICS = ["message-alerts"]
 SERVICE = "notification-message-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 bot = telebot.TeleBot(token=BOT_TOKEN)
 
 # Suscribe to topics on connect
@@ -33,13 +31,9 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic == "heartbeats/request":
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
-  else:
-    # Send the message to the Telegram API
-    payload = msg.payload.decode('utf-8').replace("\'", "\"")
-    bot.send_message(ENRIQUE_CHAT_ID, payload)
+  # Send the message to the Telegram API
+  payload = msg.payload.decode('utf-8').replace("\'", "\"")
+  bot.send_message(ENRIQUE_CHAT_ID, payload)
 	
 # Main entry point
 if __name__ == "__main__":
@@ -59,7 +53,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Main loop
   mqtt_client.loop_forever()
 

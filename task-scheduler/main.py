@@ -2,9 +2,9 @@ import paho.mqtt.client as mqtt
 import time
 import os
 import json
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -22,7 +22,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = [ "tasks", "heartbeats/request" ]
+TOPICS = [ "tasks", "heartbeats/system" ]
 SERVICE = "task-scheduler-" + ENV
 
 # Declare variables
@@ -31,8 +31,7 @@ tasks = []
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, SERVICE)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -42,9 +41,7 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   global tasks
-  if msg.topic == "heartbeats/request":
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
+  if msg.topic == "heartbeats/system":
     for index, task in enumerate(tasks):
       if task["time"] < time.time():
         assert_pass = True
@@ -81,7 +78,7 @@ def main():
   if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Declare the callback functions
   mqtt_client.on_message = on_message

@@ -6,9 +6,9 @@ import ssl
 import threading
 import uuid
 from websocket import WebSocketApp
+import logging
 
 from homeware import Homeware
-from logger import Logger
 
 import urllib3
 urllib3.disable_warnings()
@@ -30,19 +30,20 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.1
+OUTLET_CURRENT_THRESHOLD = 0.2
 
 # Variables
-last_trigger = {}
+tasks = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 def on_message(ws, message):
   event = json.loads(message)
   data = event["data"]
+  
+  # The action depends on deviceType
   if data["deviceType"] == "outlet":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
@@ -51,30 +52,39 @@ def on_message(ws, message):
     if "currentAmps" in data["attributes"]:
       if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
         homeware.execute(data["id"], "isRunning", True)
-        last_trigger[data["id"]] = None
+        task_id = str(data["id"]) + "-" + "isRunning"
+        if task_id in tasks:
+          del tasks[task_id]
       else:
-        last_time = last_trigger.get(data["id"])
-        if last_time is None:
-          last_trigger[data["id"]] = time.time()
-        else:
-            if (time.time() - last_time) > 10:
-              homeware.execute(data["id"], "isRunning", False)
-        
+        task_id = str(data["id"]) + "-" + "isRunning"
+        tasks[task_id] = {
+          "time": time.time(),
+          "device_id": str(data["id"]),
+          "param": "isRunning",
+          "value": False
+        }
   elif data["deviceType"] == "motionSensor":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
     if "isDetected" in data["attributes"]:
       homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
 
+  # Loop over pending tasks
+  for task_id in list(tasks.keys()):
+    task = tasks[task_id]
+    if (time.time() - task["time"]) > 10:
+      homeware.execute(task["device_id"], task["param"], task["value"])
+      del tasks[task_id]
+
 
 def on_error(ws, error):
-  logger.log("Error: " + error , severity="WARNING")
+  logging.warning("Error: " + error)
 
 def on_close(ws, close_status_code, close_msg):
-  logger.log("Conexión cerrada", severity="INFO")
+  logging.info("Conexión cerrada")
 
 def on_open(ws):
-  logger.log("Conexión abierta", severity="INFO")
+  logging.info("Conexión abierta")
 
   def run():
     while True:
@@ -111,7 +121,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   
   # Open WebSocket
   url = f"wss://{IKEA_HOST}:8443/v1"

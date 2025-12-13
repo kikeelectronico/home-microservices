@@ -3,10 +3,8 @@ class Alert:
 
   __mqtt_client = None
 
-  def __init__(self, mqtt_client, logger):
+  def __init__(self, mqtt_client):
     self.__mqtt_client = mqtt_client
-    self.logger = logger
-
   # Send a voice alert
   def voice(self, input_text, speaker=""):
     output_text = input_text

@@ -2,8 +2,7 @@ import time
 import paho.mqtt.client as mqtt
 import os
 from google.cloud import bigquery
-
-from logger import Logger
+import logging
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -20,7 +19,6 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 POWER_CONSTANT = 35
 TOPICS = [
-	"heartbeats/request",
 	"device/current001/brightness",
 	"device/thermostat_livingroom/thermostatTemperatureAmbient",
 	"device/thermostat_livingroom/thermostatHumidityAmbient",
@@ -45,7 +43,6 @@ last_value = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 bigquery_client = bigquery.Client()
 
 # Change the type of the payload
@@ -71,25 +68,22 @@ def on_message(client, userdata, msg):
 	topic = msg.topic
 	payload = typifyPayload(topic, msg.payload)
 	# The request depends on the device
-	if topic == "heartbeats/request":
-		mqtt_client.publish("heartbeats", SERVICE)
-	else:
-		if payload != last_value.setdefault(topic, 0):
-			# Prepare the data
-			ts = int(time.time())
-			device_id = topic.split("/")[1]
-			param = topic.split("/")[2] if not "current001" in topic else "current"
-			value = payload if not "current001" in topic else payload * POWER_CONSTANT
-			# Insert the data
-			bigquery_client.query(
-				"""
-					INSERT INTO {}
-					(time, device_id, param, value, type)
-					VALUES ({},"{}","{}","{}", "{}");
-				""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
-			)
-			# Update last_value
-			last_value[topic] = payload
+	if payload != last_value.setdefault(topic, 0):
+		# Prepare the data
+		ts = int(time.time())
+		device_id = topic.split("/")[1]
+		param = topic.split("/")[2] if not "current001" in topic else "current"
+		value = payload if not "current001" in topic else payload * POWER_CONSTANT
+		# Insert the data
+		bigquery_client.query(
+			"""
+				INSERT INTO {}
+				(time, device_id, param, value, type)
+				VALUES ({},"{}","{}","{}", "{}");
+			""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
+		)
+		# Update last_value
+		last_value[topic] = payload
 
 # Main entry point
 if __name__ == "__main__":
@@ -108,7 +102,7 @@ if __name__ == "__main__":
   	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-	logger.log("Starting " + SERVICE , severity="INFO")
+	logging.info("Starting " + SERVICE)
   	# Main loop
 	mqtt_client.loop_forever()
  
