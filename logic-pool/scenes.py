@@ -98,8 +98,10 @@ def disableShowerScene(homeware, alert, topic, payload):
   global shower_initiated
   global initial_bathroom_humidity
   if topic == "device/thermostat_bathroom/thermostatHumidityAmbient":
-    if homeware.get("thermostat_bathroom", "thermostatHumidityAmbient") > (initial_bathroom_humidity + BATHROOM_HUMIDITY_DELTA):
-      shower_initiated = True
+    if initial_bathroom_humidity == 0: initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
+    if waiting_for_shower:
+      if homeware.get("thermostat_bathroom", "thermostatHumidityAmbient") > (initial_bathroom_humidity + BATHROOM_HUMIDITY_DELTA):
+        shower_initiated = True
 
   if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/occupancy":
     if payload == "OCCUPIED":
