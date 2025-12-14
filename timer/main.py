@@ -4,10 +4,10 @@ import os
 import time
 import requests
 import json
+import logging
 
 from homeware import Homeware
 from Alert import Alert
-from logger import Logger
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -37,14 +37,13 @@ astro_data = {
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, SERVICE)
-alert = Alert(mqtt_client, SERVICE)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+alert = Alert(mqtt_client)
 
 def updateAstroData():
   try:
     url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
-    response = requests.request("GET", url, verify=False, timeout=5)
+    response = requests.request("GET", url, timeout=5)
     if response.status_code == 200:
       global astro_data
       data = response.json()
@@ -57,9 +56,9 @@ def updateAstroData():
         "sunset": sunset
       }
     else:
-      logger.log("Fail to update weather data. Status code: " + str(response.status_code), severity="WARNING")
+      logging.warning("Fail to update weather data. Status code: " + str(response.status_code))
   except (requests.ConnectionError, requests.Timeout) as exception:
-    logger.log("Fail to update weather data. Conection error.", severity="WARNING")
+    logging.warning("Fail to update weather data. Conection error.")
 
 
 def main():
@@ -82,8 +81,8 @@ def main():
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
   today = datetime.datetime.now()
   hour = today.strftime("%H:%M:%S")
-  logger.log("Starting " + SERVICE , severity="INFO")
-  logger.log("Hora local " + str(hour), severity="INFO")
+  logging.info("Starting " + SERVICE)
+  logging.info("Hora local " + str(hour))
   # Get astro data
   updateAstroData()
   # Main loop
@@ -103,13 +102,14 @@ def main():
     if hour == "04:00:00" and not hour == just_executed:
       just_executed = hour
       updateAstroData()
+      homeware.execute("scene_circadian_controller_enable", "enable", True)
     # elif hour == "06:00:00" and not hour == just_executed:
     #   just_executed = hour
     #   homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
     # elif hour == "07:00:00" and not hour == just_executed:
     #   just_executed = hour
     #   homeware.execute("thermostat_livingroom", "thermostatMode", "off")
-    elif hour == "07:30:00" and not hour == just_executed:
+    elif hour == "08:30:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
@@ -132,7 +132,6 @@ def main():
       weekday = today.weekday()
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         alert.voice("5 minutos para las nueve.")
-      homeware.execute("hue_5", "color", {"temperatureK": 4000})
     elif hour == "09:00:00" and not hour == just_executed:
       just_executed = hour
       weekday = today.weekday()
@@ -178,9 +177,6 @@ def main():
       if weekday in [0,1,2,3,4] and homeware.get("switch_at_home", "on") and (not homeware.get("scene_on_vacation", "enable")):
         if homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "brightness") < 20 and homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "occupancy") == "OCCUPIED":
           alert.voice("Poca luz.")
-    elif hour == "21:00:00" and not hour == just_executed:
-      just_executed = hour
-      homeware.execute("hue_5", "color", {"temperatureK": 2700})
     elif hour == "22:00:00" and not hour == just_executed:
       just_executed = hour
       if homeware.get("scene_winter", "enable"):

@@ -1,9 +1,9 @@
 import paho.mqtt.client as mqtt
 import os
 import time
+import logging
 
 from Homeware import Homeware
-from logger import Logger
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -19,7 +19,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["heartbeats", "heartbeats/request", "device/heartbeat"]
+TOPICS = ["device/heartbeat"]
 SERVICE = "monitor-heartbeat-control-" + ENV
 
 # Declare variables
@@ -28,7 +28,6 @@ devices_heartbeats = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 # Suscribe to topics on connect
@@ -38,41 +37,11 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-	if msg.topic == "heartbeats/request":
-		# Verify the last hearbeat of the microservices and devices
-		current_time = time.time()
-		# Alert if a microservice is down and queue for deletion
-		services_to_delete = []
-		for service in microservices_heartbeats.keys():
-			if current_time - microservices_heartbeats[service] > 70:
-				logger.log(service.decode("utf-8") + ": caido", severity="WARNING")
-				services_to_delete.append(service)
-		# Delete the microservices on the delete queue
-		if len(services_to_delete) > 0:
-			for service in services_to_delete:
-				del microservices_heartbeats[service]
-		# Alert if a device is down and queue for deletion
-		services_to_delete = []
-		for service in devices_heartbeats.keys():
-			if current_time - devices_heartbeats[service] > 70:
-				logger.log(service.decode("utf-8") + ": caido", severity="WARNING")
-				homeware.execute(service.decode("utf-8"), "online", False)
-				services_to_delete.append(service)
-		# Delete the devices on the delete queue
-		if len(services_to_delete) > 0:
-			for service in services_to_delete:
-				del devices_heartbeats[service]
-	elif msg.topic == "heartbeats":
-		# Save the timestamp when a microservice sends a heartbeat
-		service = msg.payload
-		if not service in microservices_heartbeats:
-				logger.log(service.decode("utf-8") + ": arriba", severity="INFO")
-		microservices_heartbeats[service] = time.time()
-	elif msg.topic == "device/heartbeat":
+	if msg.topic == "device/heartbeat":
 		# Save the timestamp when a device sends a heartbeat
 		service = msg.payload
 		if not service in devices_heartbeats:
-				logger.log(service.decode("utf-8") + ": arriba", severity="INFO")
+				logging.info(service.decode("utf-8") + ": arriba")
 		devices_heartbeats[service] = time.time()
 		homeware.execute(service.decode("utf-8"), "online", True)
 
@@ -94,7 +63,7 @@ if __name__ == "__main__":
 	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-	logger.log("Starting " + SERVICE , severity="INFO")
+	logging.info("Starting " + SERVICE)
 	# Main loop
 	mqtt_client.loop_forever()
  

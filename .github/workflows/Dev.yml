@@ -18,6 +18,7 @@ jobs:
           - bigquery-outbound
           - ble-inbound
           - chromecast-logic-pool
+          - circadian-controller
           - data-panel-api
           - data-panel-front
           - device-controller
@@ -28,7 +29,6 @@ jobs:
           - hue-sensors-alerts
           - ikea-inbound
           - ikea-outbound
-          - logger
           - logic-pool
           - timer
           - monitor-heartbeat-control
