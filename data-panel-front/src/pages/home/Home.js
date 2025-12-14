@@ -4,6 +4,7 @@ import Outdoors from "./components/Outdoors"
 import Livingroom from "./components/rooms/Livingroom";
 import Bathroom from "./components/rooms/Bathroom";
 import Bedroom from "./components/rooms/Bedroom";
+import Fridge from "./components/rooms/Fridge";
 import Power from "./components/Power";
 import NotAtHome from "../../components/NotAtHome"
 import Connection from "./components/Connection";
@@ -72,6 +73,7 @@ export default function Home(props) {
                 <Livingroom home={home} playing={spotify_playing}/>
                 <Bathroom home={home} playing={spotify_playing}/>
                 <Bedroom home={home} playing={spotify_playing}/>
+                <Fridge home={home} playing={spotify_playing}/>
               </> 
             : <></> }
 
