@@ -1,20 +1,20 @@
 import requests
+import logging
 
 class Ikea:
   
   __url = "localhost"
   __token = "token"
 
-  def __init__(self, host, token, logger):
+  def __init__(self, host, token):
     self.__host = host
     self.__token = token
-    self.logger = logger
       
   # Get device
   def getDevices(self, device_id="all"):
     if self.__token == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
-      self.logger.log("Hue env vars aren't set", severity="ERROR")
+      logging.error("Hue env vars aren't set")
     else:
       try:
         session = requests.Session()
@@ -29,7 +29,7 @@ class Ikea:
         devices = response.json()
         return devices
       except (requests.ConnectionError, requests.Timeout) as exception:
-          self.logger.log("Fail to get Ikea hub " + device_id + ". Conection error.", severity="WARNING")
+          logging.warning("Fail to get Ikea hub " + device_id + ". Conection error.")
           self._fail_to_update = False
           if device_id == "all": return []
           return {}
@@ -38,7 +38,7 @@ class Ikea:
   def setDevice(self, device_id="all", attribute="isOn", value=False):
     if self.__token == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
-      self.logger.log("Hue env vars aren't set", severity="ERROR")
+      logging.error("Hue env vars aren't set")
     else:
       try:
         session = requests.Session()
@@ -52,7 +52,7 @@ class Ikea:
         response.raise_for_status()
         return response.status_code == 202
       except (requests.ConnectionError, requests.Timeout) as exception:
-          self.logger.log("Fail to get Ikea hub " + device_id + ". Conection error.", severity="WARNING")
+          logging.warning("Fail to get Ikea hub " + device_id + ". Conection error.")
           self._fail_to_update = False
           return False
       

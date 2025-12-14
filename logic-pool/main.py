@@ -1,10 +1,10 @@
 from cmath import e
 import paho.mqtt.client as mqtt
 import os
+import logging
 
 import functions
 from Homeware import Homeware
-from logger import Logger
 from Alert import Alert
 import alerts
 import power
@@ -30,7 +30,6 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 TOPICS = [
-  "heartbeats/request",
   "device/thermostat_bathroom/capacityRemaining",
   "device/thermostat_dormitorio/capacityRemaining",
   "device/thermostat_livingroom/capacityRemaining",
@@ -54,8 +53,6 @@ TOPICS = [
   "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness",
   "device/scene_sensors_enable/enable",
   "device/hue_5/brightness",
-  "device/hue_9/brightness",  
-  "device/hue_10/brightness",
   "device/pressure001/occupancy",
   "device/pressure002/occupancy",
   "device/scene_astro_day/enable",
@@ -67,9 +64,8 @@ SERVICE = "logic-pool-" + ENV
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
-alert = Alert(mqtt_client, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+alert = Alert(mqtt_client)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -79,43 +75,38 @@ def on_connect(client, userdata, flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   try:
-    if msg.topic == "heartbeats/request":
-      # Send heartbeat
-      mqtt_client.publish("heartbeats", SERVICE)
-    else:
-      # Exec the logic
-      payload = functions.loadPayload(msg.payload)
-      if payload is not None:
-        alerts.battery(homeware, alert, msg.topic, payload)
-        alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
-        general.atHome(homeware, msg.topic, payload)
-        general.prepareHome(homeware, msg.topic, payload)
-        lights.pyramids(homeware, msg.topic, payload)
-        lights.workTable(homeware, msg.topic, payload)
-        power.powerManagment(homeware, msg.topic, payload)
-        scenes.dim(homeware, msg.topic, payload)
-        scenes.shower(homeware, alert, msg.topic, payload)
-        scenes.disableShowerScene(homeware, alert, msg.topic, payload)
-        scenes.powerAlert(homeware, alert, msg.topic, payload)
-        scenes.sensors(homeware, alert, msg.topic, payload)
-        scenes.astro_day(homeware, alert, msg.topic, payload)
-        scenes.headphones(homeware, alert, msg.topic, payload)
-        sensors.livingroom(homeware, msg.topic, payload)
-        sensors.sofa(homeware, msg.topic, payload)
-        sensors.bedroom(homeware, msg.topic, payload)
-        switches.bedroom(homeware, msg.topic, payload)
-        switches.bathroom(homeware, msg.topic, payload)
-        switches.mirror(homeware, msg.topic, payload)
-        thermostats.livingroom(homeware, msg.topic, payload)
+    # Exec the logic
+    payload = functions.loadPayload(msg.payload)
+    if payload is not None:
+      alerts.battery(homeware, alert, msg.topic, payload)
+      alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
+      general.atHome(homeware, msg.topic, payload)
+      general.prepareHome(homeware, msg.topic, payload)
+      lights.pyramids(homeware, msg.topic, payload)
+      power.powerManagment(homeware, msg.topic, payload)
+      scenes.dim(homeware, msg.topic, payload)
+      scenes.shower(homeware, alert, msg.topic, payload)
+      scenes.disableShowerScene(homeware, alert, msg.topic, payload)
+      scenes.powerAlert(homeware, alert, msg.topic, payload)
+      scenes.sensors(homeware, alert, msg.topic, payload)
+      scenes.astro_day(homeware, alert, msg.topic, payload)
+      scenes.headphones(homeware, alert, msg.topic, payload)
+      sensors.livingroom(homeware, msg.topic, payload)
+      sensors.sofa(homeware, msg.topic, payload)
+      sensors.bedroom(homeware, msg.topic, payload)
+      switches.bedroom(homeware, msg.topic, payload)
+      switches.bathroom(homeware, msg.topic, payload)
+      switches.mirror(homeware, msg.topic, payload)
+      thermostats.livingroom(homeware, msg.topic, payload)
   except Exception as e:
-    logger.log("Excepción en Logic pool mqtt", severity="WARNING")
-    logger.log(str(e), severity="WARNING") 
+    logging.warning("Excepción en Logic pool mqtt")
+    logging.warning(str(e)) 
 
 if __name__ == "__main__":
   # Check env vars
   def report(message):
     print(message)
-    #logger.log(message, severity="ERROR")
+    #logging.error(message)
     exit()
   if MQTT_USER == "no_set":
     report("MQTT_USER env vars no set")
@@ -133,6 +124,6 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   # Main loop
   mqtt_client.loop_forever()

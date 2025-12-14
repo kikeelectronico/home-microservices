@@ -1,10 +1,14 @@
 import paho.mqtt.client as mqtt
 import os
 import time
+import json
+import ssl
+import threading
+import uuid
+from websocket import WebSocketApp
+import logging
 
-from ikea import Ikea
 from homeware import Homeware
-from logger import Logger
 
 import urllib3
 urllib3.disable_warnings()
@@ -26,14 +30,78 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.1
+OUTLET_CURRENT_THRESHOLD = 0.2
 
+# Variables
+tasks = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
-ikea = Ikea(IKEA_HOST, IKEA_TOKEN, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+
+def on_message(ws, message):
+  event = json.loads(message)
+  data = event["data"]
+  
+  # The action depends on deviceType
+  if data["deviceType"] == "outlet":
+    if "isReachable" in data:
+      homeware.execute(data["id"], "online", data["isReachable"])
+    if "isOn" in data["attributes"]:
+      homeware.execute(data["id"], "on", data["attributes"]["isOn"])
+    if "currentAmps" in data["attributes"]:
+      if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
+        homeware.execute(data["id"], "isRunning", True)
+        task_id = str(data["id"]) + "-" + "isRunning"
+        if task_id in tasks:
+          del tasks[task_id]
+      else:
+        task_id = str(data["id"]) + "-" + "isRunning"
+        tasks[task_id] = {
+          "time": time.time(),
+          "device_id": str(data["id"]),
+          "param": "isRunning",
+          "value": False
+        }
+  elif data["deviceType"] == "motionSensor":
+    if "isReachable" in data:
+      homeware.execute(data["id"], "online", data["isReachable"])
+    if "isDetected" in data["attributes"]:
+      homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
+
+  # Loop over pending tasks
+  for task_id in list(tasks.keys()):
+    task = tasks[task_id]
+    if (time.time() - task["time"]) > 10:
+      homeware.execute(task["device_id"], task["param"], task["value"])
+      del tasks[task_id]
+
+
+def on_error(ws, error):
+  logging.warning("Error: " + error)
+
+def on_close(ws, close_status_code, close_msg):
+  logging.info("Conexión cerrada")
+
+def on_open(ws):
+  logging.info("Conexión abierta")
+
+  def run():
+    while True:
+      ping_msg = {
+        "id": str(uuid.uuid4()),
+        "specversion": "1.1.0",
+        "source": "urn:lpgera:dirigera",
+        "time": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        "type": "ping",
+        "data": None
+      }
+      ws.send(json.dumps(ping_msg))
+      time.sleep(30)
+
+    thread = threading.Thread(target=run)
+    thread.daemon = True
+    thread.start()
 
 # Main entry point
 if __name__ == "__main__":
@@ -53,18 +121,22 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
   
-  # Main loop
-  while True:
-    devices = ikea.getDevices()
-    for device in devices:
-      if device["type"] == "outlet":
-        if "isReachable" in device:
-          homeware.execute(device["id"], "online", device["isReachable"])
-        if "isOn" in device["attributes"]:
-          homeware.execute(device["id"], "on", device["attributes"]["isOn"])
-        if "currentAmps" in device["attributes"]:
-          homeware.execute(device["id"], "isRunning", device["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD)
+  # Open WebSocket
+  url = f"wss://{IKEA_HOST}:8443/v1"
+  headers = {
+    "Authorization": "Bearer " + IKEA_TOKEN
+  }
+  ws_app = WebSocketApp(
+    url,
+    header=[key + ": " + value for key, value in headers.items()],
+    on_message=on_message,
+    on_error=on_error,
+    on_close=on_close,
+    on_open=on_open,
+  )
 
-    time.sleep(5)
+  # Contexto SSL para certificado autofirmado
+  sslopt = {"cert_reqs": ssl.CERT_NONE}
+  ws_app.run_forever(sslopt=sslopt)

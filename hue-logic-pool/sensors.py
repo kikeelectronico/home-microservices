@@ -135,6 +135,11 @@ def bathroom(service, homeware, mqtt_client):
                     "device_id": "06612edc-4b7c-4ef3-9f3c-157b9d482f8c",
                     "param": "occupancy",
                     "value": "UNOCCUPIED"
+                  },
+                  {
+                    "device_id": "9260ed68-0542-4248-9f23-babfae1db2a1_1",
+                    "param": "occupancy",
+                    "value": "UNOCCUPIED"
                   }
                 ]
               }
@@ -154,6 +159,11 @@ def bathroom(service, homeware, mqtt_client):
                 "asserts": [
                   {
                     "device_id": "06612edc-4b7c-4ef3-9f3c-157b9d482f8c",
+                    "param": "occupancy",
+                    "value": "UNOCCUPIED"
+                  },
+                  {
+                    "device_id": "9260ed68-0542-4248-9f23-babfae1db2a1_1",
                     "param": "occupancy",
                     "value": "UNOCCUPIED"
                   }

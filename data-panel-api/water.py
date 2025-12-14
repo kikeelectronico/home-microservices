@@ -1,6 +1,7 @@
 import time
 from lxml import html
 import requests
+import logging
 
 RELOAD_TIME = 86400
 
@@ -10,8 +11,8 @@ class Water:
   _last_update = "No date"
   _last_request = 0
 
-  def __init__(self, logger):
-    self.logger = logger
+  def __init__(self):
+    pass
 
   def updateWater(self):
     try:
@@ -22,7 +23,7 @@ class Water:
       self._level = tree.xpath('//*[@id="index_bodycenter"]/div[2]/div[2]/div[3]/div[4]/strong/text()')[0]
       self._level = float(self._level)
     except:
-      self.logger.log("Fail to reach embalses.net.", severity="WARNING")
+      logging.warning("Fail to reach embalses.net.")
 
   def getWater(self):
     now = time.time()
