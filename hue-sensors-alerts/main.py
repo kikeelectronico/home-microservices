@@ -3,10 +3,10 @@ import os
 import json
 from sseclient import SSEClient
 import requests
+import logging
 
 from hue import Hue
 from homeware import Homeware
-from logger import Logger
 
 import urllib3
 urllib3.disable_warnings()
@@ -35,9 +35,8 @@ device_id_service_id = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
-hue = Hue(HUE_HOST, HUE_TOKEN, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Main entry point
 if __name__ == "__main__":
@@ -54,7 +53,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
   hue_devices = hue.getResource(resource="device")

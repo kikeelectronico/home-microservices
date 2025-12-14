@@ -3,10 +3,10 @@ import os
 import json
 from sseclient import SSEClient
 import requests
+import logging
 
 from hue import Hue
 from homeware import Homeware
-from logger import Logger
 import init
 import services
 
@@ -37,9 +37,8 @@ device_id_service_id = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-logger = Logger(mqtt_client, SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY, logger)
-hue = Hue(HUE_HOST, HUE_TOKEN, logger)
+homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Main entry point
 if __name__ == "__main__":
@@ -58,7 +57,7 @@ if __name__ == "__main__":
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logger.log("Starting " + SERVICE , severity="INFO")
+  logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
   hue_devices = hue.getResource(resource="device")
@@ -67,11 +66,11 @@ if __name__ == "__main__":
       device_id_service_id[service["rid"]] = hue_device["id"]
 
   # Get initial values
-  init.contact(HUE_HOST, HUE_TOKEN, homeware, logger, device_id_service_id)
-  init.motion(HUE_HOST, HUE_TOKEN, homeware, logger, device_id_service_id)
-  init.connectivity(HUE_HOST, HUE_TOKEN, homeware, logger, device_id_service_id)
-  init.power(HUE_HOST, HUE_TOKEN, homeware, logger, device_id_service_id)
-  init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, logger, device_id_service_id)
+  init.contact(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.motion(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.connectivity(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.power(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
 
   # Connect to Hue bridge
   url = "https://" + HUE_HOST + "/eventstream/clip/v2"
