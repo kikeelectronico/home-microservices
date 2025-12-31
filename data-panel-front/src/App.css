@@ -32,3 +32,11 @@ html, body {
   height: 100vh;
   z-index: 10;
 }
+
+.deviceOnline {
+  color: white;
+}
+
+.deviceOffline {
+  color: #888;
+}

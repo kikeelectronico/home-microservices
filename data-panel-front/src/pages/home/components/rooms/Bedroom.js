@@ -23,14 +23,14 @@ export default function Bedroom(props) {
             Dormitorio
         </div>
         <div className="homeCardRow" style={{marginTop: 5}}>
-            <div className="roomCardAmbientContainer">
+            <div className={"roomCardAmbientContainer " + (props.home.status.thermostat_dormitorio.online ? "deviceOnline" : "deviceOffline")}>
                 {props.home.status.thermostat_dormitorio.thermostatTemperatureAmbient} ºC
             </div>
         </div>
         {
             thermostatMode() !== "" ?
                 <div className="homeCardRow homeCardRowNoBorder">
-                    <div className="roomCardThermostatContainer">
+                    <div className="roomCardThermostatContainer deviceOnline">
                         {thermostatMode()}
                     </div>
                 </div>
@@ -39,7 +39,7 @@ export default function Bedroom(props) {
         {
             props.home.status["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"].openPercent === 100 ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status[["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]].online ? "deviceOnline" : "deviceOffline")}>
                         Ventana abierta
                     </div>
                 </div>
@@ -49,7 +49,7 @@ export default function Bedroom(props) {
             props.home.status["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"].openPercent === 100 && 
             props.home.status.thermostat_livingroom.thermostatMode === "cool" ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status[["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]].online ? "deviceOnline" : "deviceOffline")}>
                         Cierra la ventana
                     </div>
                 </div>

@@ -25,14 +25,14 @@ export default function Livingroom(props) {
             Salón
         </div>
         <div className="homeCardRow" style={{marginTop: 5}}>
-            <div className="roomCardAmbientContainer">
+            <div className={"roomCardAmbientContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
                 {props.home.status.thermostat_livingroom.thermostatTemperatureAmbient} ºC
             </div>
         </div>
         {
             thermostatMode() !== "" ?
                 <div className="homeCardRow homeCardRowNoBorder">
-                    <div className="roomCardThermostatContainer">
+                    <div className="roomCardThermostatContainer deviceOnline">
                         {thermostatMode()}
                     </div>
                 </div>
@@ -41,7 +41,7 @@ export default function Livingroom(props) {
         {
             props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 100 ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status[["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]].online ? "deviceOnline" : "deviceOffline")}>
                         Ventana abierta
                     </div>
                 </div>
@@ -50,7 +50,7 @@ export default function Livingroom(props) {
         {
             props.home.status.thermostat_livingroom.thermostatHumidityAmbient < 30 ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
                         Humedad baja
                     </div>
                 </div>
@@ -59,7 +59,7 @@ export default function Livingroom(props) {
         {
             props.home.status.thermostat_livingroom.thermostatHumidityAmbient > 55 ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
                         Humedad alta
                     </div>
                 </div>
@@ -70,19 +70,7 @@ export default function Livingroom(props) {
             props.home.status.thermostat_livingroom.thermostatMode === "cool" &&
             props.home.status.thermostat_livingroom.thermostatTemperatureAmbient > props.home.status.temperature_001.temperatureAmbientCelsius ?
                 <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
-                        Abre la ventana
-                    </div>
-                </div>
-            : <></>
-        }
-        {
-            props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 100 && 
-            props.home.status.scene_summer.enable &&
-            props.home.status.thermostat_livingroom.thermostatMode === "off" &&
-            props.home.status.thermostat_livingroom.thermostatTemperatureAmbient < props.home.status.temperature_001.temperatureAmbientCelsius ?
-                <div className="homeCardRow">
-                    <div className="roomCardAlertContainer">
+                    <div className={"roomCardAlertContainer " + (props.home.status[["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]].online ? "deviceOnline" : "deviceOffline")}>
                         Abre la ventana
                     </div>
                 </div>
