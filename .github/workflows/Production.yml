@@ -47,16 +47,16 @@ jobs:
       REGISTRY_REPO: ${{secrets.REGISTRY_REPO}}
       GOOGLE_APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
 
-  deploy:
-    name: Deploy to production environment
-    runs-on: ubuntu-latest
-    needs: 
-      - build
-    if: ${{ always() && !failure() && !cancelled() }}
-    steps:
-      - name: Request update
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: ${{ secrets.DIP_URL }}
-          method: "POST"
-          bearerToken: ${{ secrets.DIP_TOKEN }}
+  # deploy:
+  #   name: Deploy to production environment
+  #   runs-on: ubuntu-latest
+  #   needs: 
+  #     - build
+  #   if: ${{ always() && !failure() && !cancelled() }}
+  #   steps:
+  #     - name: Request update
+  #       uses: fjogeleit/http-request-action@v1
+  #       with:
+  #         url: ${{ secrets.DIP_URL }}
+  #         method: "POST"
+  #         bearerToken: ${{ secrets.DIP_TOKEN }}

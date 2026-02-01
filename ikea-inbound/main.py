@@ -66,6 +66,15 @@ def on_message(ws, message):
   elif data["deviceType"] == "motionSensor":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
+    if "batteryPercentage" in data:
+      battery_level = data["batteryPercentage"]
+      if battery_level == 100: descriptiveCapacityRemaining = "FULL"
+      elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
+      elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
+      elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
+      else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
+      homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
+      homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
     if "isDetected" in data["attributes"]:
       homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
 
