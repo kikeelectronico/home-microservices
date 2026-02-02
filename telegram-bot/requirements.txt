@@ -4,6 +4,6 @@ google-auth-httplib2==0.2.1
 google-api-python-client==2.187.0
 gtts==2.5.4
 catt==0.13.1
-google-cloud-storage==3.6.0
+google-cloud-storage==3.9.0
 pytube==15.0.0
 python-dotenv==1.2.1
