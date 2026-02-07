@@ -12,7 +12,6 @@ if os.environ.get("GET_IP_ENDPOINT", "no_set") == "no_set":
 GET_IP_ENDPOINT = os.environ.get("GET_IP_ENDPOINT", "no_set")
 CLOUDFLARE_ZONE = os.environ.get("CLOUDFLARE_ZONE", "no_set")
 CLOUDFLARE_DNS_ID = os.environ.get("CLOUDFLARE_DNS_ID", "no_set")
-CLOUDFLARE_DNS_ID_DIP = os.environ.get("CLOUDFLARE_DNS_ID_DIP", "no_set")
 CLOUDFLARE_DNS_ID_PB = os.environ.get("CLOUDFLARE_DNS_ID_PB", "no_set")
 CLOUDFLARE_TOKEN = os.environ.get("CLOUDFLARE_TOKEN", "no_set")
 MQTT_USER = os.environ.get("MQTT_USER", "no_set")
@@ -40,7 +39,6 @@ def main():
   if GET_IP_ENDPOINT == "no_set": report("GET_IP_ENDPOINT env vars no set")
   if CLOUDFLARE_ZONE == "no_set": report("CLOUDFLARE_ZONE env vars no set")
   if CLOUDFLARE_DNS_ID == "no_set": report("CLOUDFLARE_DNS_ID env vars no set")
-  if CLOUDFLARE_DNS_ID_DIP == "no_set": report("CLOUDFLARE_DNS_ID_DIP env vars no set")
   if CLOUDFLARE_DNS_ID_PB == "no_set": report("CLOUDFLARE_DNS_ID_PB env vars no set")
   if CLOUDFLARE_TOKEN == "no_set": report("CLOUDFLARE_TOKEN env vars no set")
   if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
@@ -72,21 +70,6 @@ def main():
       else:
         logging.error("Problemas al actualizar la IP de Homeware")
         mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de Homeware")
-      # DIP
-      # Make an update request to the Cloudflare API
-      url = "https://api.cloudflare.com/client/v4/zones/" + CLOUDFLARE_ZONE + "/dns_records/" + CLOUDFLARE_DNS_ID_DIP
-      payload="{\"content\": \"" + ip + "\"}"
-      headers = {
-        'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
-        'Content-Type': 'application/json'
-      }
-      response = requests.request("PATCH", url, headers=headers, data=payload).json()
-      # Verify the response from Cloudflare
-      if response["success"]:
-        logging.info("IP de DIP actualizada")
-      else:
-        logging.error("Problemas al actualizar la IP de DIP")
-        mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de DIP")
       # PB
       # Make an update request to the Cloudflare API
       url = "https://api.cloudflare.com/client/v4/zones/" + CLOUDFLARE_ZONE + "/dns_records/" + CLOUDFLARE_DNS_ID_PB
