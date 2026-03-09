@@ -33,7 +33,7 @@ def bathroom(service, homeware):
     elif state == "short_release":
       homeware.execute("hue_sensor_14","on",buttons_preloaded_data["hue_sensor_14/on"])
     elif state == "long_press":
-      value = not homeware.get("hue_7","on")
-      homeware.execute("hue_7","on",value)
+      value = not homeware.get("hallway_switch","on")
+      homeware.execute("hallway_switch","on",value)
       
              

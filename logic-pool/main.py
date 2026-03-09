@@ -54,6 +54,7 @@ TOPICS = [
   "device/scene_astro_day/enable",
   "device/scene_headphones/enable",
   "device/thermostat_bathroom/thermostatHumidityAmbient",
+  "device/hallway_switch/on",
   "device/control"
 ]
 SERVICE = "logic-pool-" + ENV
@@ -93,6 +94,7 @@ def on_message(client, userdata, msg):
       switches.bedroom(homeware, msg.topic, payload)
       switches.bathroom(homeware, msg.topic, payload)
       switches.mirror(homeware, msg.topic, payload)
+      switches.hallway(homeware, msg.topic, payload)
       thermostats.livingroom(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")

@@ -180,7 +180,8 @@ def hall(service, homeware):
       homeware.execute("hue_7","on",True)
       homeware.execute("scene_sensors_enable", "enable", True)
     else:
-      homeware.execute("hue_7","on",False)
+      if not homeware.get("hallway_switch", "on"):
+        homeware.execute("hue_7","on",False)
 
 def livingroom_motion(service, homeware, mqtt_client):
   if service["id"] == "f6615afc-fddb-4677-ad5a-ccabb906d7aa":

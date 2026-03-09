@@ -29,3 +29,10 @@ def mirror(homeware, topic, payload):
     else:
       homeware.execute("hue_2","on",False)
       homeware.execute("hue_3","on",False)
+
+def hallway(homeware, topic, payload):
+  if topic == "device/hallway_switch/on":
+    if payload:
+      homeware.execute("hue_7","on",True)
+    else:
+      homeware.execute("hue_7","on",False)
