@@ -18,11 +18,12 @@ def sofa(homeware, topic, payload):
       homeware.execute("hue_10", "on", False)
 
 def bedroom(homeware, topic, payload):
-  if topic == "device/pressure002/occupancy":
-    if homeware.get("scene_astro_day","enable"):
-      homeware.execute("scene_sensors_enable", "enable", payload == "UNOCCUPIED")
-      if homeware.get("scene_dim", "enable"):
-        homeware.execute("rgb003", "on", payload == "UNOCCUPIED")
-      else:
-          homeware.execute("rgb003", "on", payload == "OCCUPIED")
-          homeware.execute("hue_6", "on", payload == "UNOCCUPIED")
+  pass
+  # if topic == "device/pressure002/occupancy":
+  #   if homeware.get("scene_astro_day","enable"):
+  #     homeware.execute("scene_sensors_enable", "enable", payload == "UNOCCUPIED")
+  #     if homeware.get("scene_dim", "enable"):
+  #       homeware.execute("rgb003", "on", payload == "UNOCCUPIED")
+  #     else:
+  #         homeware.execute("rgb003", "on", payload == "OCCUPIED")
+  #         homeware.execute("hue_6", "on", payload == "UNOCCUPIED")
