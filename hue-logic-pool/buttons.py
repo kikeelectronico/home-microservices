@@ -18,11 +18,8 @@ def kitchen(service, homeware):
     state = service["button"]["last_event"]
     if state == "initial_press":
       buttons_preloaded_data["light004/on"] = not homeware.get("light004","on")
-      buttons_preloaded_data["temp_switch/on"] = not homeware.get("temp_switch","on")
     elif state == "short_release":
       homeware.execute("light004","on",buttons_preloaded_data["light004/on"])
-    elif state == "double_short_release":
-      homeware.execute("temp_switch","on",buttons_preloaded_data["temp_switch/on"])
     elif state == "long_press":
       new_state = not homeware.get("hue_5","on")
       homeware.execute("hue_5", "on", new_state)
@@ -33,13 +30,10 @@ def bathroom(service, homeware):
     state = service["button"]["last_event"]
     if state == "initial_press":
       buttons_preloaded_data["hue_sensor_14/on"] = not homeware.get("hue_sensor_14","on")
-      buttons_preloaded_data["hue_7/on"] = not homeware.get("hue_7","on")
     elif state == "short_release":
       homeware.execute("hue_sensor_14","on",buttons_preloaded_data["hue_sensor_14/on"])
-    elif state == "double_short_release":
-      homeware.execute("hue_7","on",buttons_preloaded_data["hue_7/on"])
     elif state == "long_press":
-      value = not homeware.get("scene_dim","enable")
-      homeware.execute("scene_dim","enable",value)
+      value = not homeware.get("hue_7","on")
+      homeware.execute("hue_7","on",value)
       
              
