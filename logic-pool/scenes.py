@@ -89,8 +89,9 @@ def shower(homeware, alert, topic, payload):
   if topic == "device/thermostat_bathroom" and waiting_for_shower:
     if homeware.get("scene_winter", "enable"):
       if payload["thermostatTemperatureAmbient"] >= payload["thermostatTemperatureSetpoint"]:
-        waiting_for_shower = False
-        alert.voice("El baño está listo.")
+        # waiting_for_shower = False
+        if not shower_initiated:
+          alert.voice("El baño está listo.")
 
 
 def disableShowerScene(homeware, alert, topic, payload):
