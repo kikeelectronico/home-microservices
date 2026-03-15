@@ -7,6 +7,7 @@ power_alert_counter = 0
 last_power_check = 0
 waiting_for_shower = False
 initial_bathroom_humidity = 0
+shower_informed = False
 shower_initiated = False
 
 # Set dim scene
@@ -66,6 +67,7 @@ def dim(homeware, topic, payload):
 # Set the shower scene
 def shower(homeware, alert, topic, payload):
   global waiting_for_shower
+  global shower_informed
   global shower_initiated
   global initial_bathroom_humidity
   if topic == "device/scene_ducha/enable":
@@ -82,6 +84,7 @@ def shower(homeware, alert, topic, payload):
       homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
       homeware.execute("thermostat_bathroom", "thermostatMode", "off")
       waiting_for_shower = False
+      shower_informed = False
       shower_initiated = False
       if homeware.get("hue_sensor_14","on"):
         homeware.execute("hue_sensor_14","on",False)
@@ -90,12 +93,14 @@ def shower(homeware, alert, topic, payload):
     if homeware.get("scene_winter", "enable"):
       if payload["thermostatTemperatureAmbient"] >= payload["thermostatTemperatureSetpoint"]:
         # waiting_for_shower = False
-        if not shower_initiated:
+        if not shower_initiated and not shower_informed:
           alert.voice("El baño está listo.")
+          shower_informed = True
 
 
 def disableShowerScene(homeware, alert, topic, payload):
   global waiting_for_shower
+  global shower_informed
   global shower_initiated
   global initial_bathroom_humidity
   if topic == "device/thermostat_bathroom/thermostatHumidityAmbient":
@@ -110,6 +115,7 @@ def disableShowerScene(homeware, alert, topic, payload):
         if shower_initiated:
           homeware.execute("scene_ducha", "enable", False)
           waiting_for_shower = False
+          shower_informed = False
           shower_initiated = False
           alert.voice("Veo que ya te has duchado. Dejo de priorizar el baño.")
 
