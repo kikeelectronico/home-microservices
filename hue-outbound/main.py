@@ -53,19 +53,52 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_message(client, userdata, msg):
 	if msg.topic in TOPICS:
 		topic = msg.topic
-		payload = json.loads(msg.payload)
-		hue_id = service_id_device_id[topic.split("hue_")[1]]
+		# Get service id
+		hue_v1_device_id_key = topic.split("hue_")[1]
+		hue_service_id = service_id_device_id.get(hue_v1_device_id_key)
+		if not hue_service_id:
+			logging.warning("No hue mapping for key %s on topic %s", hue_v1_device_id_key, topic)
+			return
+		# Validate payload
+		try:
+			payload = json.loads(msg.payload)
+		except json.JSONDecodeError:
+			logging.warning("Invalid JSON payload on %s: %r", topic, msg.payload)
+			return
+		if not isinstance(payload, dict):
+			logging.warning("Invalid payload type on %s: %r", topic, payload)
+			return
+		# Extract payload data and generate hue status
 		hue_status = {}
 		if "on" in payload:
-			hue_status["on"] = {}
-			hue_status["on"]["on"] = payload["on"]
+			if isinstance(payload["on"], bool):
+				hue_status["on"] = {}
+				hue_status["on"]["on"] = payload["on"]
+			else:
+				logging.warning("Invalid 'on' value on %s: %r", topic, payload.get("on"))
 		if "brightness" in payload:
-			hue_status["dimming"] = {}
-			hue_status["dimming"]["brightness"] = payload["brightness"]
+			brightness = payload.get("brightness")
+			if isinstance(brightness, (int, float)) and 0 <= brightness <= 100:
+				hue_status["dimming"] = {}
+				hue_status["dimming"]["brightness"] = brightness
+			else:
+				logging.warning("Invalid 'brightness' value on %s: %r", topic, brightness)
 		if "color" in payload:
-			hue_status["color_temperature"] = {}
-			hue_status["color_temperature"]["mirek"] = round(1000000/payload["color"]["temperatureK"])
-		hue.sendToHue(hue_id, hue_status)
+			color = payload.get("color")
+			temp_k = None
+			if isinstance(color, dict):
+				temp_k = color.get("temperatureK")
+			if isinstance(temp_k, (int, float)) and temp_k > 0:
+				hue_status["color_temperature"] = {}
+				hue_status["color_temperature"]["mirek"] = round(1000000 / temp_k)
+			else:
+				logging.warning("Invalid 'color.temperatureK' value on %s: %r", topic, temp_k)
+		# Alert if no status is created
+		if not hue_status:
+			logging.warning("No valid fields in payload on %s: %r", topic, payload)
+			return
+		# Call Hue Bridge
+		hue.sendToHue(hue_service_id, hue_status)
 
 # Main entry point
 if __name__ == "__main__":
