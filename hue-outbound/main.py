@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 import os
 import logging
+import time
 
 from hue import Hue
 
@@ -46,6 +47,19 @@ hue = Hue(HUE_HOST, HUE_TOKEN)
 def on_connect(client, userdata, flags, rc, properties):
 	for topic in TOPICS:
 		client.subscribe(topic)
+
+# Reconnect if MQTT disconnects unexpectedly
+def on_disconnect(client, userdata, rc, properties):
+	if rc != 0:
+		logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
+		while True:
+			try:
+				client.reconnect()
+				logging.info("Reconnected to MQTT broker")
+				break
+			except Exception as exc:
+				logging.warning("Reconnect failed: %s", exc)
+				time.sleep(5)
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
@@ -113,8 +127,10 @@ if __name__ == "__main__":
 	# Declare the callback functions
 	mqtt_client.on_message = on_message
 	mqtt_client.on_connect = on_connect
+	mqtt_client.on_disconnect = on_disconnect
 	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+	mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
 	logging.info("Starting " + SERVICE)
 
