@@ -1,4 +1,3 @@
-import requests
 import paho.mqtt.client as mqtt
 import json
 import os
@@ -20,7 +19,6 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-POWER_CONSTANT = 35
 TOPICS = [
 	"device/hue_1",
 	"device/hue_2",
