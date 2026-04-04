@@ -40,7 +40,11 @@ SERVICE = "hue-outbound-" + ENV
 service_id_device_id = {}
 
 # Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+mqtt_client = mqtt.Client(
+	mqtt.CallbackAPIVersion.VERSION2,
+	client_id=SERVICE,
+	protocol=mqtt.MQTTv5
+)
 hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Suscribe to topics on connect
