@@ -131,7 +131,7 @@ if __name__ == "__main__":
 	# Connect to the mqtt broker
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
+	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
 	logging.info("Starting " + SERVICE)
 
 	# Get the v1 device ID to light service id map
