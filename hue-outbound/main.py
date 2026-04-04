@@ -118,14 +118,18 @@ if __name__ == "__main__":
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
 	logging.info("Starting " + SERVICE)
 
+	# Get the v1 device ID to light service id map
 	hue_devices = hue.getResource(resource="device")
 	for hue_device in hue_devices:
+		# Discart devices without v1 id
 		if not hue_device.get("id_v1", False):
 			continue
-		hue_device_id_v1 = hue_device["id_v1"].split("/")[2]
+		# Get v1 device id
+		hue_v1_device_id = hue_device["id_v1"].split("/")[2]
+		# Map light services id to v1 device id
 		for service in hue_device["services"]:
 			if service.get("rtype", "none") == "light":
-				service_id_device_id[hue_device_id_v1] = service["rid"]
+				service_id_device_id[hue_v1_device_id] = service["rid"]
 	
 	# Main loop
 	mqtt_client.loop_forever()
