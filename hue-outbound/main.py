@@ -46,7 +46,7 @@ hue = Hue(HUE_HOST, HUE_TOKEN)
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
 	for topic in TOPICS:
-		client.subscribe(topic)
+		client.subscribe(topic, qos=1)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, rc, properties):
