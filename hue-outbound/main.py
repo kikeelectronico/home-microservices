@@ -67,9 +67,6 @@ def on_message(client, userdata, msg):
 			hue_status["color_temperature"]["mirek"] = round(1000000/payload["color"]["temperatureK"])
 		hue.sendToHue(hue_id, hue_status)
 
-# Send an update request to Hue bridge API
-
-
 # Main entry point
 if __name__ == "__main__":
 	# Check env vars
