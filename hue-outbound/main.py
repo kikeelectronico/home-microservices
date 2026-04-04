@@ -4,6 +4,8 @@ import json
 import os
 import logging
 
+from hue import Hue
+
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -35,8 +37,12 @@ TOPICS = [
 ]
 SERVICE = "hue-outbound-" + ENV
 
+# Declare variables
+service_id_device_id = {}
+
 # Instantiate objects
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -48,29 +54,18 @@ def on_message(client, userdata, msg):
 	if msg.topic in TOPICS:
 		topic = msg.topic
 		payload = json.loads(msg.payload)
-		hue_id = topic.split("hue_")[1]
+		hue_id = service_id_device_id[topic.split("hue_")[1]]
 		hue_status = {}
 		if "on" in payload:
-			hue_status["on"] = payload["on"]
+			hue_status["on"] = {}
+			hue_status["on"]["on"] = payload["on"]
 		if "brightness" in payload:
-			hue_status["bri"] = round((payload["brightness"]/100)*254)
+			hue_status["dimming"] = {}
+			hue_status["dimming"]["brightness"] = payload["brightness"]
 		if "color" in payload:
-			hue_status["ct"] = round(1000000/payload["color"]["temperatureK"])
-		sendToHue(hue_id, hue_status)
-
-# Send an update request to Hue bridge API
-def sendToHue(hue_id, hue_status):
-	try:
-		url = "http://" + HUE_HOST + "/api/" +	HUE_TOKEN + "/lights/" + hue_id + "/state"
-		headers = {
-			"Content-Type": "application/json"
-		}
-		response = requests.put(url, data = json.dumps(hue_status), headers = headers)
-		if not response.status_code == 200:
-			logging.warning("Fail to update to Hue Bridge lights. Status code: " + str(response.status_code))
-	except (requests.ConnectionError, requests.Timeout) as exception:
-		logging.warning("Fail to update Hue Bridge lights. Conection error.")
-
+			hue_status["color_temperature"] = {}
+			hue_status["color_temperature"]["mirek"] = round(1000000/payload["color"]["temperatureK"])
+		hue.sendToHue(hue_id, hue_status)
 
 # Main entry point
 if __name__ == "__main__":
@@ -91,6 +86,16 @@ if __name__ == "__main__":
 	mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 	mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
 	logging.info("Starting " + SERVICE)
+
+	hue_devices = hue.getResource(resource="device")
+	for hue_device in hue_devices:
+		if not hue_device.get("id_v1", False):
+			continue
+		hue_device_id_v1 = hue_device["id_v1"].split("/")[2]
+		for service in hue_device["services"]:
+			if service.get("rtype", "none") == "light":
+				service_id_device_id[hue_device_id_v1] = service["rid"]
+	
 	# Main loop
 	mqtt_client.loop_forever()
  
