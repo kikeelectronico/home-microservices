@@ -179,3 +179,19 @@ def headphones(homeware, alert, topic, payload):
       if homeware.get("thermostat_livingroom", "thermostatMode") in ["cool", "fan-only"]:
         if homeware.get("thermostat_livingroom", "thermostatTemperatureAmbient") > homeware.get("thermostat_livingroom", "thermostatTemperatureSetpoint"):
           homeware.execute("ac_001", "currentFanSpeedSetting", "Alta" if payload else "Baja")
+
+def awake(homeware, alert, topic, payload):
+  if topic == "device/scene_awake/enable":
+    if payload:
+      homeware.execute("scene_sensors_enable", "enable", True)
+      homeware.execute("rgb001", "on", True)
+      homeware.execute("hue_11", "on", True)
+      homeware.execute("hue_1", "on", True)
+      homeware.execute("rgb002", "on", True)
+    else:
+      homeware.execute("scene_sensors_enable", "enable", False)
+      homeware.execute("scene_ducha", "enable", False)
+      homeware.execute("thermostat_livingroom", "thermostatMode", "off")
+      homeware.execute("thermostat_dormitorio", "thermostatMode", "heat" if homeware.get("scene_winter", "enable") else "off")
+      homeware.execute("thermostat_dormitorio", "thermostatTemperatureSetpoint", "18")
+      homeware.execute("thermostat_bathroom", "thermostatMode", "off")
