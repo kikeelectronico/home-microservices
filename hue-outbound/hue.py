@@ -2,7 +2,8 @@ import requests
 import logging
 import json
 
-from urllib3.exceptions import InsecureRequestWarning
+import urllib3
+urllib3.disable_warnings()
 
 class Hue:
   
@@ -12,8 +13,6 @@ class Hue:
   def __init__(self, url, token):
     self.__url = url
     self.__token = token
-
-    requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
       
   # Get motion
   def getResource(self, resource="device"):
