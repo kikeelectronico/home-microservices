@@ -46,6 +46,6 @@ class Hue:
       }
       response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False)
       if not response.status_code == 200:
-        logging.warning("Fail to update to Hue Bridge lights. Status code: " + str(response.status_code))
+        logging.warning("Fail to update the light " + hue_id + " to Hue Bridge. Status code: " + str(response.status_code))
     except (requests.ConnectionError, requests.Timeout) as exception:
       logging.warning("Fail to update Hue Bridge lights. Conection error.")
