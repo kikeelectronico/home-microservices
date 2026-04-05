@@ -24,7 +24,7 @@ class Hue:
     if fail:
       exit()
       
-  # Get motion
+  # Get resource
   def getResource(self, resource="device"):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/" + resource
@@ -41,8 +41,9 @@ class Hue:
         logging.warning("Fail to get Hue Bridge " + resource + ". Conection error.")
         self._fail_to_update = False
         return {}
-      
-  def sendToHue(self, hue_id, hue_status):
+    
+  # Set light resource
+  def updateLightResource(self, hue_id, hue_status):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/light/" + hue_id
       headers = {

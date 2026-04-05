@@ -100,7 +100,7 @@ def on_message(client, userdata, msg):
 		logging.warning("No valid fields in payload on %s: %r", topic, payload)
 		return
 	# Call Hue Bridge
-	hue.sendToHue(hue_service_id, hue_status)
+	hue.updateLightResource(hue_service_id, hue_status)
 
 # Main entry point
 if __name__ == "__main__":
