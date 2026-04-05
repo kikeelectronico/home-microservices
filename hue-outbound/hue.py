@@ -38,7 +38,7 @@ class Hue:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Status code: " + str(response.status_code))
         return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Conection error.")
+        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
         self._fail_to_update = False
         return {}
     
@@ -54,4 +54,4 @@ class Hue:
       if not response.status_code == 200 and not response.status_code == 207:
         logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Status code: " + str(response.status_code))
     except (requests.ConnectionError, requests.Timeout) as exception:
-      logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Conection error.")
+      logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Connection error.")
