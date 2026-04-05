@@ -35,10 +35,10 @@ class Hue:
       if response.status_code == 200:
         return response.json()["data"]
       else:
-        logging.warning("Fail to get Hue Bridge " + resource + ". Status code: " + str(response.status_code))
+        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Status code: " + str(response.status_code))
         return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get Hue Bridge " + resource + ". Conection error.")
+        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Conection error.")
         self._fail_to_update = False
         return {}
     
@@ -51,7 +51,7 @@ class Hue:
         "hue-application-key": self.__token
       }
       response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False)
-      if not response.status_code == 200:
-        logging.warning("Fail to update the light " + hue_id + " to Hue Bridge. Status code: " + str(response.status_code))
+      if not response.status_code == 200 and not response.status_code == 207:
+        logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Status code: " + str(response.status_code))
     except (requests.ConnectionError, requests.Timeout) as exception:
-      logging.warning("Fail to update Hue Bridge lights. Conection error.")
+      logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Conection error.")
