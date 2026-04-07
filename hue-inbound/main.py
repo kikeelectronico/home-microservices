@@ -13,11 +13,6 @@ import services
 import urllib3
 urllib3.disable_warnings()
 
-logging.basicConfig(
-  level=logging.INFO,
-  format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
-)
-
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -47,6 +42,10 @@ hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
