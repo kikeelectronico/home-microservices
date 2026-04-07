@@ -1,5 +1,7 @@
 import requests
 import logging
+from sseclient import SSEClient
+import time
 
 class Hue:
   
@@ -33,3 +35,17 @@ class Hue:
         logging.warning("Fail to get Hue Bridge " + resource + ". Connection error.")
         self._fail_to_update = False
         return {}
+
+  def getEventStreamClient(self):
+    while True:
+      try:
+        url = "https://" + self.__url + "/eventstream/clip/v2"
+        headers = {
+          'hue-application-key': self.__token,
+          'Accept': 'text/event-stream'
+        }
+        stream_response = requests.get(url, headers=headers, stream=True, verify=False)
+        return SSEClient(stream_response)
+      except (requests.ConnectionError, requests.Timeout) as exception:
+        logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")
+        time.sleep(5)

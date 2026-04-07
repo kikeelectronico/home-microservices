@@ -1,8 +1,6 @@
 import paho.mqtt.client as mqtt
 import os
 import json
-from sseclient import SSEClient
-import requests
 import logging
 
 from hue import Hue
@@ -77,13 +75,7 @@ if __name__ == "__main__":
   init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
 
   # Connect to Hue bridge
-  url = "https://" + HUE_HOST + "/eventstream/clip/v2"
-  headers = {
-    'hue-application-key': HUE_TOKEN,
-    'Accept': 'text/event-stream'
-  }
-  stream_response = requests.get(url, headers=headers, stream=True, verify=False)
-  client = SSEClient(stream_response)
+  client = hue.getEventStreamClient()
   
   # Handle events
   for message in client.events():
