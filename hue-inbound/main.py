@@ -79,8 +79,20 @@ if __name__ == "__main__":
   
   # Handle events
   for message in client.events():
-    for event in json.loads(message.data):
-      for service in event["data"]:
+    try:
+      events = json.loads(message.data)
+    except ValueError:
+      logging.warning("Invalid SSE JSON payload: %r", message.data)
+      continue
+    if not isinstance(events, list):
+      logging.warning("Invalid SSE payload type: %r", events)
+      continue
+    for event in events:
+      data = event.get("data") if isinstance(event, dict) else None
+      if not isinstance(data, list):
+        logging.warning("Invalid SSE event data type: %r", event)
+        continue
+      for service in data:
         services.contact(service, homeware, device_id_service_id)
         services.motion(service, homeware, device_id_service_id)
         services.connectivity(service, homeware, device_id_service_id)
