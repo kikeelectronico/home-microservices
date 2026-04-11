@@ -6,6 +6,7 @@ import time
 from engine.engine import Engine
 from engine.registry import build_handlers
 from infrastructure.inbound.mqtt_parser import mqtt_to_event
+from infrastructure.inbound.mqtt_config import TOPICS
 from infrastructure.outbound.mqtt_publisher import publish_actions
 from shared.context import Context
 
@@ -25,7 +26,6 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "decision-engine-" + ENV
-TOPICS = ["device/interruptor_prueba/on"]
 
 # Instantiate objects
 mqtt_client = mqtt.Client(
