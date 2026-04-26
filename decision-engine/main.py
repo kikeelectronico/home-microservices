@@ -57,7 +57,7 @@ def on_message(client, userdata, msg):
 
     event = mqtt_to_event(msg.topic, msg.payload.decode("utf-8"))
     if event is not None:
-        context = Context(state={"last_event": event})
+        context = Context(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
         engine = Engine(handlers=build_handlers())
         actions = engine.handle(event, context)
 
