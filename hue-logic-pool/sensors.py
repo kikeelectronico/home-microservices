@@ -174,14 +174,15 @@ def bathroom(service, homeware, mqtt_client):
           )
 
 def hall(service, homeware):
-  if service["id"] == "918cdad4-9c5e-40f7-9ef2-e6a64072a2ae":
-    state = service["motion"]["motion"]
-    if state:
-      homeware.execute("hue_7","on",True)
-      homeware.execute("scene_sensors_enable", "enable", True)
-    else:
-      if not homeware.get("hallway_switch", "on"):
-        homeware.execute("hue_7","on",False)
+  pass
+  # if service["id"] == "918cdad4-9c5e-40f7-9ef2-e6a64072a2ae":
+  #   state = service["motion"]["motion"]
+  #   if state:
+  #     homeware.execute("hue_7","on",True)
+  #     homeware.execute("scene_sensors_enable", "enable", True)
+  #   else:
+  #     if not homeware.get("hallway_switch", "on"):
+  #       homeware.execute("hue_7","on",False)
 
 def livingroom_motion(service, homeware, mqtt_client):
   if service["id"] == "f6615afc-fddb-4677-ad5a-ccabb906d7aa":
