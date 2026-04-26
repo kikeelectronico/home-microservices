@@ -8,8 +8,10 @@ def payload_parser(payload: str):
             return True
         elif "false" == payload.lower():
             return False
-        else:
+        elif "{" in payload:
             return json.loads(payload)
+        else:
+            return payload
     except:
         logging.warning("Invalid MQTT payload: %r", payload)
         return None
