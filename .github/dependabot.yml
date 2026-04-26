@@ -43,6 +43,12 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "pip"
     target-branch: "dev"
+    directory: "/decision-engine"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
     directory: "/device-controller"
     schedule:
       interval: "weekly"
@@ -177,6 +183,12 @@ updates:
   - package-ecosystem: "docker"
     target-branch: "dev"
     directory: "/data-panel-front"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/decision-engine"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
