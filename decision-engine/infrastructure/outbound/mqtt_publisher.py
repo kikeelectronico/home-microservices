@@ -15,6 +15,23 @@ def action_to_mqtt_message(action: Dict) -> Tuple[str, str]:
                 "intent": "execute"
             })
             return topic, payload
+        case "schedule_task":
+            topic = "device/control"
+            payload = json.dumps({
+                  "id": action["task_id"],
+                  "action": "set",
+                  "delta": action["delta"],
+                  "target": action["target"],
+                  "asserts": action["asserts"]
+                })
+            return topic, payload
+        case "cancel_task":
+            topic = "tasks"
+            payload = json.dumps({
+                "id": action["task_id"],
+                "action": "delete"
+            })
+            return topic, payload
     logging.warning("Invalid action: %r", str(action))
     return None, None
 
