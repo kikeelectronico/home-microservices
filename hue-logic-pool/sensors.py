@@ -6,96 +6,96 @@ def bedroom(service, homeware, mqtt_client):
     state = service["motion"]["motion"]
     if homeware.get("pressure002","occupancy") == "UNOCCUPIED":
       if state:
-        mqtt_client.publish("tasks", json.dumps({"id": "bedroom_rgb003", "action": "delete"}))
-        mqtt_client.publish("tasks", json.dumps({"id": "bedroom_hue_6", "action": "delete"}))
-        if homeware.get("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "brightness") < 40:
-          if homeware.get("scene_sensors_enable","enable"):
-            if homeware.get("scene_dim","enable"):
-              homeware.execute("rgb003","on",True)
-            else:
-              homeware.execute("hue_6","on",True)
+        # mqtt_client.publish("tasks", json.dumps({"id": "bedroom_rgb003", "action": "delete"}))
+        # mqtt_client.publish("tasks", json.dumps({"id": "bedroom_hue_6", "action": "delete"}))
+        # if homeware.get("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "brightness") < 40:
+        #   if homeware.get("scene_sensors_enable","enable"):
+        #     if homeware.get("scene_dim","enable"):
+        #       homeware.execute("rgb003","on",True)
+        #     else:
+        #       homeware.execute("hue_6","on",True)
         # Set last_seen
         homeware.execute("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "currentToggleSettings", {"last_seen": True}) # Bedroom
         homeware.execute("06612edc-4b7c-4ef3-9f3c-157b9d482f8c", "currentToggleSettings", {"last_seen": False}) # Bathroom
         homeware.execute("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "currentToggleSettings", {"last_seen": False}) # Livingroom
-      else:
-          if not homeware.get("hue_sensor_12", "on"):
-            mqtt_client.publish("tasks", 
-              json.dumps(
-                {
-                  "id": "bedroom_hue_6",
-                  "action": "set",
-                  "delta": 60,
-                  "target": {
-                    "device_id": "hue_6",
-                    "param": "on",
-                    "value": False
-                  },
-                  "asserts": [
-                    {
-                      "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                      "param": "occupancy",
-                      "value": "UNOCCUPIED"
-                    }
-                  ]
-                }
-              )
-            )
-            mqtt_client.publish("tasks", 
-              json.dumps(
-                {
-                  "id": "bedroom_rgb003",
-                  "action": "set",
-                  "delta": 60,
-                  "target": {
-                    "device_id": "rgb003",
-                    "param": "on",
-                    "value": False
-                  },
-                  "asserts": [
-                    {
-                      "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                      "param": "occupancy",
-                      "value": "UNOCCUPIED"
-                    }
-                  ]
-                }
-              )
-            )
-            # Fan
-            mqtt_client.publish("tasks", 
-              json.dumps(
-                {
-                  "id": "bedroom_fan",
-                  "action": "set",
-                  "delta": 60,
-                  "target": {
-                    "device_id": "hue_8",
-                    "param": "on",
-                    "value": False
-                  },
-                  "asserts": [
-                    {
-                      "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                      "param": "currentToggleSettings",
-                      "value": {
-                        "last_seen": False
-                      }
-                    },
-                    {
-                      "device_id": "scene_summer",
-                      "param": "enable",
-                      "value": True
-                    },
-                    {
-                      "device_id": "hue_8",
-                      "param": "on",
-                      "value": True
-                    }
-                  ]
-                }
-              )
-            )
+      # else:
+      #     if not homeware.get("hue_sensor_12", "on"):
+      #       mqtt_client.publish("tasks", 
+      #         json.dumps(
+      #           {
+      #             "id": "bedroom_hue_6",
+      #             "action": "set",
+      #             "delta": 60,
+      #             "target": {
+      #               "device_id": "hue_6",
+      #               "param": "on",
+      #               "value": False
+      #             },
+      #             "asserts": [
+      #               {
+      #                 "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+      #                 "param": "occupancy",
+      #                 "value": "UNOCCUPIED"
+      #               }
+      #             ]
+      #           }
+      #         )
+      #       )
+      #       mqtt_client.publish("tasks", 
+      #         json.dumps(
+      #           {
+      #             "id": "bedroom_rgb003",
+      #             "action": "set",
+      #             "delta": 60,
+      #             "target": {
+      #               "device_id": "rgb003",
+      #               "param": "on",
+      #               "value": False
+      #             },
+      #             "asserts": [
+      #               {
+      #                 "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+      #                 "param": "occupancy",
+      #                 "value": "UNOCCUPIED"
+      #               }
+      #             ]
+      #           }
+      #         )
+      #       )
+      #       # Fan
+      #       mqtt_client.publish("tasks", 
+      #         json.dumps(
+      #           {
+      #             "id": "bedroom_fan",
+      #             "action": "set",
+      #             "delta": 60,
+      #             "target": {
+      #               "device_id": "hue_8",
+      #               "param": "on",
+      #               "value": False
+      #             },
+      #             "asserts": [
+      #               {
+      #                 "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+      #                 "param": "currentToggleSettings",
+      #                 "value": {
+      #                   "last_seen": False
+      #                 }
+      #               },
+      #               {
+      #                 "device_id": "scene_summer",
+      #                 "param": "enable",
+      #                 "value": True
+      #               },
+      #               {
+      #                 "device_id": "hue_8",
+      #                 "param": "on",
+      #                 "value": True
+      #               }
+      #             ]
+      #           }
+      #         )
+      #       )
 
 def bathroom(service, homeware, mqtt_client):
   if service["id"] == "73ef0d76-de9f-4cd1-b460-ec626fbc70fc":
