@@ -12,8 +12,8 @@ class BedroomLightHandler:
         
         actions = []
         occupied = event.get("value") == "OCCUPIED"
-        if occupied:
 
+        if occupied:
             actions.append({
                     "type": "cancel_task",
                     "task_id": "bedroom_rgb003"

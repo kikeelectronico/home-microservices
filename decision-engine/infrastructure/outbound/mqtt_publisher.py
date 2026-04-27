@@ -16,7 +16,7 @@ def action_to_mqtt_message(action: Dict) -> Tuple[str, str]:
             })
             return topic, payload
         case "schedule_task":
-            topic = "device/control"
+            topic = "tasks"
             payload = json.dumps({
                   "id": action["task_id"],
                   "action": "set",
