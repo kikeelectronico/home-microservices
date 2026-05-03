@@ -55,6 +55,11 @@ class BedroomLightHandler:
                             "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
                             "param": "occupancy",
                             "value": "UNOCCUPIED"
+                        },
+                        {
+                            "device_id": "pressure002",
+                            "param": "occupancy",
+                            "value": "UNOCCUPIED"
                         }
                     ]
                 })
@@ -70,6 +75,11 @@ class BedroomLightHandler:
                     "asserts": [
                         {
                             "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+                            "param": "occupancy",
+                            "value": "UNOCCUPIED"
+                        },
+                        {
+                            "device_id": "pressure002",
                             "param": "occupancy",
                             "value": "UNOCCUPIED"
                         }
