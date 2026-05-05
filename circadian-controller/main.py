@@ -112,6 +112,8 @@ def main():
     # Calculate color temperature and adjust lights
     if homeware.get("scene_circadian_controller_enable", "enable"):
       color_temperature = colorTemperature((hour + (minute/60)), solar_cycle["sunrise"], solar_cycle["sunset"])
+      homeware.execute("hue_1", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_4", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_5", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_9", "color", {"temperatureK": color_temperature})

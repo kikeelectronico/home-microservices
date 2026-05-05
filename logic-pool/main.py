@@ -53,7 +53,9 @@ TOPICS = [
   "device/pressure002/occupancy",
   "device/scene_astro_day/enable",
   "device/scene_headphones/enable",
+  "device/scene_awake/enable",
   "device/thermostat_bathroom/thermostatHumidityAmbient",
+  "device/hallway_switch/on",
   "device/control"
 ]
 SERVICE = "logic-pool-" + ENV
@@ -87,12 +89,14 @@ def on_message(client, userdata, msg):
       scenes.sensors(homeware, alert, msg.topic, payload)
       scenes.astro_day(homeware, alert, msg.topic, payload)
       scenes.headphones(homeware, alert, msg.topic, payload)
+      scenes.awake(homeware, alert, msg.topic, payload)
       sensors.livingroom(homeware, msg.topic, payload)
       sensors.sofa(homeware, msg.topic, payload)
       sensors.bedroom(homeware, msg.topic, payload)
       switches.bedroom(homeware, msg.topic, payload)
       switches.bathroom(homeware, msg.topic, payload)
       switches.mirror(homeware, msg.topic, payload)
+      switches.hallway(homeware, msg.topic, payload)
       thermostats.livingroom(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")

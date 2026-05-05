@@ -16,6 +16,8 @@ def sofa(homeware, topic, payload):
     if payload == "OCCUPIED":
       homeware.execute("hue_9", "on", False)
       homeware.execute("hue_10", "on", False)
+      if not homeware.get("scene_awake", "enable"):
+        homeware.execute("scene_awake", "enable", True)
 
 def bedroom(homeware, topic, payload):
   pass
