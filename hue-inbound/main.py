@@ -1,8 +1,6 @@
 import paho.mqtt.client as mqtt
 import os
 import json
-from sseclient import SSEClient
-import requests
 import logging
 
 from hue import Hue
@@ -42,6 +40,10 @@ hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -73,18 +75,24 @@ if __name__ == "__main__":
   init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
 
   # Connect to Hue bridge
-  url = "https://" + HUE_HOST + "/eventstream/clip/v2"
-  headers = {
-    'hue-application-key': HUE_TOKEN,
-    'Accept': 'text/event-stream'
-  }
-  stream_response = requests.get(url, headers=headers, stream=True, verify=False)
-  client = SSEClient(stream_response)
+  client = hue.getEventStreamClient()
   
   # Handle events
   for message in client.events():
-    for event in json.loads(message.data):
-      for service in event["data"]:
+    try:
+      events = json.loads(message.data)
+    except ValueError:
+      logging.warning("Invalid SSE JSON payload: %r", message.data)
+      continue
+    if not isinstance(events, list):
+      logging.warning("Invalid SSE payload type: %r", events)
+      continue
+    for event in events:
+      data = event.get("data") if isinstance(event, dict) else None
+      if not isinstance(data, list):
+        logging.warning("Invalid SSE event data type: %r", event)
+        continue
+      for service in data:
         services.contact(service, homeware, device_id_service_id)
         services.motion(service, homeware, device_id_service_id)
         services.connectivity(service, homeware, device_id_service_id)
