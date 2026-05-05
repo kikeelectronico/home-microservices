@@ -2,6 +2,7 @@ env
 .env
 *.pyc
 docker-compose-completo.yml
+response-test/
 
 #alert system voice
 audio/
