@@ -77,6 +77,18 @@ def on_message(ws, message):
       homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
     if "isDetected" in data["attributes"]:
       homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
+  elif data["deviceType"] == "airPurifier":
+    if "isReachable" in data:
+      homeware.execute(data["id"], "online", data["isReachable"])
+    if "fanMode" in data["attributes"]:
+      homeware.execute(data["id"], "on", data["attributes"]["fanMode"] != "off")
+      homeware.execute(data["id"], "currentToggleSettings", {"Automático": data["attributes"]["fanMode"] == "auto"})
+    if "motorState" in data["attributes"]:
+      def speedTranslate(motorState: int):
+        if motorState == 10 or motorState == 20: return "Bajo"
+        elif motorState == 30: return "Medio"
+        elif motorState == 40 or motorState == 50: return "Alto"
+      homeware.execute(data["id"], "currentFanSpeedSetting", speedTranslate(data["attributes"]["motorState"]))
 
   # Loop over pending tasks
   for task_id in list(tasks.keys()):
