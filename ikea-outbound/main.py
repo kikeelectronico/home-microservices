@@ -27,6 +27,7 @@ POWER_CONSTANT = 35
 TOPICS = [
 	"device/b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
 	"device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1",
+	"device/df31ac85-be3f-48db-ab5e-483001f3ad27_1",
 ]
 SERVICE = "ikea-outbound-" + ENV
 
@@ -45,8 +46,28 @@ def on_message(client, userdata, msg):
 		topic = msg.topic
 		payload = json.loads(msg.payload)
 		ikea_id = topic.split("/")[1]
-		if "on" in payload:
-			ikea.setDevice(ikea_id, "isOn", payload["on"])
+		# Air purifier
+		if "currentToggleSettings" in payload and "currentFanSpeedSetting" in payload:
+			is_on = payload.get("on", None)
+			automatic_mode = payload.get("currentToggleSettings").get("Automático", None)
+			if is_on == False:
+				ikea.setDevice(ikea_id, "fanMode", "off")
+			elif is_on == True and automatic_mode == True:
+				ikea.setDevice(ikea_id, "fanMode", "auto")
+			elif is_on == True and automatic_mode == False:
+				ikea.setDevice(ikea_id, "fanMode", "on")
+				match payload["currentFanSpeedSetting"]:
+					case "Bajo":
+						ikea.setDevice(ikea_id, "motorState", 10)
+					case "Medio":
+						ikea.setDevice(ikea_id, "motorState", 30)
+					case "Alto":
+						ikea.setDevice(ikea_id, "motorState", 50)	
+		else:
+			if "on" in payload:
+				ikea.setDevice(ikea_id, "isOn", payload["on"])
+		
+		
 
 
 # Main entry point
