@@ -1,3 +1,3 @@
 def pyramids(homeware, topic, payload):
-  if topic == "device/hue_5/brightness":
-    homeware.execute("hue_5", "on", True)
+  if topic == "device/hue_17/brightness":
+    homeware.execute("hue_17", "on", True)

@@ -115,6 +115,7 @@ def main():
       homeware.execute("hue_1", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_4", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_5", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_17", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_9", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_10", "color", {"temperatureK": color_temperature})

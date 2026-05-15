@@ -21,29 +21,18 @@ def sofaLight(homeware, topic, payload):
       elif light_level >= MIN_LIVINGROOM_DARKNESS_TRIGGER and homeware.get("scene_awake", "enable") and occupancy == "UNOCCUPIED":
         homeware.execute("hue_1", "on", False)
 
-def workbenchLight(homeware, topic, payload):
-  if topic == "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness":
-    if homeware.get("scene_awake", "enable") and not homeware.get("temp_switch", "on"):
-      light_level = int(payload)
-      if light_level < MIN_LIVINGROOM_DARKNESS_TRIGGER:
-        homeware.execute("hue_4", "color", {"temperatureK": 2700})
-        homeware.execute("hue_4", "brightness", 10)
-        homeware.execute("hue_4", "on", True)
-      else:
-        homeware.execute("hue_4", "on", False)
-  
+def workbenchLight(homeware, topic, payload):  
   if topic == "device/temp_switch/on":
     if payload:
       homeware.execute("hue_4", "color", {"temperatureK": 5000})
+      homeware.execute("hue_5", "color", {"temperatureK": 5000})
       homeware.execute("hue_4", "brightness", 100)
+      homeware.execute("hue_5", "brightness", 100)
       homeware.execute("hue_4", "on", True)
+      homeware.execute("hue_5", "on", True)
     else:
-      if homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "brightness") < MIN_LIVINGROOM_DARKNESS_TRIGGER:
-        homeware.execute("hue_4", "color", {"temperatureK": 2700})
-        homeware.execute("hue_4", "brightness", 10)
-        homeware.execute("hue_4", "on", True)
-      else:
-        homeware.execute("hue_4", "on", False)
+      homeware.execute("hue_4", "on", False)
+      homeware.execute("hue_5", "on", False)
 
 WORKTABLE_DYNAMIC_BRIGNTNESS_MULTIPLIER = 1.5
 
