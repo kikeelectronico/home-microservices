@@ -114,6 +114,7 @@ def main():
       color_temperature = colorTemperature((hour + (minute/60)), solar_cycle["sunrise"], solar_cycle["sunset"])
       homeware.execute("hue_1", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_4", "color", {"temperatureK": color_temperature})
+      homeware.execute("hue_5", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_17", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_9", "color", {"temperatureK": color_temperature})
