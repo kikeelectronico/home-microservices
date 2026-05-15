@@ -186,6 +186,7 @@ def awake(homeware, alert, topic, payload):
       homeware.execute("scene_sensors_enable", "enable", True)
       homeware.execute("rgb001", "on", True)
       homeware.execute("hue_11", "on", True)
+      homeware.execute("hue_15", "on", True)
       homeware.execute("rgb002", "on", True)
       if homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
         homeware.execute("hue_1", "on", True)
