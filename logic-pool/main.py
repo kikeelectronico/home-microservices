@@ -48,7 +48,7 @@ TOPICS = [
   "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/occupancy",
   "device/c8bd20a2-69a5-4946-b6d6-3423b560ffa9/brightness",
   "device/scene_sensors_enable/enable",
-  "device/hue_5/brightness",
+  "device/hue_17/brightness",
   "device/pressure001/occupancy",
   "device/pressure002/occupancy",
   "device/scene_astro_day/enable",

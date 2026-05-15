@@ -7,7 +7,7 @@ def atHome(homeware, topic, payload):
         homeware.execute("thermostat_dormitorio", "thermostatMode", "heat")
         homeware.execute("thermostat_livingroom", "thermostatTemperatureSetpoint", 22)
         homeware.execute("thermostat_livingroom", "thermostatMode", "heat")
-      homeware.execute("hue_5", "on", True)
+      homeware.execute("hue_17", "on", True)
       homeware.execute("hue_11", "on", True)
       homeware.execute("rgb001", "on", True)
       homeware.execute("rgb002", "on", True)
@@ -23,7 +23,7 @@ def atHome(homeware, topic, payload):
       homeware.execute("hue_9", "on", False)
       homeware.execute("hue_10", "on", False)
       homeware.execute("hue_11", "on", False)
-      homeware.execute("hue_5", "on", False)
+      homeware.execute("hue_17", "on", False)
       homeware.execute("rgb001", "on", False)
       homeware.execute("rgb002", "on", False)
       
