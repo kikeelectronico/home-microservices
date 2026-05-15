@@ -48,21 +48,22 @@ def on_message(client, userdata, msg):
 		ikea_id = topic.split("/")[1]
 		# Air purifier
 		if "currentModeSettings" in payload and "currentFanSpeedSetting" in payload:
-			homeware_mode = payload.get("currentModeSettings", None)["Modo"]
-			match homeware_mode:
-				case "Apagado":
-					ikea.setDevice(ikea_id, "fanMode", "off")
-				case "Automático":
-					ikea.setDevice(ikea_id, "fanMode", "auto")
-				case "Manual":
-					ikea.setDevice(ikea_id, "fanMode", "on")
-					match payload["currentFanSpeedSetting"]:
-						case "Baja":
-							ikea.setDevice(ikea_id, "motorState", 10)
-						case "Media":
-							ikea.setDevice(ikea_id, "motorState", 30)
-						case "Alta":
-							ikea.setDevice(ikea_id, "motorState", 50)	
+			pass
+			# homeware_mode = payload.get("currentModeSettings", None)["Modo"]
+			# match homeware_mode:
+			# 	case "Apagado":
+			# 		ikea.setDevice(ikea_id, "fanMode", "off")
+			# 	case "Automático":
+			# 		ikea.setDevice(ikea_id, "fanMode", "auto")
+			# 	case "Manual":
+			# 		ikea.setDevice(ikea_id, "fanMode", "on")
+			# 		match payload["currentFanSpeedSetting"]:
+			# 			case "Baja":
+			# 				ikea.setDevice(ikea_id, "motorState", 10)
+			# 			case "Media":
+			# 				ikea.setDevice(ikea_id, "motorState", 30)
+			# 			case "Alta":
+			# 				ikea.setDevice(ikea_id, "motorState", 50)	
 		else:
 			if "on" in payload:
 				ikea.setDevice(ikea_id, "isOn", payload["on"])
