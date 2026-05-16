@@ -81,29 +81,29 @@ def on_message(ws, message):
     if "isReachable" in data:
       if not homeware.get(data["id"], "online") == data["isReachable"]:
         homeware.execute(data["id"], "online", data["isReachable"])
-    # if "fanMode" in data["attributes"]:
-    #   ikea_fan_mode = data["attributes"].get("fanMode", None)
-    #   homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
-    #   match ikea_fan_mode:
-    #     case "off":
-    #       if homeware_mode != "Apagado":
-    #         homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
-    #     case "auto":
-    #       if homeware_mode != "Automático":
-    #         homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
-    #     case "on":
-    #       if homeware_mode != "Manual":
-    #         homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
-    #     case "low" | "medium" | "high":
-    #       if "motorState" in data["attributes"]:
-    #         new_homeware_fan_speed = "Baja"
-    #         motorState = data["attributes"]["motorState"]
-    #         if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
-    #         elif motorState == 30: new_homeware_fan_speed = "Media"
-    #         elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
-    #         homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
-    #         if not new_homeware_fan_speed == homeware_fan_speed:
-    #           homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
+    if "fanMode" in data["attributes"]:
+      ikea_fan_mode = data["attributes"].get("fanMode", None)
+      homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
+      match ikea_fan_mode:
+        case "off":
+          if homeware_mode != "Apagado":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
+        case "auto":
+          if homeware_mode != "Automático":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
+        case "on":
+          if homeware_mode != "Manual":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
+        case "low" | "medium" | "high":
+          if "motorState" in data["attributes"]:
+            new_homeware_fan_speed = "Baja"
+            motorState = data["attributes"]["motorState"]
+            if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
+            elif motorState == 30: new_homeware_fan_speed = "Media"
+            elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
+            homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
+            if not new_homeware_fan_speed == homeware_fan_speed:
+              homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
 
   # Loop over pending tasks
   for task_id in list(tasks.keys()):
