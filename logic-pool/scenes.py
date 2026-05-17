@@ -31,7 +31,7 @@ def dim(homeware, topic, payload):
       for device_id in devices_ids:
         homeware.execute(device_id, "brightness", 30) 
       # Adjust RGB strips
-      devices_ids = ["rgb002", "rgb003"]
+      devices_ids = ["hue_16", "rgb003"]
       color = {
         "spectrumRGB": 16729344,
         "spectrumRgb": 16729344
@@ -56,7 +56,7 @@ def dim(homeware, topic, payload):
       for device_id in devices_ids:
         homeware.execute(device_id, "brightness", 100)
       # Adjust RGB strips
-      devices_ids = ["rgb002", "rgb003"]
+      devices_ids = ["hue_16", "rgb003"]
       color = {
         "spectrumRGB": 16741656,
         "spectrumRgb": 16741656
@@ -139,7 +139,7 @@ def powerAlert(homeware, alert, topic, payload):
             currentToggleSettings = {
               "emergencia": True
             }
-            devices_id = ["rgb001", "rgb002", "rgb003"]
+            devices_id = ["rgb001", "hue_16", "rgb003"]
             for device_id in devices_id:
               homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
       if power < 85:
@@ -150,7 +150,7 @@ def powerAlert(homeware, alert, topic, payload):
           currentToggleSettings = {
             "emergencia": False
           }
-          devices_id = ["rgb001", "rgb002", "rgb003"]
+          devices_id = ["rgb001", "hue_16", "rgb003"]
           for device_id in devices_id:
             homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
         
@@ -187,7 +187,7 @@ def awake(homeware, alert, topic, payload):
       homeware.execute("rgb001", "on", True)
       homeware.execute("hue_11", "on", True)
       homeware.execute("hue_15", "on", True)
-      homeware.execute("rgb002", "on", True)
+      homeware.execute("hue_16", "on", True)
       if homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
         homeware.execute("hue_1", "on", True)
     else:
