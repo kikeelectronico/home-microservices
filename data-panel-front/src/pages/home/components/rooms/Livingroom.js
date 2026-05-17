@@ -76,6 +76,22 @@ export default function Livingroom(props) {
                 </div>
             : <></>
         }
+        {
+            props.home.status["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.currentSensorStateData?.map(sensor => {
+               return sensor.name === "PM2.5" && sensor.rawValue > 15 ?
+                    <div className="homeCardRow" key={sensor.name}>
+                        <div className={"roomCardAlertContainer " + (props.home.status["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.online ? "deviceOnline" : "deviceOffline")}>
+                            {
+                                sensor.rawValue < 85 ?
+                                    <>PM2.5 moderado</>
+                                :
+                                    <>PM2.5 alto</>
+                            }
+                        </div>
+                    </div>
+                : <></>
+            })
+        }
     </div>
   )
 }
