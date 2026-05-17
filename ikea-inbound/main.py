@@ -81,6 +81,47 @@ def on_message(ws, message):
     if "isReachable" in data:
       if not homeware.get(data["id"], "online") == data["isReachable"]:
         homeware.execute(data["id"], "online", data["isReachable"])
+    if "currentPM25" in data["attributes"]:
+      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
+      updated = False
+      for sensor in homeware_current_sensors_state_data:
+        if sensor.get("name") == "PM2.5":
+          new_raw_value = data["attributes"].get("currentPM25")
+          if sensor.get("rawValue") != new_raw_value:
+            sensor["rawValue"] = new_raw_value
+            updated = True
+          break
+      if updated:
+        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
+    if "FilterLifeTime" in data["attributes"]:
+      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
+      updated = False
+      for sensor in homeware_current_sensors_state_data:
+        if sensor.get("name") == "FilterLifeTime":
+          lifetime = data["attributes"].get("filterLifetime")
+          elapsed = data["attributes"].get("filterElapsedTime")
+          if lifetime and lifetime > 0:
+              new_raw_value = round((elapsed / lifetime) * 100)
+          else:
+              new_raw_value = 0 
+
+          if sensor.get("rawValue") != new_raw_value:
+            sensor["rawValue"] = new_raw_value
+            match new_raw_value:
+              case p if p < 25:
+                  sensor["currentSensorState"] = "new"
+              case p if p < 90:
+                  sensor["currentSensorState"] = "good"
+              case p if p < 100:
+                  sensor["currentSensorState"] = "replace soon"
+              case p if p >= 100:
+                  sensor["currentSensorState"] = "replace now"
+              case _:
+                  sensor["currentSensorState"] = "unknown"
+            updated = True
+          break
+      if updated:
+        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
     if "fanMode" in data["attributes"]:
       ikea_fan_mode = data["attributes"].get("fanMode", None)
       homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
