@@ -34,7 +34,11 @@ cache = {}
 device_id_service_id = {}
 
 # Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+mqtt_client = mqtt.Client(
+  mqtt.CallbackAPIVersion.VERSION2,
+  client_id=SERVICE,
+  protocol=mqtt.MQTTv5
+)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 hue = Hue(HUE_HOST, HUE_TOKEN)
 
@@ -58,7 +62,7 @@ if __name__ == "__main__":
   
   # Connect to the mqtt broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
+  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
   logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
