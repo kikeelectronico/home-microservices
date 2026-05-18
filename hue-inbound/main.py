@@ -40,6 +40,7 @@ mqtt_client = mqtt.Client(
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 hue = Hue(HUE_HOST, HUE_TOKEN)
 
+# Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)

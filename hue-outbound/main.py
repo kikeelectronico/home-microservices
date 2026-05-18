@@ -40,7 +40,7 @@ def on_connect(client, userdata, flags, rc, properties):
 		client.subscribe(topic, qos=1)
 
 # Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, rc, properties):
+def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 	if rc != 0:
 		logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
 		while True:
