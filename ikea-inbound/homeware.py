@@ -26,6 +26,12 @@ class Homeware:
       self.__mqtt_client.reconnect()
       response = self.__mqtt_client.publish("device/control", json.dumps(control_payload))
 
+  def publish(self, id, param, value):    
+    response = self.__mqtt_client.publish("device/" + id + "/" + param, value)
+    if response.rc == 7:
+      self.__mqtt_client.reconnect()
+      response = self.__mqtt_client.publish("device/" + id + "/" + param, value)
+
   # Make a get status request to Homeware API
   def get(self, id, param):
     if self.__token == "no_set" or self.__url == "no_set":

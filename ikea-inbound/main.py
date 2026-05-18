@@ -39,6 +39,8 @@ tasks = {}
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
+voltages_map = {}
+
 def on_message(ws, message):
   event = json.loads(message)
   data = event["data"]
@@ -49,7 +51,14 @@ def on_message(ws, message):
       homeware.execute(data["id"], "online", data["isReachable"])
     if "isOn" in data["attributes"]:
       homeware.execute(data["id"], "on", data["attributes"]["isOn"])
+    if "currentVoltage" in data["attributes"]:
+      voltages_map[data["id"]] = data["attributes"]["currentVoltage"]
+      homeware.publish(data["id"], "voltage", round(data["attributes"]["currentVoltage"],1))
     if "currentAmps" in data["attributes"]:
+      homeware.publish(data["id"], "current", round(data["attributes"]["currentAmps"],1))
+      if voltages_map.get(data["id"]):
+        active_power = round(data["attributes"]["currentAmps"] * voltages_map.get(data["id"]))
+        homeware.publish(data["id"], "power", active_power)
       if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
         homeware.execute(data["id"], "isRunning", True)
         task_id = str(data["id"]) + "-" + "isRunning"
