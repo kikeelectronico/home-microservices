@@ -106,7 +106,7 @@ def on_message(client, userdata, msg):
 if __name__ == "__main__":
 	logging.basicConfig(
 		level=logging.INFO,
-		format="%(asctime)s %(levelname)-10s %(name)-5s %(message)s"
+		format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
 	)
 	# Check env vars
 	def report(message):
