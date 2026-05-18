@@ -21,7 +21,7 @@ class Hue:
       logging.error("HUE_TOKEN env var isn't set")
       exit()
       
-  # Get motion
+  # Get resource
   def getResource(self, resource="device"):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/" + resource
