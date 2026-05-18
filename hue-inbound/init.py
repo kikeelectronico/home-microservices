@@ -1,6 +1,9 @@
 import requests
 import logging
 
+import urllib3
+urllib3.disable_warnings()
+
 def contact(host, token, homeware, device_id_service_id):
   url = "https://" + host + "/clip/v2/resource/contact"
   headers = {

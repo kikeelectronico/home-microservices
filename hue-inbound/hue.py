@@ -3,6 +3,9 @@ import logging
 from sseclient import SSEClient
 import time
 
+import urllib3
+urllib3.disable_warnings()
+
 class Hue:
   
   __url = "localhost"
