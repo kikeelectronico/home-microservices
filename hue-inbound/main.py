@@ -28,7 +28,6 @@ MQTT_PORT = 1883
 SERVICE = "hue-inbound-" + ENV
 
 # Declare variables
-cache = {}
 device_id_service_id = {}
 
 # Instantiate objects
