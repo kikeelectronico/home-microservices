@@ -52,7 +52,7 @@ class Hue:
           'hue-application-key': self.__token,
           'Accept': 'text/event-stream'
         }
-        stream_response = requests.get(url, headers=headers, stream=True, verify=False, timeout=REQUEST_TIMEOUT)
+        stream_response = requests.get(url, headers=headers, stream=True, verify=False)
         return SSEClient(stream_response)
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")
