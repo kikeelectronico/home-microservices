@@ -20,23 +20,17 @@ def connectivity(hue, homeware, device_id_service_id):
 def power(hue, homeware, device_id_service_id):
   services = hue.getResources(resource="device_power")
   for service in services:
-    if "id_v1" in service:
-      device_id = "hue_sensor_" + service["id_v1"].split("/")[2]
-      battery_level = service["power_state"]["battery_level"]
-      if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-      elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-      elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-      elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
-      else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
-      homeware.execute(device_id,"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-      homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
-    device_id = device_id_service_id[service["id"]]
     battery_level = service["power_state"]["battery_level"]
     if battery_level == 100: descriptiveCapacityRemaining = "FULL"
     elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
     elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
     elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
     else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
+    if "id_v1" in service:
+      device_id = "hue_sensor_" + service["id_v1"].split("/")[2]
+      homeware.execute(device_id,"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
+      homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+    device_id = device_id_service_id[service["id"]]
     homeware.execute(device_id,"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
     homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
 
