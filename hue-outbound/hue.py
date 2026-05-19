@@ -5,6 +5,8 @@ import json
 import urllib3
 urllib3.disable_warnings()
 
+REQUEST_TIMEOUT = 10
+
 class Hue:
   
   __url = "localhost"
@@ -24,23 +26,22 @@ class Hue:
     if fail:
       exit()
       
-  # Get resource
-  def getResource(self, resource="device"):
+  # Get resources
+  def getResources(self, resource="device"):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/" + resource
       headers = {
         'hue-application-key': self.__token
       }
-      response = requests.get(url, headers=headers, verify=False)
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
         return response.json()["data"]
       else:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Status code: " + str(response.status_code))
-        return {}
+        return []
     except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
-        self._fail_to_update = False
-        return {}
+        return []
     
   # Set light resource
   def updateLightResource(self, hue_id, hue_status):
@@ -50,7 +51,7 @@ class Hue:
         "Content-Type": "application/json",
         "hue-application-key": self.__token
       }
-      response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False)
+      response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False, timeout=REQUEST_TIMEOUT)
       if not response.status_code == 200 and not response.status_code == 207:
         logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Status code: " + str(response.status_code))
     except (requests.ConnectionError, requests.Timeout) as exception:

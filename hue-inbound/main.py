@@ -2,14 +2,12 @@ import paho.mqtt.client as mqtt
 import os
 import json
 import logging
+import time
 
 from hue import Hue
 from homeware import Homeware
 import init
 import services
-
-import urllib3
-urllib3.disable_warnings()
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -30,19 +28,35 @@ MQTT_PORT = 1883
 SERVICE = "hue-inbound-" + ENV
 
 # Declare variables
-cache = {}
 device_id_service_id = {}
 
 # Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+mqtt_client = mqtt.Client(
+  mqtt.CallbackAPIVersion.VERSION2,
+  client_id=SERVICE,
+  protocol=mqtt.MQTTv5
+)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 hue = Hue(HUE_HOST, HUE_TOKEN)
+
+# Reconnect if MQTT disconnects unexpectedly
+def on_disconnect(client, userdata, disconnect_flags, rc, properties):
+  if rc != 0:
+    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
+    while True:
+      try:
+        client.reconnect()
+        logging.info("Reconnected to MQTT broker")
+        break
+      except Exception as exc:
+        logging.warning("Reconnect failed: %s", exc)
+        time.sleep(5)
 
 # Main entry point
 if __name__ == "__main__":
   logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
   # Check env vars
   def report(message):
@@ -57,22 +71,25 @@ if __name__ == "__main__":
   if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
   
   # Connect to the mqtt broker
+  mqtt_client.on_disconnect = on_disconnect
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
+  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
+  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
-  hue_devices = hue.getResource(resource="device")
+  hue_devices = hue.getResources(resource="device")
   for hue_device in hue_devices:
     for service in hue_device["services"]:
       device_id_service_id[service["rid"]] = hue_device["id"]
 
   # Get initial values
-  init.contact(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.motion(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.connectivity(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.power(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.contact(hue, homeware, device_id_service_id)
+  init.motion(hue, homeware, device_id_service_id)
+  init.connectivity(hue, homeware, device_id_service_id)
+  init.power(hue, homeware, device_id_service_id)
+  init.lightlevel(hue, homeware, device_id_service_id)
 
   # Connect to Hue bridge
   client = hue.getEventStreamClient()

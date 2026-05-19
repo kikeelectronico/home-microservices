@@ -40,7 +40,7 @@ def on_connect(client, userdata, flags, rc, properties):
 		client.subscribe(topic, qos=1)
 
 # Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, rc, properties):
+def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 	if rc != 0:
 		logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
 		while True:
@@ -106,7 +106,7 @@ def on_message(client, userdata, msg):
 if __name__ == "__main__":
 	logging.basicConfig(
 		level=logging.INFO,
-		format="%(asctime)s %(levelname)-10s %(name)-5s %(message)s"
+		format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
 	)
 	# Check env vars
 	def report(message):
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 	if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
 
 	# Get the v1 device ID to light service id map
-	hue_devices = hue.getResource(resource="device")
+	hue_devices = hue.getResources(resource="device")
 	for hue_device in hue_devices:
 		# Discart devices without v1 id
 		if not hue_device.get("id_v1", False):

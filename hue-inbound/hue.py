@@ -3,6 +3,11 @@ import logging
 from sseclient import SSEClient
 import time
 
+import urllib3
+urllib3.disable_warnings()
+
+REQUEST_TIMEOUT = 10
+
 class Hue:
   
   __url = "localhost"
@@ -11,30 +16,33 @@ class Hue:
   def __init__(self, url, token):
     self.__url = url
     self.__token = token
+
+    fail = False
     if self.__url == "no_set":
       logging.error("HUE_HOST env var isn't set")
-      exit()
+      fail = True
     if self.__token == "no_set":
       logging.error("HUE_TOKEN env var isn't set")
+      fail = True
+    if fail:
       exit()
       
-  # Get motion
-  def getResource(self, resource="device"):
+  # Get resources
+  def getResources(self, resource="device"):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/" + resource
       headers = {
         'hue-application-key': self.__token
       }
-      response = requests.get(url, headers=headers, verify=False)
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
         return response.json()["data"]
       else:
-        logging.warning("Fail to get Hue Bridge " + resource + ". Status code: " + str(response.status_code))
-        return {}
+        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Status code: " + str(response.status_code))
+        return []
     except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get Hue Bridge " + resource + ". Connection error.")
-        self._fail_to_update = False
-        return {}
+        logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
+        return []
 
   def getEventStreamClient(self):
     while True:
@@ -45,6 +53,15 @@ class Hue:
           'Accept': 'text/event-stream'
         }
         stream_response = requests.get(url, headers=headers, stream=True, verify=False)
+        if stream_response.status_code != 200:
+          logging.warning("Fail to connect to Hue Bridge SSE. Status code: %s. Retrying in 5s", stream_response.status_code)
+          time.sleep(5)
+          continue
+        content_type = stream_response.headers.get("Content-Type", "")
+        if "text/event-stream" not in content_type:
+          logging.warning("Fail to connect to Hue Bridge SSE. Invalid content type: %s. Retrying in 5s", content_type)
+          time.sleep(5)
+          continue
         return SSEClient(stream_response)
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")
