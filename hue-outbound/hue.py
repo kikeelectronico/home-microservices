@@ -39,7 +39,6 @@ class Hue:
         return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
-        self._fail_to_update = False
         return {}
     
   # Set light resource
