@@ -119,7 +119,7 @@ if __name__ == "__main__":
 	if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
 
 	# Get the v1 device ID to light service id map
-	hue_devices = hue.getResource(resource="device")
+	hue_devices = hue.getResources(resource="device")
 	for hue_device in hue_devices:
 		# Discart devices without v1 id
 		if not hue_device.get("id_v1", False):

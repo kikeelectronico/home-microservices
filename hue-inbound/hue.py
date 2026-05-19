@@ -25,8 +25,8 @@ class Hue:
     if fail:
       exit()
       
-  # Get resource
-  def getResource(self, resource="device"):
+  # Get resources
+  def getResources(self, resource="device"):
     try:
       url = "https://" + self.__url + "/clip/v2/resource/" + resource
       headers = {
@@ -37,10 +37,10 @@ class Hue:
         return response.json()["data"]
       else:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Status code: " + str(response.status_code))
-        return {}
+        return []
     except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
-        return {}
+        return []
 
   def getEventStreamClient(self):
     while True:
