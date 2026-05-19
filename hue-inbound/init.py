@@ -4,12 +4,14 @@ import logging
 import urllib3
 urllib3.disable_warnings()
 
+REQUEST_TIMEOUT = 10
+
 def contact(host, token, homeware, device_id_service_id):
   url = "https://" + host + "/clip/v2/resource/contact"
   headers = {
     'hue-application-key': token
   }
-  response = requests.request("GET", url, headers=headers, verify=False)
+  response = requests.request("GET", url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
   if not response.status_code == 200:
     logging.warning("Unable to load initial values for contact")
   else:
@@ -22,7 +24,7 @@ def motion(host, token, homeware, device_id_service_id):
   headers = {
     'hue-application-key': token
   }
-  response = requests.request("GET", url, headers=headers, verify=False)
+  response = requests.request("GET", url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
   if not response.status_code == 200:
     logging.warning("Unable to load initial values for motion")
   else:
@@ -35,7 +37,7 @@ def connectivity(host, token, homeware, device_id_service_id):
   headers = {
     'hue-application-key': token
   }
-  response = requests.request("GET", url, headers=headers, verify=False)
+  response = requests.request("GET", url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
   if not response.status_code == 200:
     logging.warning("Unable to load initial values for zigbee_connectivity")
   else:
@@ -52,7 +54,7 @@ def power(host, token, homeware, device_id_service_id):
   headers = {
     'hue-application-key': token
   }
-  response = requests.request("GET", url, headers=headers, verify=False)
+  response = requests.request("GET", url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
   if not response.status_code == 200:
     logging.warning("Unable to load initial values for device_power")
   else:
@@ -83,7 +85,7 @@ def lightlevel(host, token, homeware, device_id_service_id):
   headers = {
     'hue-application-key': token
   }
-  response = requests.request("GET", url, headers=headers, verify=False)
+  response = requests.request("GET", url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
   if not response.status_code == 200:
     logging.warning("Unable to load initial values for light_level")
   else:

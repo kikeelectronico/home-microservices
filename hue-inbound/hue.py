@@ -6,6 +6,8 @@ import time
 import urllib3
 urllib3.disable_warnings()
 
+REQUEST_TIMEOUT = 10
+
 class Hue:
   
   __url = "localhost"
@@ -32,7 +34,7 @@ class Hue:
       headers = {
         'hue-application-key': self.__token
       }
-      response = requests.get(url, headers=headers, verify=False)
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
         return response.json()["data"]
       else:
@@ -50,7 +52,7 @@ class Hue:
           'hue-application-key': self.__token,
           'Accept': 'text/event-stream'
         }
-        stream_response = requests.get(url, headers=headers, stream=True, verify=False)
+        stream_response = requests.get(url, headers=headers, stream=True, verify=False, timeout=REQUEST_TIMEOUT)
         return SSEClient(stream_response)
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")

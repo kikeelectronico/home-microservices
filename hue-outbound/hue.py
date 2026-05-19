@@ -5,6 +5,8 @@ import json
 import urllib3
 urllib3.disable_warnings()
 
+REQUEST_TIMEOUT = 10
+
 class Hue:
   
   __url = "localhost"
@@ -31,7 +33,7 @@ class Hue:
       headers = {
         'hue-application-key': self.__token
       }
-      response = requests.get(url, headers=headers, verify=False)
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
         return response.json()["data"]
       else:
@@ -49,7 +51,7 @@ class Hue:
         "Content-Type": "application/json",
         "hue-application-key": self.__token
       }
-      response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False)
+      response = requests.put(url, data = json.dumps(hue_status), headers = headers, verify=False, timeout=REQUEST_TIMEOUT)
       if not response.status_code == 200 and not response.status_code == 207:
         logging.warning("Fail to update the light resource with id " + hue_id + " in Hue Bridge. Status code: " + str(response.status_code))
     except (requests.ConnectionError, requests.Timeout) as exception:
