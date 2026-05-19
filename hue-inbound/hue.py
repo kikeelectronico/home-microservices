@@ -53,6 +53,15 @@ class Hue:
           'Accept': 'text/event-stream'
         }
         stream_response = requests.get(url, headers=headers, stream=True, verify=False)
+        if stream_response.status_code != 200:
+          logging.warning("Fail to connect to Hue Bridge SSE. Status code: %s. Retrying in 5s", stream_response.status_code)
+          time.sleep(5)
+          continue
+        content_type = stream_response.headers.get("Content-Type", "")
+        if "text/event-stream" not in content_type:
+          logging.warning("Fail to connect to Hue Bridge SSE. Invalid content type: %s. Retrying in 5s", content_type)
+          time.sleep(5)
+          continue
         return SSEClient(stream_response)
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")
