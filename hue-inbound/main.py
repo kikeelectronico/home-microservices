@@ -85,11 +85,11 @@ if __name__ == "__main__":
       device_id_service_id[service["rid"]] = hue_device["id"]
 
   # Get initial values
-  init.contact(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.motion(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.connectivity(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.power(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
+  init.contact(hue, homeware, device_id_service_id)
+  init.motion(hue, homeware, device_id_service_id)
+  init.connectivity(hue, homeware, device_id_service_id)
+  init.power(hue, homeware, device_id_service_id)
+  init.lightlevel(hue, homeware, device_id_service_id)
 
   # Connect to Hue bridge
   client = hue.getEventStreamClient()
