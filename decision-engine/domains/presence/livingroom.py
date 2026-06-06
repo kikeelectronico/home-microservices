@@ -2,10 +2,10 @@ from typing import List
 from shared.context import Context
 
 
-class BedroomPresenceHandler:
+class LivingroomPresenceHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
-            event.get("device_id") == "c2b38173-883e-4766-bcb5-0cce2dc0e00e" and \
+            event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
             event.get("value") == "OCCUPIED"
 
     def handle(self, event: dict, context: Context) -> List[dict]:
@@ -15,7 +15,7 @@ class BedroomPresenceHandler:
                     "type": "device_param_update",
                     "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
                     "param": "currentToggleSettings",
-                    "value": {"last_seen": True}
+                    "value": {"last_seen": False}
                 },
                 {
                     "type": "device_param_update",
@@ -27,6 +27,6 @@ class BedroomPresenceHandler:
                     "type": "device_param_update",
                     "device_id": "c8bd20a2-69a5-4946-b6d6-3423b560ffa9",
                     "param": "currentToggleSettings",
-                    "value": {"last_seen": False}
+                    "value": {"last_seen": True}
                 }
             ]

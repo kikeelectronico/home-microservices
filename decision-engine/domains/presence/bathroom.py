@@ -6,7 +6,7 @@ class BathroomPresenceHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
             event.get("device_id") == "06612edc-4b7c-4ef3-9f3c-157b9d482f8c" and \
-            event.get("value")
+            event.get("value") == "OCCUPIED"
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         return [
