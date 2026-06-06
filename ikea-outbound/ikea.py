@@ -41,7 +41,7 @@ class Ikea:
         return {}
       
   # Update device
-  def setDevice(self, device_id="all", attribute="isOn", value=False):
+  def updateDeviceAttribute(self, device_id="all", attribute="isOn", value=False):
     try:
       headers = {
         "Authorization": f"Bearer {self.__token}"

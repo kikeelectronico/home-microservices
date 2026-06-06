@@ -83,22 +83,22 @@ def on_message(client, userdata, msg):
 				return
 			match homeware_mode:
 				case "Apagado":
-					ikea.setDevice(ikea_id, "fanMode", "off")
+					ikea.updateDeviceAttribute(ikea_id, "fanMode", "off")
 				case "Automático":
-					ikea.setDevice(ikea_id, "fanMode", "auto")
+					ikea.updateDeviceAttribute(ikea_id, "fanMode", "auto")
 				case "Manual":
-					ikea.setDevice(ikea_id, "fanMode", "on")
+					ikea.updateDeviceAttribute(ikea_id, "fanMode", "on")
 					match payload["currentFanSpeedSetting"]:
 						case "Baja":
-							ikea.setDevice(ikea_id, "motorState", 10)
+							ikea.updateDeviceAttribute(ikea_id, "motorState", 10)
 						case "Media":
-							ikea.setDevice(ikea_id, "motorState", 30)
+							ikea.updateDeviceAttribute(ikea_id, "motorState", 30)
 						case "Alta":
-							ikea.setDevice(ikea_id, "motorState", 50)
-					ikea.setDevice(ikea_id, "fanMode", "on")
+							ikea.updateDeviceAttribute(ikea_id, "motorState", 50)
+					ikea.updateDeviceAttribute(ikea_id, "fanMode", "on")
 		else:
 			if "on" in payload:
-				ikea.setDevice(ikea_id, "isOn", payload["on"])
+				ikea.updateDeviceAttribute(ikea_id, "isOn", payload["on"])
 		
 		
 
