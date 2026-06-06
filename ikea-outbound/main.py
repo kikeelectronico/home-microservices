@@ -23,7 +23,6 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-POWER_CONSTANT = 35
 TOPICS = [
 	"device/b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
 	"device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1",
