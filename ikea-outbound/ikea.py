@@ -3,7 +3,7 @@ import logging
 
 class Ikea:
   
-  __url = "localhost"
+  __host = "localhost"
   __token = "token"
 
   def __init__(self, host, token):
@@ -12,7 +12,7 @@ class Ikea:
       
   # Get device
   def getDevices(self, device_id="all"):
-    if self.__token == "no_set" or self.__url == "no_set":
+    if self.__token == "no_set" or self.__host == "no_set":
       self._fail_to_update = True
       logging.error("Hue env vars aren't set")
     else:
@@ -36,7 +36,7 @@ class Ikea:
       
   # Update device
   def setDevice(self, device_id="all", attribute="isOn", value=False):
-    if self.__token == "no_set" or self.__url == "no_set":
+    if self.__token == "no_set" or self.__host == "no_set":
       self._fail_to_update = True
       logging.error("Hue env vars aren't set")
     else:
