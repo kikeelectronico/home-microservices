@@ -1,6 +1,8 @@
 import requests
 import logging
 
+REQUEST_TIMEOUT = 10
+
 class Ikea:
   
   __host = "localhost"
@@ -29,7 +31,7 @@ class Ikea:
       url = f"https://{self.__host}:8443/v1/devices"
       if device_id != "all":
         url = f"{url}/{device_id}"
-      response = requests.get(url, headers=headers, verify=False)
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       response.raise_for_status()
       devices = response.json()
       return devices
@@ -47,7 +49,7 @@ class Ikea:
       url = f"https://{self.__host}:8443/v1/devices/{device_id}"
       payload = [{"attributes": {}}]
       payload[0]["attributes"][attribute] = value
-      response = requests.patch(url, json=payload, headers=headers, verify=False)
+      response = requests.patch(url, json=payload, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       response.raise_for_status()
       return response.status_code == 202
     except (requests.ConnectionError, requests.Timeout) as exception:
