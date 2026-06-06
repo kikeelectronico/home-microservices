@@ -10,6 +10,8 @@ class LivingroomTableLightHandler:
 
     def handle(self, event: dict, context: Context) -> List[dict]:
 
+        actions = []
+
         MAX_LIVINGROOM_LIGHT_BRIGHTNESS = 100
         MAX_LIVINGROOM_TABLE_LIGHT_BRIGHTNESS = 30
 

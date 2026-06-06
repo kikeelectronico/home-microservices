@@ -9,8 +9,11 @@ class LivingroomPresenceHandler:
             event.get("value") == "OCCUPIED"
 
     def handle(self, event: dict, context: Context) -> List[dict]:
+
+        actions = []
+
         if context.get("pressure002","occupancy") == "UNOCCUPIED":
-            return [
+            actions = [
                 {
                     "type": "device_param_update",
                     "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
@@ -30,3 +33,5 @@ class LivingroomPresenceHandler:
                     "value": {"last_seen": True}
                 }
             ]
+        
+        return actions
