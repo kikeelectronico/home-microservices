@@ -43,9 +43,9 @@ def livingroom_motion(service, homeware, mqtt_client):
         homeware.execute("hue_15", "on", True)
         homeware.execute("rgb001", "on", True)
       # Set last_seen
-      homeware.execute("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "currentToggleSettings", {"last_seen": False}) # Bedroom
-      homeware.execute("06612edc-4b7c-4ef3-9f3c-157b9d482f8c", "currentToggleSettings", {"last_seen": False}) # Bathroom
-      homeware.execute("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "currentToggleSettings", {"last_seen": True}) # Livingroom
+      # homeware.execute("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "currentToggleSettings", {"last_seen": False}) # Bedroom
+      # homeware.execute("06612edc-4b7c-4ef3-9f3c-157b9d482f8c", "currentToggleSettings", {"last_seen": False}) # Bathroom
+      # homeware.execute("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "currentToggleSettings", {"last_seen": True}) # Livingroom
     else:
       if not homeware.get("scene_awake", "enable"):
         mqtt_client.publish("tasks", 
