@@ -62,11 +62,25 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 def on_message(client, userdata, msg):
 	if msg.topic in TOPICS:
 		topic = msg.topic
-		payload = json.loads(msg.payload)
+		try:
+			payload = json.loads(msg.payload)
+		except json.JSONDecodeError:
+			logging.warning("Invalid JSON payload on %s: %r", topic, msg.payload)
+			return
+		if not isinstance(payload, dict):
+			logging.warning("Invalid payload type on %s: %r", topic, payload)
+			return
 		ikea_id = topic.split("/")[1]
 		# Air purifier
 		if "currentModeSettings" in payload and "currentFanSpeedSetting" in payload:
-			homeware_mode = payload.get("currentModeSettings", None)["Modo"]
+			homeware_current_mode_settings = payload.get("currentModeSettings")
+			if not isinstance(homeware_current_mode_settings, dict):
+				logging.warning("Invalid 'currentModeSettings' value on %s: %r", topic, homeware_current_mode_settings)
+				return
+			homeware_mode = homeware_current_mode_settings.get("Modo")
+			if not homeware_mode:
+				logging.warning("Missing 'currentModeSettings.Modo' on %s: %r", topic, homeware_current_mode_settings)
+				return
 			match homeware_mode:
 				case "Apagado":
 					ikea.setDevice(ikea_id, "fanMode", "off")
