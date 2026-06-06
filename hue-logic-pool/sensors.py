@@ -133,19 +133,20 @@ MAX_LIVINGROOM_TABLE_LIGHT_BRIGHTNESS = 30
 MAX_LIVINGROOM_FAIRY_LIGHTS_BRIGHTNESS = 100
 
 def livingroom_light(service, homeware):
-  if service["id"] == "953a8b79-47b3-4d37-a209-06eeaacda11b":
-    light_level = service["light"]["light_level"]
+  pass
+  # if service["id"] == "953a8b79-47b3-4d37-a209-06eeaacda11b":
+  #   light_level = service["light"]["light_level"]
     # Table light
     # new_table_brightness = (light_level * MAX_LIVINGROOM_TABLE_LIGHT_BRIGHTNESS)/MAX_LIVINGROOM_TABLE_LIGHT_LIGHT_LEVEL_REFERENCE
     # new_table_brightness = round(new_table_brightness)
     # if not homeware.get("hue_11", "brightness") == new_table_brightness:
     #   homeware.execute("hue_11","brightness",new_table_brightness)
     # Fairy lights
-    new_fairy_lights_brightness = (light_level * MAX_LIVINGROOM_FAIRY_LIGHTS_BRIGHTNESS)/MAX_LIVINGROOM_TABLE_LIGHT_LIGHT_LEVEL_REFERENCE
-    new_fairy_lights_brightness = round(new_fairy_lights_brightness)
-    if new_fairy_lights_brightness < 10: new_fairy_lights_brightness = 10
-    if not homeware.get("rgb001", "brightness") == new_fairy_lights_brightness:
-      homeware.execute("rgb001","brightness",new_fairy_lights_brightness)
+    # new_fairy_lights_brightness = (light_level * MAX_LIVINGROOM_FAIRY_LIGHTS_BRIGHTNESS)/MAX_LIVINGROOM_TABLE_LIGHT_LIGHT_LEVEL_REFERENCE
+    # new_fairy_lights_brightness = round(new_fairy_lights_brightness)
+    # if new_fairy_lights_brightness < 10: new_fairy_lights_brightness = 10
+    # if not homeware.get("rgb001", "brightness") == new_fairy_lights_brightness:
+    #   homeware.execute("rgb001","brightness",new_fairy_lights_brightness)
 
 
 
