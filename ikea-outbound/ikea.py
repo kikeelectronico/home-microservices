@@ -1,6 +1,9 @@
 import requests
 import logging
 
+import urllib3
+urllib3.disable_warnings()
+
 REQUEST_TIMEOUT = 10
 
 class Ikea:
