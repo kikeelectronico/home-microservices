@@ -1,5 +1,4 @@
 from typing import List
-from domains.light.button_lighting import ButtonLightingHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom import BedroomLightHandler
 from domains.light.hallway import HallwayLightHandler
@@ -15,7 +14,6 @@ from engine.engine import Handler
 
 def build_handlers() -> List[Handler]:
     return [
-        ButtonLightingHandler(),
         BathroomLightHandler(),
         BedroomLightHandler(),
         HallwayLightHandler(),
