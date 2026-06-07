@@ -7,6 +7,10 @@ def payload_parser(payload: str):
     try:
        return json.loads(payload)
     except:
+        if payload.lower() == "true":
+            return True
+        elif payload.lower() == "false":
+            return False
         return payload
 
 def mqtt_to_event(topic: str, payload: str) -> Dict[str, Any]:
