@@ -8,7 +8,6 @@ import logging
 from homeware import Homeware
 import buttons
 import dimmers
-import sensors
 
 import urllib3
 urllib3.disable_warnings()
@@ -76,8 +75,3 @@ if __name__ == "__main__":
         buttons.kitchen(service, homeware)
         buttons.bathroom(service, homeware)
         dimmers.mirror(service, homeware)
-        sensors.bedroom(service, homeware, mqtt_client)
-        sensors.bathroom(service, homeware, mqtt_client)
-        sensors.hall(service, homeware)
-        sensors.livingroom_motion(service, homeware, mqtt_client)
-        sensors.livingroom_light(service, homeware)
