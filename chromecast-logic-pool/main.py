@@ -79,6 +79,8 @@ if __name__ == "__main__":
       device = chromecasts[0]
       device.wait()
       while True:
+        if not device.socket_client.is_connected:
+          raise Exception("Chromecast disconnected")
         if not device.app_display_name == None:
           device_controller = device.media_controller
           device_controller.block_until_active(5)
