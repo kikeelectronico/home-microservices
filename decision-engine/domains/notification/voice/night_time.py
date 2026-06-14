@@ -16,7 +16,7 @@ class NightTimeVoiceNotificationHandler:
         if context.get("e6c2e2bd-5057-49bc-821f-a4b10e415ac6", "openPercent") == 100:
             actions.append(
                 {
-                    "type": "notification_voice",
+                    "type": "notification_voice_alert",
                     "text": "La ventana del dormitorio está abierta.",
                 }
             )
@@ -24,7 +24,7 @@ class NightTimeVoiceNotificationHandler:
         if context.get("e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", "openPercent") == 100:
             actions.append(
                 {
-                    "type": "notification_voice",
+                    "type": "notification_voice_alert",
                     "text": "La ventana del salón está abierta.",
                 }
             )
