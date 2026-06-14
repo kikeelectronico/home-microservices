@@ -60,24 +60,38 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
         time.sleep(5)
 
 def on_message(ws, message):
-  event = json.loads(message)
-  data = event["data"]
+  try:
+    event = json.loads(message)
+  except (json.JSONDecodeError, TypeError):
+    logging.warning("Invalid IKEA WebSocket JSON payload: %r", message)
+    return
+  if not isinstance(event, dict):
+    logging.warning("Invalid IKEA WebSocket event type: %r", event)
+    return
+  data = event.get("data")
+  if not isinstance(data, dict):
+    logging.warning("Invalid IKEA WebSocket event data type: %r", event)
+    return
+  attributes = data.get("attributes")
+  if not isinstance(attributes, dict):
+    logging.warning("Invalid IKEA WebSocket attributes type: %r", data)
+    return
   
   # The action depends on deviceType
-  if data["deviceType"] == "outlet":
+  if data.get("deviceType") == "outlet":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
-    if "isOn" in data["attributes"]:
-      homeware.execute(data["id"], "on", data["attributes"]["isOn"])
-    if "currentVoltage" in data["attributes"]:
-      voltages_map[data["id"]] = data["attributes"]["currentVoltage"]
-      homeware.publish(data["id"], "voltage", round(data["attributes"]["currentVoltage"],1))
-    if "currentAmps" in data["attributes"]:
-      homeware.publish(data["id"], "current", round(data["attributes"]["currentAmps"],1))
+    if "isOn" in attributes:
+      homeware.execute(data["id"], "on", attributes["isOn"])
+    if "currentVoltage" in attributes:
+      voltages_map[data["id"]] = attributes["currentVoltage"]
+      homeware.publish(data["id"], "voltage", round(attributes["currentVoltage"],1))
+    if "currentAmps" in attributes:
+      homeware.publish(data["id"], "current", round(attributes["currentAmps"],1))
       if voltages_map.get(data["id"]):
-        active_power = round(data["attributes"]["currentAmps"] * voltages_map.get(data["id"]))
+        active_power = round(attributes["currentAmps"] * voltages_map.get(data["id"]))
         homeware.publish(data["id"], "power", active_power)
-      if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
+      if attributes["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
         homeware.execute(data["id"], "isRunning", True)
         task_id = str(data["id"]) + "-" + "isRunning"
         if task_id in tasks:
@@ -90,7 +104,7 @@ def on_message(ws, message):
           "param": "isRunning",
           "value": False
         }
-  elif data["deviceType"] == "motionSensor":
+  elif data.get("deviceType") == "motionSensor":
     if "isReachable" in data:
       homeware.execute(data["id"], "online", data["isReachable"])
     if "batteryPercentage" in data:
@@ -102,31 +116,31 @@ def on_message(ws, message):
       else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
       homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
       homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
-    if "isDetected" in data["attributes"]:
-      homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
-  elif data["deviceType"] == "airPurifier":
+    if "isDetected" in attributes:
+      homeware.execute(data["id"], "occupancy", "OCCUPIED" if attributes["isDetected"] else "UNOCCUPIED")
+  elif data.get("deviceType") == "airPurifier":
     if "isReachable" in data:
       if not homeware.get(data["id"], "online") == data["isReachable"]:
         homeware.execute(data["id"], "online", data["isReachable"])
-    if "currentPM25" in data["attributes"]:
+    if "currentPM25" in attributes:
       homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
       updated = False
       for sensor in homeware_current_sensors_state_data:
         if sensor.get("name") == "PM2.5":
-          new_raw_value = data["attributes"].get("currentPM25")
+          new_raw_value = attributes.get("currentPM25")
           if sensor.get("rawValue") != new_raw_value:
             sensor["rawValue"] = new_raw_value
             updated = True
           break
       if updated:
         homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "FilterLifeTime" in data["attributes"]:
+    if "FilterLifeTime" in attributes:
       homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
       updated = False
       for sensor in homeware_current_sensors_state_data:
         if sensor.get("name") == "FilterLifeTime":
-          lifetime = data["attributes"].get("filterLifetime")
-          elapsed = data["attributes"].get("filterElapsedTime")
+          lifetime = attributes.get("filterLifetime")
+          elapsed = attributes.get("filterElapsedTime")
           if lifetime and lifetime > 0:
               new_raw_value = round((elapsed / lifetime) * 100)
           else:
@@ -149,8 +163,8 @@ def on_message(ws, message):
           break
       if updated:
         homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "fanMode" in data["attributes"]:
-      ikea_fan_mode = data["attributes"].get("fanMode", None)
+    if "fanMode" in attributes:
+      ikea_fan_mode = attributes.get("fanMode", None)
       homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
       match ikea_fan_mode:
         case "off":
@@ -163,9 +177,9 @@ def on_message(ws, message):
           if homeware_mode != "Manual":
             homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
         case "low" | "medium" | "high":
-          if "motorState" in data["attributes"]:
+          if "motorState" in attributes:
             new_homeware_fan_speed = "Baja"
-            motorState = data["attributes"]["motorState"]
+            motorState = attributes["motorState"]
             if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
             elif motorState == 30: new_homeware_fan_speed = "Media"
             elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
