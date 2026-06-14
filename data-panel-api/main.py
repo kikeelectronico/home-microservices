@@ -62,6 +62,23 @@ weatherapi = Weather()
 homeware = Homeware()
 internet = Internet()
 
+devices_ids = [
+  "current001",
+  "thermostat_livingroom",
+  "hue_8",
+  "ac_001",
+  "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
+  "temperature_001",
+  "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
+  "thermostat_bathroom",
+  "hue_12",
+  "scene_ducha",
+  "thermostat_dormitorio",
+  "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
+  "temperature_001",
+  "switch_at_home"
+]
+
 @app.get("/")
 async def root():
   return {"message": "Hello, World!"}
@@ -94,7 +111,7 @@ async def streamEvents():
     #   yield f"data: {json.dumps(event)}\n\n"
     #   await sleep(0.1)
     # Home
-    (status_flag, home_status) = homeware.getStatus()
+    (status_flag, home_status) = homeware.getStatus(devices_ids)
     if not last.get("home_status", {}) == home_status:
       event = {
         "type": "home",
