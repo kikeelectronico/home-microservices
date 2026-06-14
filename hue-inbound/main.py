@@ -91,36 +91,43 @@ if __name__ == "__main__":
   init.power(hue, homeware, device_id_service_id)
   init.lightlevel(hue, homeware, device_id_service_id)
 
-  # Connect to Hue bridge
-  client = hue.getEventStreamClient()
-  
-  # Handle events
-  for message in client.events():
+  while True:
     try:
-      events = json.loads(message.data)
-    except ValueError:
-      logging.warning("Invalid SSE JSON payload: %r", message.data)
-      continue
-    if not isinstance(events, list):
-      logging.warning("Invalid SSE payload type: %r", events)
-      continue
-    for event in events:
-      data = event.get("data") if isinstance(event, dict) else None
-      if not isinstance(data, list):
-        logging.warning("Invalid SSE event data type: %r", event)
-        continue
-      for service in data:
-        if service["type"] == "contact":
-          services.contact(service, homeware, device_id_service_id)
-        elif service["type"] == "motion":
-          services.motion(service, homeware, device_id_service_id)
-        elif service["type"] == "zigbee_connectivity":
-          services.connectivity(service, homeware, device_id_service_id)
-        elif service["type"] == "device_power":
-          services.power(service, homeware, device_id_service_id)
-        elif service["type"] == "light_level":
-          services.lightlevel(service, homeware, device_id_service_id)
-        elif service["type"] == "light":
-          services.light(service, homeware, device_id_service_id)
+      # Connect to Hue bridge
+      client = hue.getEventStreamClient()
+      
+      # Handle events
+      for message in client.events():
+        try:
+          events = json.loads(message.data)
+        except ValueError:
+          logging.warning("Invalid SSE JSON payload: %r", message.data)
+          continue
+        if not isinstance(events, list):
+          logging.warning("Invalid SSE payload type: %r", events)
+          continue
+        for event in events:
+          data = event.get("data") if isinstance(event, dict) else None
+          if not isinstance(data, list):
+            logging.warning("Invalid SSE event data type: %r", event)
+            continue
+          for service in data:
+            if service["type"] == "contact":
+              services.contact(service, homeware, device_id_service_id)
+            elif service["type"] == "motion":
+              services.motion(service, homeware, device_id_service_id)
+            elif service["type"] == "zigbee_connectivity":
+              services.connectivity(service, homeware, device_id_service_id)
+            elif service["type"] == "device_power":
+              services.power(service, homeware, device_id_service_id)
+            elif service["type"] == "light_level":
+              services.lightlevel(service, homeware, device_id_service_id)
+            elif service["type"] == "light":
+              services.light(service, homeware, device_id_service_id)
 
+      logging.warning("Hue SSE stream closed. Reconnecting in 5s...")
+      time.sleep(5)
     
+    except Exception:
+        logging.exception("Hue SSE stream failed. Reconnecting in 5s...")
+        time.sleep(5)
