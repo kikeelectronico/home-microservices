@@ -70,17 +70,25 @@ if __name__ == "__main__":
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
-
-  # Connect to the tv
-  chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=["Tele"])
-  device = chromecasts[0]
-  device.wait()
   while True:
-    if not device.app_display_name == None:
-      device_controller = device.media_controller
-      device_controller.block_until_active(5)
-      if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
-        logic.notPlayingLights(homeware, mqtt_client)
-      if device_controller.status.player_state == "PLAYING":
-        logic.playingLights(homeware, mqtt_client)
-    time.sleep(5)
+    try:
+      # Connect to the tv
+      chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=["Tele"])
+      if not chromecasts:
+            raise Exception("Chromecast not found")
+      device = chromecasts[0]
+      device.wait()
+      while True:
+        if not device.socket_client.is_connected:
+          raise Exception("Chromecast disconnected")
+        if not device.app_display_name == None:
+          device_controller = device.media_controller
+          device_controller.block_until_active(5)
+          if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
+            logic.notPlayingLights(homeware, mqtt_client)
+          if device_controller.status.player_state == "PLAYING":
+            logic.playingLights(homeware, mqtt_client)
+        time.sleep(5)
+    except Exception:
+        logging.exception("Chromecast connection lost. Reconnecting in 10s")
+        time.sleep(10)
