@@ -2,6 +2,8 @@ import json
 import requests
 import logging
 
+REQUEST_TIMEOUT = 10
+
 class Homeware:
 
   __mqtt_client = None
@@ -35,42 +37,38 @@ class Homeware:
   # Make a get status request to Homeware API
   def get(self, id, param):
     if self.__token == "no_set" or self.__url == "no_set":
-      self._fail_to_update = True
       logging.error("Homeware env vars aren't set")
-    else:
-      try:
-        url = self.__url + "/api/devices/" + id + "/states/" + param
-        headers = {"Authorization": "bearer " + self.__token}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-          return response.json()
-        else:
-          logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
-          return (False, {})
-      except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get Homeware status. Conection error.")
-        self._fail_to_update = False
+      return None
+    try:
+      url = self.__url + "/api/devices/" + id + "/states/" + param
+      headers = {"Authorization": "bearer " + self.__token}
+      response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+      if response.status_code == 200:
+        return response.json()
+      logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
+      return None
+    except (requests.ConnectionError, requests.Timeout):
+      logging.warning("Fail to get Homeware status. Connection error.")
+      return None
 
   def getDevices(self):
     if self.__token == "no_set" or self.__url == "no_set":
-      self._fail_to_update = True
       logging.error("Homeware env vars aren't set")
-    else:
-      try:
-        url = self.__url + "/api/devices"
-        headers = {
-            "Authorization": "bearer " + self.__token
-        }
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-          unorderedDevices = response.json()
-          devices = {}
-          for device in unorderedDevices:
-              devices[device['id']] = device
-          return (True, devices)
-        else:
-          logging.warning("Fail to get Homeware devices. Status code: " + str(response.status_code))
-          return (False, {})    
-      except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get Homeware devices. Conection error.")
-        self._fail_to_update = False
+      return (False, {})
+    try:
+      url = self.__url + "/api/devices"
+      headers = {
+          "Authorization": "bearer " + self.__token
+      }
+      response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+      if response.status_code == 200:
+        unorderedDevices = response.json()
+        devices = {}
+        for device in unorderedDevices:
+            devices[device['id']] = device
+        return (True, devices)
+      logging.warning("Fail to get Homeware devices. Status code: %s", response.status_code)
+      return (False, {})
+    except (requests.ConnectionError, requests.Timeout):
+      logging.warning("Fail to get Homeware devices. Connection error.")
+      return (False, {})
