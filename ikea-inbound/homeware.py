@@ -15,6 +15,16 @@ class Homeware:
     self.__url = host
     self.__token = token
 
+    fail = False
+    if self.__url == "no_set":
+      logging.error("HOMEWARE_API_URL env var isn't set")
+      fail = True
+    if self.__token == "no_set":
+      logging.error("HOMEWARE_API_KEY env var isn't set")
+      fail = True
+    if fail:
+      exit()
+
   # Make an execution request to Homeware API
   def execute(self, id, param, value):    
     control_payload = {
@@ -30,9 +40,6 @@ class Homeware:
 
   # Make a get status request to Homeware API
   def get(self, id, param):
-    if self.__token == "no_set" or self.__url == "no_set":
-      logging.error("Homeware env vars aren't set")
-      return None
     try:
       url = self.__url + "/api/devices/" + id + "/states/" + param
       headers = {"Authorization": "bearer " + self.__token}
@@ -46,9 +53,6 @@ class Homeware:
       return None
 
   def getDevices(self):
-    if self.__token == "no_set" or self.__url == "no_set":
-      logging.error("Homeware env vars aren't set")
-      return (False, {})
     try:
       url = self.__url + "/api/devices"
       headers = {
