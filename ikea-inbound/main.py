@@ -139,7 +139,7 @@ def on_message(ws, message):
       updated = False
       for sensor in homeware_current_sensors_state_data:
         if sensor.get("name") == "FilterLifeTime":
-          lifetime = attributes.get("filterLifetime")
+          lifetime = attributes.get("FilterLifeTime")
           elapsed = attributes.get("filterElapsedTime")
           if lifetime and lifetime > 0:
               new_raw_value = round((elapsed / lifetime) * 100)
