@@ -47,7 +47,7 @@ export default function Bedroom(props) {
         }
         {
             props.home.status["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"].openPercent === 100 && 
-            props.home.status.thermostat_livingroom.thermostatMode === "cool" ?
+            props.home.status.thermostat_dormitorio.thermostatMode === "cool" ?
                 <div className="homeCardRow">
                     <div className={"roomCardAlertContainer " + (props.home.status[["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]].online ? "deviceOnline" : "deviceOffline")}>
                         Cierra la ventana
