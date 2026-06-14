@@ -110,11 +110,17 @@ if __name__ == "__main__":
         logging.warning("Invalid SSE event data type: %r", event)
         continue
       for service in data:
-        services.contact(service, homeware, device_id_service_id)
-        services.motion(service, homeware, device_id_service_id)
-        services.connectivity(service, homeware, device_id_service_id)
-        services.power(service, homeware, device_id_service_id)
-        services.lightlevel(service, homeware, device_id_service_id)
-        services.light(service, homeware, device_id_service_id)
+        if service["type"] == "contact":
+          services.contact(service, homeware, device_id_service_id)
+        elif service["type"] == "motion":
+          services.motion(service, homeware, device_id_service_id)
+        elif service["type"] == "zigbee_connectivity":
+          services.connectivity(service, homeware, device_id_service_id)
+        elif service["type"] == "device_power":
+          services.power(service, homeware, device_id_service_id)
+        elif service["type"] == "light_level":
+          services.lightlevel(service, homeware, device_id_service_id)
+        elif service["type"] == "light":
+          services.light(service, homeware, device_id_service_id)
 
     
