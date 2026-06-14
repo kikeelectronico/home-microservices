@@ -25,7 +25,24 @@ BLOCK_TIME = 300
 SERVICE = "monitor-http-request-" + ENV
 
 # Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE) 
+mqtt_client = mqtt.Client(
+  mqtt.CallbackAPIVersion.VERSION2,
+  client_id=SERVICE,
+  protocol=mqtt.MQTTv5
+) 
+
+# Reconnect if MQTT disconnects unexpectedly
+def on_disconnect(client, userdata, disconnect_flags, rc, properties):
+  if rc != 0:
+    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
+    while True:
+      try:
+        client.reconnect()
+        logging.info("Reconnected to MQTT broker")
+        break
+      except Exception as exc:
+        logging.warning("Reconnect failed: %s", exc)
+        time.sleep(5)
 
 # Main entry point
 if __name__ == "__main__":
@@ -42,8 +59,11 @@ if __name__ == "__main__":
   if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
 
   # Connect to the mqtt broker
+  mqtt_client.on_disconnect = on_disconnect
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
+  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
+  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
   # Main loop

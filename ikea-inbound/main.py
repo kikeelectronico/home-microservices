@@ -9,6 +9,7 @@ from websocket import WebSocketApp
 import logging
 
 from homeware import Homeware
+import devices
 
 import urllib3
 urllib3.disable_warnings()
@@ -30,130 +31,59 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.2
+WEBSOCKET_RECONNECT_DELAY = 5
 
 # Variables
 tasks = {}
 
 # Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+mqtt_client = mqtt.Client(
+  mqtt.CallbackAPIVersion.VERSION2,
+  client_id=SERVICE,
+  protocol=mqtt.MQTTv5
+)
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
 voltages_map = {}
 
+# Reconnect if MQTT disconnects unexpectedly
+def on_disconnect(client, userdata, disconnect_flags, rc, properties):
+  if rc != 0:
+    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
+    while True:
+      try:
+        client.reconnect()
+        logging.info("Reconnected to MQTT broker")
+        break
+      except Exception as exc:
+        logging.warning("Reconnect failed: %s", exc)
+        time.sleep(5)
+
 def on_message(ws, message):
-  event = json.loads(message)
-  data = event["data"]
+  try:
+    event = json.loads(message)
+  except (json.JSONDecodeError, TypeError):
+    logging.warning("Invalid IKEA WebSocket JSON payload: %r", message)
+    return
+  if not isinstance(event, dict):
+    logging.warning("Invalid IKEA WebSocket event type: %r", event)
+    return
+  data = event.get("data")
+  if not isinstance(data, dict):
+    logging.warning("Invalid IKEA WebSocket event data type: %r", event)
+    return
+  attributes = data.get("attributes")
+  if not isinstance(attributes, dict):
+    logging.warning("Invalid IKEA WebSocket attributes type: %r", data)
+    return
   
   # The action depends on deviceType
-  if data["deviceType"] == "outlet":
-    if "isReachable" in data:
-      homeware.execute(data["id"], "online", data["isReachable"])
-    if "isOn" in data["attributes"]:
-      homeware.execute(data["id"], "on", data["attributes"]["isOn"])
-    if "currentVoltage" in data["attributes"]:
-      voltages_map[data["id"]] = data["attributes"]["currentVoltage"]
-      homeware.publish(data["id"], "voltage", round(data["attributes"]["currentVoltage"],1))
-    if "currentAmps" in data["attributes"]:
-      homeware.publish(data["id"], "current", round(data["attributes"]["currentAmps"],1))
-      if voltages_map.get(data["id"]):
-        active_power = round(data["attributes"]["currentAmps"] * voltages_map.get(data["id"]))
-        homeware.publish(data["id"], "power", active_power)
-      if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
-        homeware.execute(data["id"], "isRunning", True)
-        task_id = str(data["id"]) + "-" + "isRunning"
-        if task_id in tasks:
-          del tasks[task_id]
-      else:
-        task_id = str(data["id"]) + "-" + "isRunning"
-        tasks[task_id] = {
-          "time": time.time(),
-          "device_id": str(data["id"]),
-          "param": "isRunning",
-          "value": False
-        }
-  elif data["deviceType"] == "motionSensor":
-    if "isReachable" in data:
-      homeware.execute(data["id"], "online", data["isReachable"])
-    if "batteryPercentage" in data:
-      battery_level = data["batteryPercentage"]
-      if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-      elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-      elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-      elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
-      else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
-      homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-      homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
-    if "isDetected" in data["attributes"]:
-      homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
-  elif data["deviceType"] == "airPurifier":
-    if "isReachable" in data:
-      if not homeware.get(data["id"], "online") == data["isReachable"]:
-        homeware.execute(data["id"], "online", data["isReachable"])
-    if "currentPM25" in data["attributes"]:
-      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
-      updated = False
-      for sensor in homeware_current_sensors_state_data:
-        if sensor.get("name") == "PM2.5":
-          new_raw_value = data["attributes"].get("currentPM25")
-          if sensor.get("rawValue") != new_raw_value:
-            sensor["rawValue"] = new_raw_value
-            updated = True
-          break
-      if updated:
-        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "FilterLifeTime" in data["attributes"]:
-      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
-      updated = False
-      for sensor in homeware_current_sensors_state_data:
-        if sensor.get("name") == "FilterLifeTime":
-          lifetime = data["attributes"].get("filterLifetime")
-          elapsed = data["attributes"].get("filterElapsedTime")
-          if lifetime and lifetime > 0:
-              new_raw_value = round((elapsed / lifetime) * 100)
-          else:
-              new_raw_value = 0 
-
-          if sensor.get("rawValue") != new_raw_value:
-            sensor["rawValue"] = new_raw_value
-            match new_raw_value:
-              case p if p < 25:
-                  sensor["currentSensorState"] = "new"
-              case p if p < 90:
-                  sensor["currentSensorState"] = "good"
-              case p if p < 100:
-                  sensor["currentSensorState"] = "replace soon"
-              case p if p >= 100:
-                  sensor["currentSensorState"] = "replace now"
-              case _:
-                  sensor["currentSensorState"] = "unknown"
-            updated = True
-          break
-      if updated:
-        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "fanMode" in data["attributes"]:
-      ikea_fan_mode = data["attributes"].get("fanMode", None)
-      homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
-      match ikea_fan_mode:
-        case "off":
-          if homeware_mode != "Apagado":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
-        case "auto":
-          if homeware_mode != "Automático":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
-        case "on":
-          if homeware_mode != "Manual":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
-        case "low" | "medium" | "high":
-          if "motorState" in data["attributes"]:
-            new_homeware_fan_speed = "Baja"
-            motorState = data["attributes"]["motorState"]
-            if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
-            elif motorState == 30: new_homeware_fan_speed = "Media"
-            elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
-            homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
-            if not new_homeware_fan_speed == homeware_fan_speed:
-              homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
+  if data.get("deviceType") == "outlet":
+    devices.outlet(data, homeware)
+  elif data.get("deviceType") == "motionSensor":
+    devices.motionSensor(data, homeware)
+  elif data.get("deviceType") == "airPurifier":
+    devices.airPurifier(data, homeware)
 
   # Loop over pending tasks
   for task_id in list(tasks.keys()):
@@ -191,6 +121,10 @@ def on_open(ws):
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -205,8 +139,11 @@ if __name__ == "__main__":
   if IKEA_TOKEN == "no_set": report("IKEA_TOKEN env vars no set")
   
   # Connect to the mqtt broker
+  mqtt_client.on_disconnect = on_disconnect
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
+  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
+  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
   
   # Open WebSocket
@@ -214,15 +151,20 @@ if __name__ == "__main__":
   headers = {
     "Authorization": "Bearer " + IKEA_TOKEN
   }
-  ws_app = WebSocketApp(
-    url,
-    header=[key + ": " + value for key, value in headers.items()],
-    on_message=on_message,
-    on_error=on_error,
-    on_close=on_close,
-    on_open=on_open,
-  )
-
   # Contexto SSL para certificado autofirmado
   sslopt = {"cert_reqs": ssl.CERT_NONE}
-  ws_app.run_forever(sslopt=sslopt)
+  while True:
+    ws_app = WebSocketApp(
+      url,
+      header=[key + ": " + value for key, value in headers.items()],
+      on_message=on_message,
+      on_error=on_error,
+      on_close=on_close,
+      on_open=on_open,
+    )
+    try:
+      ws_app.run_forever(sslopt=sslopt)
+    except Exception as exc:
+      logging.warning("IKEA WebSocket stopped with error: %s", exc)
+    logging.warning("IKEA WebSocket disconnected. Reconnecting in %ss", WEBSOCKET_RECONNECT_DELAY)
+    time.sleep(WEBSOCKET_RECONNECT_DELAY)
