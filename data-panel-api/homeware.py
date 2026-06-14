@@ -18,26 +18,28 @@ class Homeware:
     if self.__url == "no_set": 
       logging.error("HOMEWARE_API_URL no set")
 
-  def getStatus(self):
+  def getStatus(self, devices_ids):
     if self.__api_key == "no_set" or self.__url == "no_set":
       self._fail_to_update = True
       logging.error("Homeware env vars aren't set")
     else:
       try:
-        url = self.__url + "/api/status/get/"
-        headers = {
-            "Authorization": "bearer " + self.__api_key
-        }
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-          status = response.json()
-          return (True, status)
-        else:
-          logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
-          return (False, {})
+        status = {}
+        for id in devices_ids:
+          url = self.__url + "/api/devices/" + id + "/states"
+          headers = {
+              "Authorization": "bearer " + self.__api_key
+          }
+          response = requests.get(url, headers=headers)
+          if response.status_code == 200:
+            status[id] = response.json()
+          else:
+            logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
+            return (False, {})
+        return (True, status)
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get Homeware status. Conection error.")
-        self._fail_to_update = False
+        return (False, {})
 
 
   def getDevices(self):
