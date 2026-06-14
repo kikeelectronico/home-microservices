@@ -31,6 +31,7 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 SERVICE = "ikea-inbound-" + ENV
 OUTLET_CURRENT_THRESHOLD = 0.2
+WEBSOCKET_RECONNECT_DELAY = 5
 
 # Variables
 tasks = {}
@@ -234,15 +235,20 @@ if __name__ == "__main__":
   headers = {
     "Authorization": "Bearer " + IKEA_TOKEN
   }
-  ws_app = WebSocketApp(
-    url,
-    header=[key + ": " + value for key, value in headers.items()],
-    on_message=on_message,
-    on_error=on_error,
-    on_close=on_close,
-    on_open=on_open,
-  )
-
   # Contexto SSL para certificado autofirmado
   sslopt = {"cert_reqs": ssl.CERT_NONE}
-  ws_app.run_forever(sslopt=sslopt)
+  while True:
+    ws_app = WebSocketApp(
+      url,
+      header=[key + ": " + value for key, value in headers.items()],
+      on_message=on_message,
+      on_error=on_error,
+      on_close=on_close,
+      on_open=on_open,
+    )
+    try:
+      ws_app.run_forever(sslopt=sslopt)
+    except Exception as exc:
+      logging.warning("IKEA WebSocket stopped with error: %s", exc)
+    logging.warning("IKEA WebSocket disconnected. Reconnecting in %ss", WEBSOCKET_RECONNECT_DELAY)
+    time.sleep(WEBSOCKET_RECONNECT_DELAY)
