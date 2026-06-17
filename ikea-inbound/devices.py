@@ -5,9 +5,7 @@ IDS_MAP = {
   "109bf470-f27b-4a3d-bfb7-6ac284bb4ed9_1": "thermostat_livingroom"
 }
 
-def outlet(data, homeware):
-  global tasks
-  global voltages_map
+def outlet(data, homeware, tasks, voltages_map):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])

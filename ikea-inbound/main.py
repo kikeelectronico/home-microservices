@@ -35,6 +35,7 @@ WEBSOCKET_RECONNECT_DELAY = 5
 
 # Variables
 tasks = {}
+voltages_map = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(
@@ -43,8 +44,6 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-
-voltages_map = {}
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -79,7 +78,7 @@ def on_message(ws, message):
   
   # The action depends on deviceType
   if data.get("deviceType") == "outlet":
-    devices.outlet(data, homeware)
+    devices.outlet(data, homeware, tasks, voltages_map)
   elif data.get("deviceType") == "motionSensor":
     devices.motionSensor(data, homeware)
   elif data.get("deviceType") == "airPurifier":
