@@ -1,10 +1,11 @@
 import time
 
 OUTLET_CURRENT_THRESHOLD = 0.2
+IDS_MAP = {
+  "109bf470-f27b-4a3d-bfb7-6ac284bb4ed9_1": "thermostat_livingroom"
+}
 
-def outlet(data, homeware):
-  global tasks
-  global voltages_map
+def outlet(data, homeware, tasks, voltages_map):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
@@ -117,3 +118,39 @@ def airPurifier(data, homeware):
           homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
           if not new_homeware_fan_speed == homeware_fan_speed:
             homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
+
+def environmentSensor(data, homeware):
+  attributes = data.get("attributes")
+  homeware_id = IDS_MAP[data["id"]]
+  if "isOn" in attributes:
+    homeware.execute(homeware_id, "online", attributes["isOn"])
+  if "currentTemperature" in attributes:
+    thermostatTemperatureAmbient = round(attributes["currentTemperature"], 1)
+    homeware.execute(homeware_id, "thermostatTemperatureAmbient", thermostatTemperatureAmbient)
+  if "currentRH" in attributes:
+    thermostatHumidityAmbient = round(attributes["currentRH"], 0)
+    homeware.execute(homeware_id, "thermostatHumidityAmbient", thermostatHumidityAmbient)
+  if "currentCO2" in attributes:
+    homeware_current_sensors_state_data = homeware.get(homeware_id, "currentSensorStateData")
+    updated = False
+    for sensor in homeware_current_sensors_state_data:
+      if sensor.get("name") == "CarbonDioxideLevel":
+        new_raw_value = attributes.get("currentCO2")
+        if sensor.get("rawValue") != new_raw_value:
+          sensor["rawValue"] = new_raw_value
+          updated = True
+        break
+    if updated:
+      homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)
+  if "currentPM25" in attributes:
+    homeware_current_sensors_state_data = homeware.get(homeware_id, "currentSensorStateData")
+    updated = False
+    for sensor in homeware_current_sensors_state_data:
+      if sensor.get("name") == "PM2.5":
+        new_raw_value = attributes.get("currentPM25")
+        if sensor.get("rawValue") != new_raw_value:
+          sensor["rawValue"] = new_raw_value
+          updated = True
+        break
+    if updated:
+      homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)

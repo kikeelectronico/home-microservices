@@ -35,6 +35,7 @@ WEBSOCKET_RECONNECT_DELAY = 5
 
 # Variables
 tasks = {}
+voltages_map = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(
@@ -43,8 +44,6 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-
-voltages_map = {}
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -72,6 +71,8 @@ def on_message(ws, message):
   if not isinstance(data, dict):
     logging.warning("Invalid IKEA WebSocket event data type: %r", event)
     return
+  if "lastModified" in data:
+    return
   attributes = data.get("attributes")
   if not isinstance(attributes, dict):
     logging.warning("Invalid IKEA WebSocket attributes type: %r", data)
@@ -79,11 +80,13 @@ def on_message(ws, message):
   
   # The action depends on deviceType
   if data.get("deviceType") == "outlet":
-    devices.outlet(data, homeware)
+    devices.outlet(data, homeware, tasks, voltages_map)
   elif data.get("deviceType") == "motionSensor":
     devices.motionSensor(data, homeware)
   elif data.get("deviceType") == "airPurifier":
     devices.airPurifier(data, homeware)
+  elif data.get("deviceType") == "environmentSensor":
+    devices.environmentSensor(data, homeware)
 
   # Loop over pending tasks
   for task_id in list(tasks.keys()):
@@ -115,9 +118,9 @@ def on_open(ws):
       ws.send(json.dumps(ping_msg))
       time.sleep(30)
 
-    thread = threading.Thread(target=run)
-    thread.daemon = True
-    thread.start()
+  thread = threading.Thread(target=run)
+  thread.daemon = True
+  thread.start()
 
 # Main entry point
 if __name__ == "__main__":
