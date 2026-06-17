@@ -84,6 +84,8 @@ def on_message(ws, message):
     devices.motionSensor(data, homeware)
   elif data.get("deviceType") == "airPurifier":
     devices.airPurifier(data, homeware)
+  elif data.get("deviceType") == "environmentSensor":
+    devices.environmentSensor(data, homeware)
 
   # Loop over pending tasks
   for task_id in list(tasks.keys()):

@@ -1,6 +1,9 @@
 import time
 
 OUTLET_CURRENT_THRESHOLD = 0.2
+IDS_MAP = {
+  "109bf470-f27b-4a3d-bfb7-6ac284bb4ed9_1": "thermostat_livingroom"
+}
 
 def outlet(data, homeware):
   global tasks
@@ -117,3 +120,15 @@ def airPurifier(data, homeware):
           homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
           if not new_homeware_fan_speed == homeware_fan_speed:
             homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
+
+def environmentSensor(data, homeware):
+  attributes = data.get("attributes")
+  homeware_id = IDS_MAP[data["id"]]
+  if "isOn" in attributes:
+    homeware.execute(homeware_id, "online", attributes["isOn"])
+  if "currentTemperature" in attributes:
+    thermostatTemperatureAmbient = round(attributes["currentTemperature"], 1)
+    homeware.execute(homeware_id, "thermostatTemperatureAmbient", thermostatTemperatureAmbient)
+  if "currentRH" in attributes:
+    thermostatHumidityAmbient = round(attributes["currentRH"], 0)
+    homeware.execute(homeware_id, "thermostatHumidityAmbient", thermostatHumidityAmbient)
