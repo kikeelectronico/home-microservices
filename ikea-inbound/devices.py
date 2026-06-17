@@ -130,3 +130,27 @@ def environmentSensor(data, homeware):
   if "currentRH" in attributes:
     thermostatHumidityAmbient = round(attributes["currentRH"], 0)
     homeware.execute(homeware_id, "thermostatHumidityAmbient", thermostatHumidityAmbient)
+  if "currentCO2" in attributes:
+    homeware_current_sensors_state_data = homeware.get(homeware_id, "currentSensorStateData")
+    updated = False
+    for sensor in homeware_current_sensors_state_data:
+      if sensor.get("name") == "CarbonDioxideLevel":
+        new_raw_value = attributes.get("currentCO2")
+        if sensor.get("rawValue") != new_raw_value:
+          sensor["rawValue"] = new_raw_value
+          updated = True
+        break
+    if updated:
+      homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)
+  if "currentPM25" in attributes:
+    homeware_current_sensors_state_data = homeware.get(homeware_id, "currentSensorStateData")
+    updated = False
+    for sensor in homeware_current_sensors_state_data:
+      if sensor.get("name") == "PM2.5":
+        new_raw_value = attributes.get("currentPM25")
+        if sensor.get("rawValue") != new_raw_value:
+          sensor["rawValue"] = new_raw_value
+          updated = True
+        break
+    if updated:
+      homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)
