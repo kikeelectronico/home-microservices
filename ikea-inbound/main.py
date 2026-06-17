@@ -116,9 +116,9 @@ def on_open(ws):
       ws.send(json.dumps(ping_msg))
       time.sleep(30)
 
-    thread = threading.Thread(target=run)
-    thread.daemon = True
-    thread.start()
+  thread = threading.Thread(target=run)
+  thread.daemon = True
+  thread.start()
 
 # Main entry point
 if __name__ == "__main__":
