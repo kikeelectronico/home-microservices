@@ -71,6 +71,8 @@ def on_message(ws, message):
   if not isinstance(data, dict):
     logging.warning("Invalid IKEA WebSocket event data type: %r", event)
     return
+  if "lastModified" in data:
+    return
   attributes = data.get("attributes")
   if not isinstance(attributes, dict):
     logging.warning("Invalid IKEA WebSocket attributes type: %r", data)
