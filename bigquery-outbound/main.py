@@ -89,20 +89,30 @@ def on_message(client, userdata, msg):
 		# Prepare the data
 		ts = int(time.time())
 		device_id = topic.split("/")[1]
+		states = []
 		if "current001" in topic:
-			param = "current"
-			value = payload
+			states.append(
+				{
+					"param": "current",
+					"value": payload
+				}
+			)
 		else:
-			param = topic.split("/")[2]
-			value = payload * POWER_CONSTANT
-		# Insert the data
-		bigquery_client.query(
-			"""
-				INSERT INTO {}
-				(time, device_id, param, value, type)
-				VALUES ({},"{}","{}","{}", "{}");
-			""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
-		)
+			states.append(
+				{
+					"param": topic.split("/")[2],
+					"value": payload * POWER_CONSTANT
+				}
+			)
+		for state in states:
+			# Insert the data
+			bigquery_client.query(
+				"""
+					INSERT INTO {}
+					(time, device_id, param, value, type)
+					VALUES ({},"{}","{}","{}", "{}");
+				""".format(DEVICE_DDBB, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
+			)
 		# Update last_value
 		last_value[topic] = payload
 
