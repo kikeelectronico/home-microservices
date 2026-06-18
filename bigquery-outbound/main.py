@@ -98,7 +98,7 @@ def on_message(client, userdata, msg):
 			states.append(
 				{
 					"param": "current",
-					"value": payload
+					"value": payload * POWER_CONSTANT
 				}
 			)
 		elif "currentSensorStateData" in topic:
@@ -115,7 +115,7 @@ def on_message(client, userdata, msg):
 			states.append(
 				{
 					"param": topic.split("/")[2],
-					"value": payload * POWER_CONSTANT
+					"value": payload
 				}
 			)
 		for state in states:
