@@ -89,8 +89,12 @@ def on_message(client, userdata, msg):
 		# Prepare the data
 		ts = int(time.time())
 		device_id = topic.split("/")[1]
-		param = topic.split("/")[2] if not "current001" in topic else "current"
-		value = payload if not "current001" in topic else payload * POWER_CONSTANT
+		if "current001" in topic:
+			param = "current"
+			value = payload
+		else:
+			param = topic.split("/")[2]
+			value = payload * POWER_CONSTANT
 		# Insert the data
 		bigquery_client.query(
 			"""
