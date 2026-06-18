@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 import os
 from google.cloud import bigquery
 import logging
+import json
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -23,6 +24,7 @@ TOPICS = [
 	"device/thermostat_livingroom/thermostatTemperatureAmbient",
 	"device/thermostat_livingroom/thermostatHumidityAmbient",
 	"device/thermostat_livingroom/thermostatMode",
+	"device/thermostat_livingroom/currentSensorStateData",
 	"device/thermostat_bathroom/thermostatTemperatureAmbient",
 	"device/thermostat_bathroom/thermostatHumidityAmbient",
 	"device/thermostat_dormitorio/thermostatTemperatureAmbient",
@@ -57,6 +59,8 @@ def typifyPayload(topic, payload):
 		return float(payload)
 	elif "temperature" in topic:
 		return float(payload)
+	elif "currentSensorStateData" in topic:
+		return json.loads(payload.replace("'", '"'))
 	else:
 		return int(payload)
 
@@ -83,22 +87,46 @@ def on_message(client, userdata, msg):
 	global last_value
 	# Rename variables
 	topic = msg.topic
-	payload = typifyPayload(topic, msg.payload)
+	payload = typifyPayload(topic, msg.payload.decode("utf-8"))
 	# The request depends on the device
 	if payload != last_value.setdefault(topic, 0):
 		# Prepare the data
 		ts = int(time.time())
 		device_id = topic.split("/")[1]
-		param = topic.split("/")[2] if not "current001" in topic else "current"
-		value = payload if not "current001" in topic else payload * POWER_CONSTANT
-		# Insert the data
-		bigquery_client.query(
-			"""
-				INSERT INTO {}
-				(time, device_id, param, value, type)
-				VALUES ({},"{}","{}","{}", "{}");
-			""".format(DEVICE_DDBB, ts, device_id, param, str(value), value.__class__.__name__)
-		)
+		states = []
+		if "current001" in topic:
+			states.append(
+				{
+					"param": "current",
+					"value": payload * POWER_CONSTANT
+				}
+			)
+		elif "currentSensorStateData" in topic:
+			print(payload)
+			for sensor in payload:
+				print(sensor)
+				states.append(
+					{
+						"param": sensor["name"],
+						"value": sensor["rawValue"]
+					}
+				)
+		else:
+			states.append(
+				{
+					"param": topic.split("/")[2],
+					"value": payload
+				}
+			)
+		for state in states:
+			# Insert the data
+			bigquery_client.query(
+				"""
+					INSERT INTO {}
+					(time, device_id, param, value, type)
+					VALUES ({},"{}","{}","{}", "{}");
+				""".format(DEVICE_DDBB, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
+			)
 		# Update last_value
 		last_value[topic] = payload
 
