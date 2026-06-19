@@ -19,28 +19,28 @@ def power(service, homeware, device_id_service_id):
   # Pending on transitioning to v2 ids for deleting id_v1
   if "id_v1" in service:
     device_id = "hue_sensor_" + service["id_v1"].split("/")[2]
-    battery_level = service["power_state"]["battery_level"]
-    if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-    elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-    elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-    elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
+    hue_battery_level = service["power_state"]["battery_level"]
+    if hue_battery_level == 100: descriptiveCapacityRemaining = "FULL"
+    elif hue_battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
+    elif hue_battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
+    elif hue_battery_level >= 10: descriptiveCapacityRemaining ="LOW"
     else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
     homeware.execute(device_id,"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-    homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+    homeware.execute(device_id, "capacityRemaining", [{"rawValue": hue_battery_level, "unit":"PERCENTAGE"}])
   # end of id_v1
   device_id = device_id_service_id[service["id"]]
-  battery_level = service["power_state"]["battery_level"]
-  if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-  elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-  elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-  elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
+  hue_battery_level = service["power_state"]["battery_level"]
+  if hue_battery_level == 100: descriptiveCapacityRemaining = "FULL"
+  elif hue_battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
+  elif hue_battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
+  elif hue_battery_level >= 10: descriptiveCapacityRemaining ="LOW"
   else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
   homeware.execute(device_id,"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-  homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+  homeware.execute(device_id, "capacityRemaining", [{"rawValue": hue_battery_level, "unit":"PERCENTAGE"}])
 
 def lightlevel(service, homeware, device_id_service_id):
-  brightness = round(service["light"]["light_level"] * 100 / 44000)
-  homeware.execute(device_id_service_id[service["id"]], "brightness", brightness)
+  hue_brightness = round(service["light"]["light_level"] * 100 / 44000)
+  homeware.execute(device_id_service_id[service["id"]], "brightness", hue_brightness)
 
 def light(service, homeware, device_id_service_id):
   if "id_v1" in service:
