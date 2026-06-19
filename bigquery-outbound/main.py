@@ -25,6 +25,7 @@ TOPICS = [
 	"device/thermostat_livingroom/thermostatHumidityAmbient",
 	"device/thermostat_livingroom/thermostatMode",
 	"device/thermostat_livingroom/currentSensorStateData",
+	"device/df31ac85-be3f-48db-ab5e-483001f3ad27_1/currentSensorStateData",
 	"device/thermostat_bathroom/thermostatTemperatureAmbient",
 	"device/thermostat_bathroom/thermostatHumidityAmbient",
 	"device/thermostat_dormitorio/thermostatTemperatureAmbient",
@@ -102,9 +103,7 @@ def on_message(client, userdata, msg):
 				}
 			)
 		elif "currentSensorStateData" in topic:
-			print(payload)
 			for sensor in payload:
-				print(sensor)
 				states.append(
 					{
 						"param": sensor["name"],
