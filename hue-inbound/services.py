@@ -46,9 +46,9 @@ def light(service, homeware, device_id_service_id):
   if "id_v1" in service:
     device_id = "hue_" + service["id_v1"].split("/")[2]
     if "on" in service:
-      status = service["on"]["on"]
-      if not status == homeware.get(device_id, "on"):
-        homeware.execute(device_id,"on", service["on"]["on"])
+      hue_on = service["on"]["on"]
+      if hue_on != homeware.get(device_id, "on"):
+        homeware.execute(device_id,"on", hue_on)
     if "dimming" in service:
       hue_brightness = round(service["dimming"]["brightness"])
       if hue_brightness != homeware.get(device_id, "brightness"):
