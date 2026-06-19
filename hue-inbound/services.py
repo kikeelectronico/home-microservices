@@ -53,3 +53,11 @@ def light(service, homeware, device_id_service_id):
       hue_brightness = round(service["dimming"]["brightness"])
       if hue_brightness != homeware.get(device_id, "brightness"):
         homeware.execute(device_id,"brightness", hue_brightness)
+    if "color_temperature" in service:
+      hue_mirek = service["color_temperature"]["mirek"]
+      hue_color_temperature = round(1000000 / hue_mirek)
+      homeware_color = homeware.get(device_id, "color")
+      homeware_color_temperature = homeware_color.get("temperatureK")
+      if homeware_color_temperature:
+        if hue_color_temperature != homeware_color_temperature:
+          homeware.execute(device_id,"color", {"temperatureK": hue_color_temperature})
