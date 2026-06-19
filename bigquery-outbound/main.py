@@ -103,9 +103,7 @@ def on_message(client, userdata, msg):
 				}
 			)
 		elif "currentSensorStateData" in topic:
-			print(payload)
 			for sensor in payload:
-				print(sensor)
 				states.append(
 					{
 						"param": sensor["name"],
