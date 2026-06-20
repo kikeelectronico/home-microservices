@@ -145,7 +145,7 @@ def main():
       mqtt_client.publish("heartbeats", SERVICE)
       last_heartbeat_timestamp = time.time()
     
-    time.sleep(10)
+    time.sleep(1800)
 
 # Main entry point
 if __name__ == "__main__":
