@@ -71,19 +71,19 @@ def on_message(client, userdata, msg):
 		logging.warning("Invalid payload type on %s: %r", topic, payload)
 		return
 	# Extract payload data and generate hue status
-	hue_status = {}
+	hue_service_properties = {}
 	if "on" in payload:
 		homeware_on = payload.get("on")
 		if isinstance(homeware_on, bool):
-			hue_status["on"] = {}
-			hue_status["on"]["on"] = homeware_on
+			hue_service_properties["on"] = {}
+			hue_service_properties["on"]["on"] = homeware_on
 		else:
 			logging.warning("Invalid on value on %s: %r", topic, payload.get("on"))
 	if "brightness" in payload:
 		homeware_brightness = payload.get("brightness")
 		if isinstance(homeware_brightness, (int, float)) and 0 <= homeware_brightness <= 100:
-			hue_status["dimming"] = {}
-			hue_status["dimming"]["brightness"] = homeware_brightness
+			hue_service_properties["dimming"] = {}
+			hue_service_properties["dimming"]["brightness"] = homeware_brightness
 		else:
 			logging.warning("Invalid brightness value on %s: %r", topic, homeware_brightness)
 	if "color" in payload:
@@ -92,8 +92,8 @@ def on_message(client, userdata, msg):
 		if isinstance(homeware_color, dict):
 			temp_k = homeware_color.get("temperatureK")
 		if isinstance(temp_k, (int, float)) and temp_k > 0:
-			hue_status["color_temperature"] = {}
-			hue_status["color_temperature"]["mirek"] = round(1000000 / temp_k)
+			hue_service_properties["color_temperature"] = {}
+			hue_service_properties["color_temperature"]["mirek"] = round(1000000 / temp_k)
 		else:
 			logging.warning("Invalid color.temperatureK value on %s: %r", topic, temp_k)
 	if "currentToggleSettings" in payload:
@@ -103,7 +103,7 @@ def on_message(client, userdata, msg):
 			homeware_emergency_toggle = homeware_current_toggle_settings.get("emergencia")
 		if isinstance(homeware_emergency_toggle, bool):
 			if homeware_emergency_toggle:
-				hue_status = {
+				hue_service_properties = {
 					"on": {
 						"on": True
 					},
@@ -141,7 +141,7 @@ def on_message(client, userdata, msg):
 						if "effects_v2" in hue_current_service["data"][0]:
 							hue_current_effects_v2_property = hue_current_service["data"][0]["effects_v2"]
 							if hue_current_effects_v2_property["status"]["effect"] != "no_effect":
-								hue_status = {
+								hue_service_properties = {
 									"on": {
 										"on": True
 									},
@@ -165,11 +165,11 @@ def on_message(client, userdata, msg):
 		else:
 			logging.warning("Invalid currentToggleSettings.emergencia value on %s: %r", topic, temp_k)
 	# Alert if no status is created
-	if not hue_status:
+	if not hue_service_properties:
 		logging.warning("No valid fields in payload on %s: %r", topic, payload)
 		return
 	# Call Hue Bridge
-	hue.updateLightService(hue_service_id, hue_status)
+	hue.updateLightService(hue_service_id, hue_service_properties)
 
 # Main entry point
 if __name__ == "__main__":
