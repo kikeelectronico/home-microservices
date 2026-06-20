@@ -27,6 +27,7 @@ jobs:
           - ikea-inbound
           - ikea-outbound
           - logic-pool
+          - meteo-inflow
           - timer
           - monitor-heartbeat-control
           - monitor-heartbeat-request
