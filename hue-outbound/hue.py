@@ -43,6 +43,25 @@ class Hue:
         logging.warning("Fail to get the resource " + resource + " from Hue Bridge. Connection error.")
         return []
     
+  # Get a resource
+  def getService(self, resource="device", hue_id = None):
+    if not hue_id:
+      return {}
+    try:
+      url = "https://" + self.__url + "/clip/v2/resource/" + resource + "/" + hue_id
+      headers = {
+        'hue-application-key': self.__token
+      }
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
+      if response.status_code == 200:
+        return response.json()
+      else:
+        logging.warning("Fail to get the " + resource + " resource with id " + hue_id + " from Hue Bridge. Status code: " + str(response.status_code))
+        return {}
+    except (requests.ConnectionError, requests.Timeout) as exception:
+        logging.warning("Fail to get the " + resource + " resource with id " + hue_id + " from Hue Bridge. Connection error.")
+        return {}
+    
   # Set light resource
   def updateLightResource(self, hue_id, hue_status):
     try:

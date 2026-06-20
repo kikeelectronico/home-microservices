@@ -139,24 +139,30 @@ def on_message(client, userdata, msg):
 					}
 				}
 			else:
-				hue_status = {
-					"on": {
-						"on": True
-					},
-					"dimming": {
-						"brightness": 22
-					},
-					"effects_v2": {
-						"status": {
-							"effect": "no_effect",
-							"parameters": None
-						}
-					},
-					"color_temperature": {
-						"mirek": round(1000000 / 2200),
-						"mirek_valid": True
-					}
-				}
+				hue_current_service = hue.getService("light", hue_service_id)
+				if "data" in hue_current_service:
+					if len(hue_current_service["data"]) > 0:
+						if "effects_v2" in hue_current_service["data"][0]:
+							hue_current_effects_v2_property = hue_current_service["data"][0]["effects_v2"]
+							if hue_current_effects_v2_property["status"]["effect"] != "no_effect":
+								hue_status = {
+									"on": {
+										"on": True
+									},
+									"dimming": {
+										"brightness": 22
+									},
+									"effects_v2": {
+										"status": {
+											"effect": "no_effect",
+											"parameters": None
+										}
+									},
+									"color_temperature": {
+										"mirek": round(1000000 / 2200),
+										"mirek_valid": True
+									}
+								}
 		else:
 			logging.warning("Invalid currentToggleSettings.emergencia value on %s: %r", topic, temp_k)
 	# Alert if no status is created
