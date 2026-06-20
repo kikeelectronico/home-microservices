@@ -1,15 +1,15 @@
 def contact(hue, homeware, device_id_service_id):
-  services = hue.getResources(resource="contact")
+  services = hue.getServices(type="contact")
   for service in services:
     homeware.execute(device_id_service_id[service["id"]], "openPercent", 0 if service["contact_report"]["state"] == "contact" else 100)
 
 def motion(hue, homeware, device_id_service_id):
-  services = hue.getResources(resource="motion")
+  services = hue.getServices(type="motion")
   for service in services:
     homeware.execute(device_id_service_id[service["id"]], "occupancy", "OCCUPIED" if service["motion"]["motion"] else "UNOCCUPIED")
 
 def connectivity(hue, homeware, device_id_service_id):
-  services = hue.getResources(resource="zigbee_connectivity")
+  services = hue.getServices(type="zigbee_connectivity")
   for service in services:
     if "id_v1" in service:
       id_v1_splited = service["id_v1"].split("/")
@@ -18,7 +18,7 @@ def connectivity(hue, homeware, device_id_service_id):
     homeware.execute(device_id_service_id[service["id"]], "online", True if service["status"] == "connected" else False)
 
 def power(hue, homeware, device_id_service_id):
-  services = hue.getResources(resource="device_power")
+  services = hue.getServices(type="device_power")
   for service in services:
     battery_level = service["power_state"]["battery_level"]
     if battery_level == 100: descriptiveCapacityRemaining = "FULL"
@@ -35,7 +35,7 @@ def power(hue, homeware, device_id_service_id):
     homeware.execute(device_id, "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
 
 def lightlevel(hue, homeware, device_id_service_id):
-  services = hue.getResources(resource="light_level")
+  services = hue.getServices(type="light_level")
   for service in services:
     brightness = round(service["light"]["light_level"] * 100 / 44000)
     homeware.execute(device_id_service_id[service["id"]], "brightness", brightness)
