@@ -57,6 +57,7 @@ def is_alert_active(start_text: str, end_text: str) -> bool:
     return start_dt <= now <= end_dt
 
 def publishWarnings(force=False):
+    global last_build_date
     # Get AEMET RSS feed
     feed_data = None
     url = AEMET_RSS
@@ -129,7 +130,7 @@ def on_message(client, userdata, msg):
 
 def main():
   global last_heartbeat_timestamp
-  global last_build_date
+
   # Check env vars
   def report(message):
     print(message)
