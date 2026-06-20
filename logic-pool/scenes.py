@@ -142,6 +142,7 @@ def powerAlert(homeware, alert, topic, payload):
             devices_id = ["rgb003"]
             for device_id in devices_id:
               homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
+            homeware.execute("scene_alert", "enable", True)
       if power < 85:
         if power_alert_counter > 1:
           power_alert_counter = 0
@@ -153,6 +154,7 @@ def powerAlert(homeware, alert, topic, payload):
           devices_id = ["rgb003"]
           for device_id in devices_id:
             homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
+          homeware.execute("scene_alert", "enable", False)
         
         if power_alert_counter == 1:
           power_alert_counter = 0
