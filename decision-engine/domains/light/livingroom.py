@@ -115,6 +115,13 @@ class LivingroomLightHandler:
                             "device_id": "scene_awake",
                             "param": "enable",
                             "value": False
+                        },
+                        {
+                            "device_id": "hue_15",
+                            "param": "currentToggleSettings",
+                            "value": {
+                                "emergencia": False
+                            }
                         }
                     ]
                 })
