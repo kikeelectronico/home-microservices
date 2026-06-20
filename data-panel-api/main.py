@@ -85,23 +85,18 @@ async def dispatch_mqtt_events():
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic != "meteo/warnings":
-    logging.warning("Received message on unexpected topic %s", msg.topic)
-    return
-
-  try:
-    warning = json.loads(msg.payload)
-  except json.JSONDecodeError:
-    logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-    return
-
-  event = {
-    "type": "weather-warning",
-    "data": warning,
-    "flags": {}
-  }
-  logging.info("Received AEMET warning on %s", msg.topic)
-  mqtt_events.put(event)
+  if msg.topic == "meteo/warnings":
+    try:
+      warning = json.loads(msg.payload)
+    except json.JSONDecodeError:
+      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+      return
+    event = {
+      "type": "weather-warning",
+      "data": warning,
+      "flags": {}
+    }
+    mqtt_events.put(event)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
