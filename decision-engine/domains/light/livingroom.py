@@ -117,9 +117,11 @@ class LivingroomLightHandler:
                             "value": False
                         },
                         {
-                            "device_id": "scene_alert",
-                            "param": "enable",
-                            "value": False
+                            "device_id": "hue_15",
+                            "param": "currentToggleSettings",
+                            "value": {
+                                "emergencia": False
+                            }
                         }
                     ]
                 })

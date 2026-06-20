@@ -138,7 +138,7 @@ def main():
       homeware.execute("hue_6", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_9", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_10", "color", {"temperatureK": color_temperature})
-      if not homeware.get("scene_alert", "enable"):
+      if not homeware.get("hue_15", "currentToggleSettings")["emergencia"]:
         homeware.execute("hue_15", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_16", "color", {"temperatureK": color_temperature})
       homeware.execute("hue_17", "color", {"temperatureK": color_temperature})
