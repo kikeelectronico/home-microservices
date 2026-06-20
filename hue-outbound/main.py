@@ -78,14 +78,14 @@ def on_message(client, userdata, msg):
 			hue_status["on"] = {}
 			hue_status["on"]["on"] = homeware_on
 		else:
-			logging.warning("Invalid 'on' value on %s: %r", topic, payload.get("on"))
+			logging.warning("Invalid on value on %s: %r", topic, payload.get("on"))
 	if "brightness" in payload:
 		homeware_brightness = payload.get("brightness")
 		if isinstance(homeware_brightness, (int, float)) and 0 <= homeware_brightness <= 100:
 			hue_status["dimming"] = {}
 			hue_status["dimming"]["brightness"] = homeware_brightness
 		else:
-			logging.warning("Invalid 'brightness' value on %s: %r", topic, homeware_brightness)
+			logging.warning("Invalid brightness value on %s: %r", topic, homeware_brightness)
 	if "color" in payload:
 		homeware_color = payload.get("color")
 		temp_k = None
@@ -95,7 +95,7 @@ def on_message(client, userdata, msg):
 			hue_status["color_temperature"] = {}
 			hue_status["color_temperature"]["mirek"] = round(1000000 / temp_k)
 		else:
-			logging.warning("Invalid 'color.temperatureK' value on %s: %r", topic, temp_k)
+			logging.warning("Invalid color.temperatureK value on %s: %r", topic, temp_k)
 	# Alert if no status is created
 	if not hue_status:
 		logging.warning("No valid fields in payload on %s: %r", topic, payload)
