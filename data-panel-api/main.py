@@ -185,18 +185,6 @@ async def streamEvents(queue):
       last["connected"] = connected
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Spotify
-    # playing = spotify.getPlaying(max_tries=2)
-    # if not last.get("playing", {}) == playing:
-    #   event = {
-    #     "type": "spotify",
-    #     "data": {
-    #       "playing": playing
-    #     }
-    #   }
-    #   last["playing"] = playing
-    #   yield f"data: {json.dumps(event)}\n\n"
-    #   await sleep(0.1)
     # Home
     (status_flag, home_status) = homeware.getStatus(devices_ids)
     if not last.get("home_status", {}) == home_status:
