@@ -24,7 +24,7 @@ jobs:
     outputs:
         changed: ${{ steps.filter.outputs.changed }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: dorny/paths-filter@v3
       id: filter
       with:
@@ -60,7 +60,7 @@ jobs:
     if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
