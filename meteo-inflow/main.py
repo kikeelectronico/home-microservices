@@ -56,7 +56,7 @@ def is_alert_active(start_text: str, end_text: str) -> bool:
 
     return start_dt <= now <= end_dt
 
-def publishWarnings():
+def publishWarnings(force=False):
     # Get AEMET RSS feed
     feed_data = None
     url = AEMET_RSS
@@ -70,7 +70,7 @@ def publishWarnings():
     if feed_data:
       feed_root = ElementTree.fromstring(feed_data)
       build_date = feed_root.find("channel").find("lastBuildDate").text
-      if build_date != last_build_date:
+      if force or build_date != last_build_date:
         for item in feed_root.find("channel").findall("item"):
           title = item.find("title").text
           if AEMET_AREA in title:
@@ -104,6 +104,12 @@ def publishWarnings():
               mqtt_client.publish("meteo/warnings", json.dumps(warning))
         last_build_date = build_date
 
+# Subscribe to topics on connect
+def on_connect(client, userdata, flags, rc, properties):
+  logging.info("Connected to MQTT broker (rc=%s)", rc)
+  client.subscribe("meteo/warnings/request", qos=1)
+  logging.info("Subscribed to MQTT topic %s", "meteo/warnings/request")
+
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
@@ -116,6 +122,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
         time.sleep(5)
+
+# Do tasks when a message is received
+def on_message(client, userdata, msg):
+  publishWarnings(force=True)
 
 def main():
   global last_heartbeat_timestamp
@@ -130,13 +140,17 @@ def main():
   if AEMET_RSS == "no_set": report("AEMET_RSS env vars no set")
   if AEMET_AREA == "no_set": report("AEMET_AREA env vars no set")
 
-  # Connect to the mqtt broker
+  # Declare the callback functions
+  mqtt_client.on_message = on_message
+  mqtt_client.on_connect = on_connect
   mqtt_client.on_disconnect = on_disconnect
+  # Connect to the MQTT broker
   mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
+
   # Main loop
   while True:
     
@@ -146,10 +160,10 @@ def main():
     if time.time() - last_heartbeat_timestamp > 10:
       mqtt_client.publish("heartbeats", SERVICE)
       last_heartbeat_timestamp = time.time()
-    
+
     time.sleep(1800)
 
 # Main entry point
 if __name__ == "__main__":
   main()
-      
+
