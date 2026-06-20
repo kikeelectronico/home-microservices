@@ -37,40 +37,22 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 
-def relative_day(texto: str) -> int:
-    match = re.search(r"\b(\d{2}-\d{2}-\d{4})\b", texto)
-
-    if not match:
+def relative_day(text: str) -> int:
+    try:
+        target_date = datetime.fromisoformat(text).date()
+    except ValueError:
         return -1
-
-    target_date = datetime.strptime(match.group(1), "%d-%m-%Y").date()
 
     return (target_date - date.today()).days
 
-def is_alert_active(text: str) -> bool:
-    pattern = (
-        r"de\s+(\d{2}:\d{2})\s+(\d{2}-\d{2}-\d{4}).*?"
-        r"a\s+(\d{2}:\d{2})\s+(\d{2}-\d{2}-\d{4})"
-    )
-
-    match = re.search(pattern, text)
-
-    if not match:
+def is_alert_active(start_text: str, end_text: str) -> bool:
+    try:
+        start_dt = datetime.fromisoformat(start_text)
+        end_dt = datetime.fromisoformat(end_text)
+    except ValueError:
         return False
 
-    start_time, start_date, end_time, end_date = match.groups()
-
-    start_dt = datetime.strptime(
-        f"{start_date} {start_time}",
-        "%d-%m-%Y %H:%M"
-    )
-
-    end_dt = datetime.strptime(
-        f"{end_date} {end_time}",
-        "%d-%m-%Y %H:%M"
-    )
-
-    now = datetime.now()
+    now = datetime.now(start_dt.tzinfo)
 
     return start_dt <= now <= end_dt
 
@@ -111,33 +93,50 @@ def main():
   while True:
     
     # Get AEMET RSS feed
-    data = None
+    feed_data = None
     url = AEMET_RSS
     response = requests.get(url, timeout=REQUEST_TIMEOUT)
     if response.status_code == 200:
-        data = response.text
+        feed_data = response.text
     else:
       logging.warning("Fail to get AEMET RSS feed. Status code: " + str(response.status_code))
 
     # Manipulate data
-    if data:
-      root = ElementTree.fromstring(data)
-      build_date = root.find("channel").find("lastBuildDate").text
+    if feed_data:
+      feed_root = ElementTree.fromstring(feed_data)
+      build_date = feed_root.find("channel").find("lastBuildDate").text
       if build_date != last_build_date:
-        for item in root.find("channel").findall("item"):
+        for item in feed_root.find("channel").findall("item"):
           title = item.find("title").text
           if AEMET_AREA in title:
-            description = item.find("description").text
-            days_delta = relative_day(description)
-            is_active = is_alert_active(description)
-            warning = {
-              "title": title.split(" Metropolitana y Henares")[0],
-              "days_delta": days_delta,
-              "is_active": is_active,
-              "build_date": build_date
-            }
-            mqtt_client.publish("meteo/warnings", json.dumps(warning))
-        print("build_date", build_date)
+            link = item.find("link").text
+
+            warning_data = None
+            response = requests.get(link, timeout=REQUEST_TIMEOUT)
+            if response.status_code == 200:
+                warning_data = response.text
+            else:
+              logging.warning("Fail to get AEMET warning. Status code: " + str(response.status_code))
+            
+            if warning_data:
+              warning = {}
+              ns = {"cap": "urn:oasis:names:tc:emergency:cap:1.2"}
+              warning_root = ElementTree.fromstring(warning_data)
+              for info in warning_root.findall("cap:info", ns):
+                 if info.find("cap:language", ns).text == "es-ES":
+                  warning["title"] = info.find("cap:headline", ns).text.split(AEMET_AREA)[0]
+                  warning["description"] = info.find("cap:description", ns).text
+                  warning["starts"] = info.find("cap:onset", ns).text
+                  warning["ends"] = info.find("cap:expires", ns).text
+                  warning["start_offset"] = relative_day(warning["starts"])
+                  warning["is_active"] = is_alert_active(warning["starts"], warning["ends"])
+                  for parameter in info.findall("cap:parameter", ns):
+                    if parameter.find("cap:valueName", ns).text == "AEMET-Meteoalerta nivel":
+                      warning["level"] = parameter.find("cap:value", ns).text
+                    if parameter.find("cap:valueName", ns).text == "AEMET-Meteoalerta probabilidad":
+                      warning["probability"] = parameter.find("cap:value", ns).text
+
+              mqtt_client.publish("meteo/warnings", json.dumps(warning))
         last_build_date = build_date
 
     # Send the heartbeat
