@@ -110,10 +110,6 @@ def on_message(client, userdata, msg):
 					"dimming": {
 						"brightness": 100
 					},
-					"dynamics": {
-						"speed": 0.0,
-						"speed_valid": False
-					},
 					"effects": {
 						"status": "cosmos"
 					},
@@ -151,6 +147,9 @@ def on_message(client, userdata, msg):
 									},
 									"dimming": {
 										"brightness": 22
+									},
+									"effects": {
+										"status": "no_effect"
 									},
 									"effects_v2": {
 										"status": {
