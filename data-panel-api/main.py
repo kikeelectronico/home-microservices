@@ -258,6 +258,7 @@ async def streamEvents(queue):
 async def stream():
   queue = asyncio.Queue()
   sse_queues.add(queue)
+  mqtt_client.publish("meteo/warnings/request", "")
 
   async def stream_with_cleanup():
     try:
