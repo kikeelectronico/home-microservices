@@ -96,6 +96,69 @@ def on_message(client, userdata, msg):
 			hue_status["color_temperature"]["mirek"] = round(1000000 / temp_k)
 		else:
 			logging.warning("Invalid color.temperatureK value on %s: %r", topic, temp_k)
+	if "currentToggleSettings" in payload:
+		homeware_current_toggle_settings = payload.get("currentToggleSettings")
+		homeware_emergency_toggle = None
+		if isinstance(homeware_current_toggle_settings, dict):
+			homeware_emergency_toggle = homeware_current_toggle_settings.get("emergencia")
+		if isinstance(homeware_emergency_toggle, bool):
+			if homeware_emergency_toggle:
+				hue_status = {
+					"on": {
+						"on": True
+					},
+					"dimming": {
+						"brightness": 100
+					},
+					"dynamics": {
+						"speed": 0.0,
+						"speed_valid": False
+					},
+					"effects": {
+						"status": "cosmos"
+					},
+					"effects_v2": {
+						"action": {
+							"effect": "cosmos",
+							"parameters": {
+								"color": {
+								"xy": {
+									"x": 0.6845,
+									"y": 0.3064
+								}
+								},
+								"speed": 0.6151
+							}
+						}
+					},
+					"color": {
+						"xy": {
+							"x": 0.6845,
+							"y": 0.3064
+						}
+					}
+				}
+			else:
+				hue_status = {
+					"on": {
+						"on": True
+					},
+					"dimming": {
+						"brightness": 22
+					},
+					"effects_v2": {
+						"status": {
+							"effect": "no_effect",
+							"parameters": None
+						}
+					},
+					"color_temperature": {
+						"mirek": round(1000000 / 2200),
+						"mirek_valid": True
+					}
+				}
+		else:
+			logging.warning("Invalid currentToggleSettings.emergencia value on %s: %r", topic, temp_k)
 	# Alert if no status is created
 	if not hue_status:
 		logging.warning("No valid fields in payload on %s: %r", topic, payload)
