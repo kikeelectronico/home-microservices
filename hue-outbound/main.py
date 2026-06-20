@@ -73,23 +73,24 @@ def on_message(client, userdata, msg):
 	# Extract payload data and generate hue status
 	hue_status = {}
 	if "on" in payload:
-		if isinstance(payload["on"], bool):
+		homeware_on = payload.get("on")
+		if isinstance(homeware_on, bool):
 			hue_status["on"] = {}
-			hue_status["on"]["on"] = payload["on"]
+			hue_status["on"]["on"] = homeware_on
 		else:
 			logging.warning("Invalid 'on' value on %s: %r", topic, payload.get("on"))
 	if "brightness" in payload:
-		brightness = payload.get("brightness")
-		if isinstance(brightness, (int, float)) and 0 <= brightness <= 100:
+		homeware_brightness = payload.get("brightness")
+		if isinstance(homeware_brightness, (int, float)) and 0 <= homeware_brightness <= 100:
 			hue_status["dimming"] = {}
-			hue_status["dimming"]["brightness"] = brightness
+			hue_status["dimming"]["brightness"] = homeware_brightness
 		else:
-			logging.warning("Invalid 'brightness' value on %s: %r", topic, brightness)
+			logging.warning("Invalid 'brightness' value on %s: %r", topic, homeware_brightness)
 	if "color" in payload:
-		color = payload.get("color")
+		homeware_color = payload.get("color")
 		temp_k = None
-		if isinstance(color, dict):
-			temp_k = color.get("temperatureK")
+		if isinstance(homeware_color, dict):
+			temp_k = homeware_color.get("temperatureK")
 		if isinstance(temp_k, (int, float)) and temp_k > 0:
 			hue_status["color_temperature"] = {}
 			hue_status["color_temperature"]["mirek"] = round(1000000 / temp_k)
