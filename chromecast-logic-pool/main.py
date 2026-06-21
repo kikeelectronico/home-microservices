@@ -29,7 +29,10 @@ SERVICE = "chromecast-logic-pool-" + ENV
 last_heartbeat_timestamp = 0
 
 # Instantiate objects
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+  level=logging.INFO,
+  format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+)
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
   client_id=SERVICE,
@@ -85,9 +88,15 @@ if __name__ == "__main__":
           device_controller = device.media_controller
           device_controller.block_until_active(5)
           if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
-            logic.notPlayingLights(homeware, mqtt_client)
+            logic.notPlayingLights(homeware)
           if device_controller.status.player_state == "PLAYING":
-            logic.playingLights(homeware, mqtt_client)
+            logic.playingLights(homeware)
+
+        # Send the heartbeat
+        if time.time() - last_heartbeat_timestamp > 10:
+          mqtt_client.publish("heartbeats", SERVICE)
+          last_heartbeat_timestamp = time.time()
+          
         time.sleep(5)
     except Exception:
         logging.exception("Chromecast connection lost. Reconnecting in 10s")
