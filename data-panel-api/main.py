@@ -93,7 +93,9 @@ def on_message(client, userdata, msg):
       return
     event = {
       "type": "weather-warnings",
-      "data": warnings
+      "data": {
+        "warnings": warnings
+      }
     }
     mqtt_events.put(event)
 
