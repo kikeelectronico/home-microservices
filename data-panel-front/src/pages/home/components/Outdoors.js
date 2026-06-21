@@ -57,7 +57,15 @@ export default function Outdoors(props) {
         </div>
         {
             props.weather_warning ? 
-                props.weather_warning.map((alert, index) => {
+                [...props.weather_warning]
+                .sort((a, b) => {
+                    if (a.is_active !== b.is_active) {
+                        return a.is_active ? -1 : 1;
+                    }
+
+                    return a.start_offset - b.start_offset;
+                })
+                .map((alert, index) => {
                     if (alert.start_offset >= 0) {
                         const getStyle = () => {
                             let severity = "alertsNormal"
