@@ -91,6 +91,12 @@ if __name__ == "__main__":
             logic.notPlayingLights(homeware)
           if device_controller.status.player_state == "PLAYING":
             logic.playingLights(homeware)
+
+        # Send the heartbeat
+        if time.time() - last_heartbeat_timestamp > 10:
+          mqtt_client.publish("heartbeats", SERVICE)
+          last_heartbeat_timestamp = time.time()
+          
         time.sleep(5)
     except Exception:
         logging.exception("Chromecast connection lost. Reconnecting in 10s")
