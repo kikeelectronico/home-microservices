@@ -35,11 +35,13 @@ class Ikea:
       if device_id != "all":
         url = f"{url}/{device_id}"
       response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
-      response.raise_for_status()
-      devices = response.json()
-      return devices
+      if response.status_code == 200:
+        return response.json()
+      logging.warning("Fail to get the " + device_id + " device from Ikea Bridge. Status code: " + str(response.status_code))
+      if device_id == "all": return []
+      return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get the IKEA device %s. Connection error.", device_id)
+        logging.warning("Fail to get the " + device_id + " device from Ikea Bridge. Connection error.")
         if device_id == "all": return []
         return {}
       
