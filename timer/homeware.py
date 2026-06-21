@@ -49,22 +49,3 @@ class Homeware:
     except (requests.ConnectionError, requests.Timeout) as exception:
       logging.warning("Fail to get Homeware status. Conection error.")
       return {}
-
-  def getDevices(self):
-    try:
-      url = self.__url + "/api/devices"
-      headers = {
-          "Authorization": "bearer " + self.__token
-      }
-      response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
-      if response.status_code == 200:
-        unorderedDevices = response.json()
-        devices = {}
-        for device in unorderedDevices:
-            devices[device['id']] = device
-        return (True, devices)
-      else:
-        logging.warning("Fail to get Homeware devices. Status code: " + str(response.status_code))
-        return (False, {})    
-    except (requests.ConnectionError, requests.Timeout) as exception:
-      logging.warning("Fail to get Homeware devices. Conection error.")
