@@ -193,7 +193,7 @@ async def streamEvents(queue):
       last["home_status"] = home_status
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-     # Water
+    # Water
     water_data = water.getWater()
     if not last.get("water_data", {}) == water_data:
       event = {
