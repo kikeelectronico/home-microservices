@@ -1,17 +1,13 @@
 import paho.mqtt.client as mqtt
 import os
 import json
-from sseclient import SSEClient
-import requests
 import logging
 import time
 
 from homeware import Homeware
+from hue import Hue
 import buttons
 import dimmers
-
-import urllib3
-urllib3.disable_warnings()
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -43,6 +39,7 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+hue = Hue(HUE_HOST, HUE_TOKEN)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -59,6 +56,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -79,20 +80,35 @@ if __name__ == "__main__":
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
-  # Connect to Hue bridge
-  url = "https://" + HUE_HOST + "/eventstream/clip/v2"
-  headers = {
-    'hue-application-key': HUE_TOKEN,
-    'Accept': 'text/event-stream'
-  }
-  stream_response = requests.get(url, headers=headers, stream=True, verify=False)
-  client = SSEClient(stream_response)
-  
-  # Handle events
-  for message in client.events():
-    for event in json.loads(message.data):
-      for service in event["data"]:
-        buttons.bedroom(service, homeware)
-        buttons.kitchen(service, homeware)
-        buttons.bathroom(service, homeware)
-        dimmers.mirror(service, homeware)
+  while True:
+    try:
+      # Connect to Hue bridge
+      client = hue.getEventStreamClient()
+      
+      # Handle events
+      for message in client.events():
+        try:
+          events = json.loads(message.data)
+        except ValueError:
+          logging.warning("Invalid SSE JSON payload: %r", message.data)
+          continue
+        if not isinstance(events, list):
+          logging.warning("Invalid SSE payload type: %r", events)
+          continue
+        for event in events:
+          data = event.get("data") if isinstance(event, dict) else None
+          if not isinstance(data, list):
+            logging.warning("Invalid SSE event data type: %r", event)
+            continue
+          for service in data:
+            buttons.bedroom(service, homeware)
+            buttons.kitchen(service, homeware)
+            buttons.bathroom(service, homeware)
+            dimmers.mirror(service, homeware)
+
+      logging.warning("Hue SSE stream closed. Reconnecting in 5s...")
+      time.sleep(5)
+
+    except Exception:
+      logging.exception("Hue SSE stream failed. Reconnecting in 5s...")
+      time.sleep(5)
