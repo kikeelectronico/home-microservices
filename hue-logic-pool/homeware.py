@@ -43,8 +43,8 @@ class Homeware:
       response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
         return response.json()
-      else:
-        logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
-        return (False, {})
+      logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
+      return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
       logging.warning("Fail to get Homeware status. Conection error.")
+      return {}
