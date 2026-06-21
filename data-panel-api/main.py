@@ -87,13 +87,13 @@ async def dispatch_mqtt_events():
 def on_message(client, userdata, msg):
   if msg.topic == "meteo/warnings":
     try:
-      warning = json.loads(msg.payload)
+      warnings = json.loads(msg.payload)
     except json.JSONDecodeError:
       logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
       return
     event = {
       "type": "weather-warning",
-      "data": warning,
+      "data": warnings,
       "flags": {}
     }
     mqtt_events.put(event)

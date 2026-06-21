@@ -34,7 +34,7 @@ export default function Home(props) {
       else if (event.type === "home") {setHome(event.data)}
       else if (event.type === "water") {setWater(event.data);}
       else if (event.type === "weather") {setWeather(event.data)}
-      else if (event.type === "weather-warning") {setWeatherWarning([event.data]);}
+      else if (event.type === "weather-warning") {setWeatherWarning(event.data);}
     };
     sse.onerror = () => {
       setSeeClosed(true)
