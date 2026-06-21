@@ -93,8 +93,7 @@ def on_message(client, userdata, msg):
       return
     event = {
       "type": "weather-warning",
-      "data": warnings,
-      "flags": {}
+      "data": warnings
     }
     mqtt_events.put(event)
 
@@ -187,8 +186,7 @@ async def streamEvents(queue):
         "type": "home",
         "data": {
           "status": home_status
-        },
-        "flags": {}
+        }
       }
       last["home_status"] = home_status
       yield f"data: {json.dumps(event)}\n\n"
@@ -200,8 +198,7 @@ async def streamEvents(queue):
         "type": "water",
         "data": {
           "water": water_data,
-        },
-        "flags": {}
+        }
       }
       last["water_data"] = water_data
       yield f"data: {json.dumps(event)}\n\n"
@@ -214,8 +211,7 @@ async def streamEvents(queue):
         "data": {
           "current": current,
           "forecast": forecast
-        },
-        "flags": {}
+        }
       }
       last["forecast"] = forecast
       yield f"data: {json.dumps(event)}\n\n"
@@ -223,8 +219,7 @@ async def streamEvents(queue):
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",
-        "data": {},
-        "flags": {}
+        "data": {}
       }
       last["ping"] = time.time()
       yield f"data: {json.dumps(event)}\n\n"
