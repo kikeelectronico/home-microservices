@@ -52,7 +52,7 @@ def motionSensor(data, homeware):
 def airPurifier(data, homeware):
   attributes = data.get("attributes")
   if "isReachable" in data:
-    if not homeware.get(data["id"], "online") == data["isReachable"]:
+    if homeware.get(data["id"], "online") != data["isReachable"]:
       homeware.execute(data["id"], "online", data["isReachable"])
   if "currentPM25" in attributes:
     homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
@@ -116,7 +116,7 @@ def airPurifier(data, homeware):
           elif motorState == 30: new_homeware_fan_speed = "Media"
           elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
           homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
-          if not new_homeware_fan_speed == homeware_fan_speed:
+          if new_homeware_fan_speed != homeware_fan_speed:
             homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
 
 def environmentSensor(data, homeware):
