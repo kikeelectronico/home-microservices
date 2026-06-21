@@ -72,6 +72,7 @@ def publishWarnings(force=False):
       feed_root = ElementTree.fromstring(feed_data)
       build_date = feed_root.find("channel").find("lastBuildDate").text
       if force or build_date != last_build_date:
+        warnings = []
         for item in feed_root.find("channel").findall("item"):
           title = item.find("title").text
           if AEMET_AREA in title:
@@ -102,7 +103,8 @@ def publishWarnings(force=False):
                     if parameter.find("cap:valueName", ns).text == "AEMET-Meteoalerta probabilidad":
                       warning["probability"] = parameter.find("cap:value", ns).text
 
-              mqtt_client.publish("meteo/warnings", json.dumps(warning))
+              warnings.append(warning)
+        mqtt_client.publish("meteo/warnings", json.dumps(warning))
         last_build_date = build_date
 
 # Subscribe to topics on connect
