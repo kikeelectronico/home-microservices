@@ -22,7 +22,6 @@ export default function Home(props) {
   const [water, setWater] = useState(null)
   const [weather, setWeather] = useState(null)
   const [weather_warning, setWeatherWarning] = useState(null)
-  const [weather_flag, setWeatherFlag] = useState(null)
   const [spotify, setSpotify] = useState(null)
   const [spotify_playing, setSpotifyPlaying] = useState(false);
   const [see_closed, setSeeClosed] = useState(false)
@@ -35,7 +34,7 @@ export default function Home(props) {
       if (event.type === "internet") {setInternet(event.data)}
       else if (event.type === "home") {setHome(event.data); setHomeFlag(event.flags)}
       else if (event.type === "water") {setWater(event.data);}
-      else if (event.type === "weather") {setWeather(event.data); setWeatherFlag(event.flags)}
+      else if (event.type === "weather") {setWeather(event.data)}
       else if (event.type === "weather-warning") {setWeatherWarning([event.data]);}
       else if (event.type === "spotify") {setSpotify(event.data)}
     };
@@ -64,7 +63,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather && weather_flag.current ? <Outdoors weather={weather} weather_warning={weather_warning} water={water} playing={spotify_playing}/> : <></> }
+            { weather ? <Outdoors weather={weather} weather_warning={weather_warning} water={water} playing={spotify_playing}/> : <></> }
             { home && home_flag ? <Power home={home} playing={spotify_playing}/> : <></> }
             { internet ? <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/> : <></> }
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 

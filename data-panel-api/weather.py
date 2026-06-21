@@ -54,7 +54,4 @@ class Weather:
       self._last_update = now
       self.updateWeather()
 
-    current_flag = "current" in self._weather.keys()
-    forecast_flag = "forecast" in self._weather.keys()
-
-    return (self._fail_to_update, current_flag, self._weather["current"], forecast_flag, self._weather["forecast"])
+    return (self._fail_to_update, self._weather["current"], self._weather["forecast"])
