@@ -25,7 +25,6 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-SLEEP_TIME = 0.1
 SERVICE = "hue-logic-pool-" + ENV
 
 # Declare variables
