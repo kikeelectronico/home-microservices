@@ -56,28 +56,27 @@ export default function Outdoors(props) {
             </div>
         </div>
         {
-            props.weather.alerts.alert ? 
-                props.weather.alerts.alert.map((alert, index) => {
-
-                    const getStyle = () => {
-                        let severity = "alertsCritical"
-                        if (alert.category.includes("Extreme")) severity = "alertsCritical"
-                        else if (alert.event.includes("Moderate")) severity = "alertsMiddle"
-                        else if (alert.event.includes("rojo")) severity = "alertsCritical"
-                        else if (alert.event.includes("naranja")) severity = "alertsMiddle"
-                        else if (alert.event.includes("amarillo")) severity = "alertsLow"
-                        return severity
-                    }
-                    
-                    return (
-                        <div className="outdoorCardRow" key={index}>
-                            <div className="outdoorCardWeatherRow">
-                                <div className={"outdoorCardAlertContainer " +  getStyle()}>
-                                    {alert.event + (alert.event[alert.event.length-1] !== "." ? "." : "") + (alert.desc !== "" ? " " + alert.desc : "") + (alert.desc[alert.desc.length-1] !== "." ? "." : "") + (alert.areas !== "" ? " " + alert.areas : "")}
+            props.weather_warning ? 
+                props.weather_warning.map((alert, index) => {
+                    if (alert.start_offset >= 0) {
+                        const getStyle = () => {
+                            let severity = "alertsNormal"
+                            if (alert.level.includes("rojo")) severity = "alertsHigh"
+                            else if (alert.level.includes("naranja")) severity = "alertsMiddle"
+                            else if (alert.level.includes("amarillo")) severity = "alertsLow"
+                            return severity
+                        }
+                        
+                        return (
+                            <div className="outdoorCardRow" key={index}>
+                                <div className="outdoorCardWeatherRow">
+                                    <div className={"outdoorCardAlertContainer " +  getStyle()}>
+                                        {"(" + (alert.is_active ? "A" : alert.start_offset) + ") " + alert.title + " " + alert.description}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )
+                        )
+                    }
                 })
             : <></>
         }
