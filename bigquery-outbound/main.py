@@ -88,49 +88,81 @@ def on_message(client, userdata, msg):
 	global last_value
 	# Rename variables
 	topic = msg.topic
-	payload = typifyPayload(topic, msg.payload.decode("utf-8"))
+	try:
+		payload = typifyPayload(topic, msg.payload.decode("utf-8"))
+	except (ValueError, TypeError, json.JSONDecodeError) as exc:
+		logging.warning("Invalid payload on %s: %r (%s)", topic, msg.payload, exc)
+		return
 	# The request depends on the device
 	if payload != last_value.setdefault(topic, 0):
-		# Prepare the data
-		ts = int(time.time())
-		device_id = topic.split("/")[1]
-		states = []
-		if "current001" in topic:
-			states.append(
-				{
-					"param": "current",
-					"value": payload * POWER_CONSTANT
-				}
-			)
-		elif "currentSensorStateData" in topic:
-			for sensor in payload:
+		try:
+			# Prepare the data
+			ts = int(time.time())
+			device_id = topic.split("/")[1]
+			states = []
+			if "current001" in topic:
 				states.append(
 					{
-						"param": sensor["name"],
-						"value": sensor["rawValue"]
+						"param": "current",
+						"value": payload * POWER_CONSTANT
 					}
 				)
-		else:
-			states.append(
-				{
-					"param": topic.split("/")[2],
-					"value": payload
-				}
+			elif "currentSensorStateData" in topic:
+				if not isinstance(payload, list):
+					logging.warning("Invalid currentSensorStateData payload type on %s: %r", topic, payload)
+					return
+				for sensor in payload:
+					if not isinstance(sensor, dict):
+						logging.warning("Invalid sensor payload on %s: %r", topic, sensor)
+						return
+					if "name" not in sensor or "rawValue" not in sensor:
+						logging.warning("Missing sensor fields on %s: %r", topic, sensor)
+						return
+					states.append(
+						{
+							"param": sensor["name"],
+							"value": sensor["rawValue"]
+						}
+					)
+			else:
+				states.append(
+					{
+						"param": topic.split("/")[2],
+						"value": payload
+					}
+				)
+		except (IndexError, KeyError, TypeError) as exc:
+			logging.warning("Invalid message structure on %s: %s", topic, exc)
+			return
+		try:
+			for state in states:
+				# Insert the data
+				query_job = bigquery_client.query(
+					"""
+						INSERT INTO {}
+						(time, device_id, param, value, type)
+						VALUES ({},"{}","{}","{}", "{}");
+					""".format(DEVICE_DDBB, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
+				)
+				query_job.result()
+			# Update last_value
+			last_value[topic] = payload
+		except Exception as exc:
+			logging.warning(
+				"Fail to insert state into BigQuery on %s: device_id=%s param=%s value=%r error=%s",
+				topic,
+				device_id,
+				state.get("param"),
+				state.get("value"),
+				exc
 			)
-		for state in states:
-			# Insert the data
-			bigquery_client.query(
-				"""
-					INSERT INTO {}
-					(time, device_id, param, value, type)
-					VALUES ({},"{}","{}","{}", "{}");
-				""".format(DEVICE_DDBB, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
-			)
-		# Update last_value
-		last_value[topic] = payload
 
 # Main entry point
 if __name__ == "__main__":
+	logging.basicConfig(
+		level=logging.INFO,
+		format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+	)
 	# Check env vars
 	def report(message):
 		print(message)
