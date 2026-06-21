@@ -1,5 +1,4 @@
 import time
-import json
 
 prev_player_playing_state = False 
 prev_status = {}
