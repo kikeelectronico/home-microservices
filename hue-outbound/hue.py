@@ -35,7 +35,10 @@ class Hue:
       }
       response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
       if response.status_code == 200:
-        return response.json()["data"]
+        hue_current_service = response.json()
+        if "data" in hue_current_service:
+            return hue_current_service["data"]
+        return []
       else:
         logging.warning("Fail to get the " + type + " services from Hue Bridge. Status code: " + str(response.status_code))
         return []
