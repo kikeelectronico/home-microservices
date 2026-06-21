@@ -82,6 +82,10 @@ def updateAstroData():
 def main():
   global last_heartbeat_timestamp
   global just_executed
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
