@@ -121,6 +121,8 @@ def airPurifier(data, homeware):
 
 def environmentSensor(data, homeware):
   attributes = data.get("attributes")
+  if not data["id"] in IDS_MAP:
+    return
   homeware_id = IDS_MAP[data["id"]]
   if "isOn" in attributes:
     homeware.execute(homeware_id, "online", attributes["isOn"])
