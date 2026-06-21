@@ -131,19 +131,31 @@ def on_message(client, userdata, msg):
 						"value": payload
 					}
 				)
+		except (IndexError, KeyError, TypeError) as exc:
+			logging.warning("Invalid message structure on %s: %s", topic, exc)
+			return
+		try:
 			for state in states:
 				# Insert the data
-				bigquery_client.query(
+				query_job = bigquery_client.query(
 					"""
 						INSERT INTO {}
 						(time, device_id, param, value, type)
 						VALUES ({},"{}","{}","{}", "{}");
 					""".format(DEVICE_DDBB, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
 				)
+				query_job.result()
 			# Update last_value
 			last_value[topic] = payload
-		except (IndexError, KeyError, TypeError) as exc:
-			logging.warning("Invalid message structure on %s: %s", topic, exc)
+		except Exception as exc:
+			logging.warning(
+				"Fail to insert state into BigQuery on %s: device_id=%s param=%s value=%r error=%s",
+				topic,
+				device_id,
+				state.get("param"),
+				state.get("value"),
+				exc
+			)
 
 # Main entry point
 if __name__ == "__main__":
