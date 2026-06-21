@@ -100,10 +100,14 @@ if __name__ == "__main__":
             logging.warning("Invalid SSE event data type: %r", event)
             continue
           for service in data:
-            buttons.bedroom(service, homeware)
-            buttons.kitchen(service, homeware)
-            buttons.bathroom(service, homeware)
-            dimmers.mirror(service, homeware)
+            if service["id"] == "a4ac42ce-414e-483b-b13c-0f2c5e7dc879":
+              buttons.bedroom(service, homeware)
+            elif service["id"] == "3ea75bb9-6bf6-4a2e-8f85-f9013e6279bc":
+              buttons.kitchen(service, homeware)
+            elif service["id"] == "04db1f5f-3467-4a26-9e17-7d9e6586a536":
+              buttons.bathroom(service, homeware)
+            else:
+              dimmers.mirror(service, homeware)
 
       logging.warning("Hue SSE stream closed. Reconnecting in 5s...")
       time.sleep(5)
