@@ -35,19 +35,10 @@ class Weather:
       logging.error("Wheather env vars aren't set")
     else:
       try:
-        url = "https://api.weatherapi.com/v1/forecast.json?key=" + self.__api_key + "&q=" + self._query + "&days=2&aqi=yes&alerts=yes"
+        url = "https://api.weatherapi.com/v1/forecast.json?key=" + self.__api_key + "&q=" + self._query + "&days=2&aqi=yes"
         response = requests.request("GET", url, timeout=5)
         if response.status_code == 200:
           self._weather = response.json()
-          # Delete repeated alerts
-          unique_alerts = []
-          for _alert in self._weather["alerts"]["alert"]:
-            alert = _alert
-            del alert["effective"]
-            del alert["expires"]
-            if not alert in unique_alerts and alert["areas"] in self._alert_areas:
-              unique_alerts.append(alert)
-          self._weather["alerts"]["alert"] = unique_alerts
 
           self._fail_to_update = False
         else:
@@ -63,8 +54,4 @@ class Weather:
       self._last_update = now
       self.updateWeather()
 
-    current_flag = "current" in self._weather.keys()
-    forecast_flag = "forecast" in self._weather.keys()
-    alerts_flag = "alerts" in self._weather.keys()
-
-    return (self._fail_to_update, current_flag, self._weather["current"], forecast_flag, self._weather["forecast"], alerts_flag, self._weather["alerts"])
+    return (self._fail_to_update, self._weather["current"], self._weather["forecast"])

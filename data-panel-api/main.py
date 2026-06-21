@@ -2,8 +2,11 @@ import paho.mqtt.client as mqtt
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from queue import Queue, Empty
 import os
 import json
+import asyncio
 from asyncio import sleep
 import time
 import logging
@@ -29,12 +32,71 @@ ENV = os.environ.get("ENV", "dev")
 SERVICE = "data-panel-api-" + ENV
 
 # Instantiate objects
-app = FastAPI()
+sse_queues = set()
+mqtt_events = Queue()
+mqtt_events_task = None
+
+@asynccontextmanager
+async def lifespan(app):
+  global mqtt_events_task
+  mqtt_events_task = asyncio.create_task(dispatch_mqtt_events())
+  try:
+    mqtt_client.on_message = on_message
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_disconnect = on_disconnect
+    mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+    mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
+    mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+    mqtt_client.loop_start()
+    logging.info("Starting " + SERVICE)
+    yield
+  finally:
+    mqtt_client.disconnect()
+    mqtt_client.loop_stop()
+    mqtt_events_task.cancel()
+    try:
+      await mqtt_events_task
+    except asyncio.CancelledError:
+      pass
+    mqtt_events_task = None
+
+app = FastAPI(lifespan=lifespan)
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
   client_id=SERVICE,
   protocol=mqtt.MQTTv5
 ) 
+
+# Subscribe to topics on connect
+def on_connect(client, userdata, flags, rc, properties):
+  logging.info("Connected to MQTT broker (rc=%s)", rc)
+  client.subscribe("meteo/warnings", qos=1)
+  logging.info("Subscribed to MQTT topic meteo/warnings")
+
+async def dispatch_mqtt_events():
+  while True:
+    try:
+      event = mqtt_events.get_nowait()
+    except Empty:
+      await sleep(0.1)
+      continue
+    for queue in list(sse_queues):
+      queue.put_nowait(event)
+
+# Do tasks when a message is received
+def on_message(client, userdata, msg):
+  if msg.topic == "meteo/warnings":
+    try:
+      warning = json.loads(msg.payload)
+    except json.JSONDecodeError:
+      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+      return
+    event = {
+      "type": "weather-warning",
+      "data": warning,
+      "flags": {}
+    }
+    mqtt_events.put(event)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -59,14 +121,6 @@ if MQTT_PASS == "no_set":
   report("MQTT_PASS env vars no set")
 if MQTT_HOST == "no_set":
   report("MQTT_HOST env vars no set")
-
- # Connect to the mqtt broker
-mqtt_client.on_disconnect = on_disconnect
-mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
-mqtt_client.loop_start()
-logging.info("Starting " + SERVICE)
 
 app.add_middleware(
     CORSMiddleware,
@@ -103,9 +157,17 @@ devices_ids = [
 async def root():
   return {"message": "Hello, World!"}
 
-async def streamEvents():
+async def streamEvents(queue):
   last = {}
   while True:
+    try:
+      event = queue.get_nowait()
+      yield f"data: {json.dumps(event)}\n\n"
+      await sleep(0.1)
+      continue
+    except asyncio.QueueEmpty:
+      pass
+
     # Internet
     connected = internet.checkConnectivity()
     if not last.get("connected", False) == connected:
@@ -118,34 +180,20 @@ async def streamEvents():
       last["connected"] = connected
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Spotify
-    # playing = spotify.getPlaying(max_tries=2)
-    # if not last.get("playing", {}) == playing:
-    #   event = {
-    #     "type": "spotify",
-    #     "data": {
-    #       "playing": playing
-    #     }
-    #   }
-    #   last["playing"] = playing
-    #   yield f"data: {json.dumps(event)}\n\n"
-    #   await sleep(0.1)
     # Home
-    (status_flag, home_status) = homeware.getStatus(devices_ids)
+    home_status = homeware.getStatus(devices_ids)
     if not last.get("home_status", {}) == home_status:
       event = {
         "type": "home",
         "data": {
           "status": home_status
         },
-        "flags": {
-          "status": status_flag
-        }
+        "flags": {}
       }
       last["home_status"] = home_status
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-     # Water
+    # Water
     water_data = water.getWater()
     if not last.get("water_data", {}) == water_data:
       event = {
@@ -159,20 +207,15 @@ async def streamEvents():
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Weather
-    (fail_to_update, current_flag, current, forecast_flag, forecast, alerts_flag, alerts) = weatherapi.getWeather()
+    (fail_to_update, current, forecast) = weatherapi.getWeather()
     if not last.get("forecast", {}) == forecast:
       event = {
         "type": "weather",
         "data": {
           "current": current,
-          "forecast": forecast,
-          "alerts": alerts
+          "forecast": forecast
         },
-        "flags": {
-          "current": current_flag,
-          "forecast": forecast_flag,
-          "alerts": alerts_flag
-        }
+        "flags": {}
       }
       last["forecast"] = forecast
       yield f"data: {json.dumps(event)}\n\n"
@@ -189,7 +232,18 @@ async def streamEvents():
 
 @app.get("/stream")
 async def stream():
-  return StreamingResponse(streamEvents(), media_type="text/event-stream")
+  queue = asyncio.Queue()
+  sse_queues.add(queue)
+  mqtt_client.publish("meteo/warnings/request", "")
+
+  async def stream_with_cleanup():
+    try:
+      async for event in streamEvents(queue):
+        yield event
+    finally:
+      sse_queues.discard(queue)
+
+  return StreamingResponse(stream_with_cleanup(), media_type="text/event-stream")
 
 if __name__ == "__main__":
    import uvicorn
