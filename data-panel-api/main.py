@@ -181,16 +181,14 @@ async def streamEvents(queue):
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Home
-    (status_flag, home_status) = homeware.getStatus(devices_ids)
+    home_status = homeware.getStatus(devices_ids)
     if not last.get("home_status", {}) == home_status:
       event = {
         "type": "home",
         "data": {
           "status": home_status
         },
-        "flags": {
-          "status": status_flag
-        }
+        "flags": {}
       }
       last["home_status"] = home_status
       yield f"data: {json.dumps(event)}\n\n"

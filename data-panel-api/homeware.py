@@ -35,11 +35,11 @@ class Homeware:
             status[id] = response.json()
           else:
             logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
-            return (False, {})
-        return (True, status)
+            return {}
+        return status
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get Homeware status. Conection error.")
-        return (False, {})
+        return {}
 
 
   def getDevices(self):
@@ -58,10 +58,10 @@ class Homeware:
           devices = {}
           for device in unorderedDevices:
               devices[device['id']] = device
-          return (True, devices)
+          return devices
         else:
           logging.warning("Fail to get Homeware devices. Status code: " + str(response.status_code))
-          return (False, {})    
+          return {}
       except (requests.ConnectionError, requests.Timeout) as exception:
         logging.warning("Fail to get Homeware devices. Conection error.")
         self._fail_to_update = False
