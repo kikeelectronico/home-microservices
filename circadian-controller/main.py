@@ -100,8 +100,8 @@ def main():
   if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
   if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
   if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
+  if WHEATHER_API_KEY == "no_set": report("WHEATHER_API_KEY env vars no set")
+  if WHEATHER_QUERY == "no_set": report("WHEATHER_QUERY env vars no set")
 
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
