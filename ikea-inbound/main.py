@@ -115,7 +115,11 @@ def on_open(ws):
         "type": "ping",
         "data": None
       }
-      ws.send(json.dumps(ping_msg))
+      try:
+        ws.send(json.dumps(ping_msg))
+      except Exception as exc:
+        logging.warning("Fail to send IKEA WebSocket ping: %s", exc)
+        break
       time.sleep(30)
 
   thread = threading.Thread(target=run)
