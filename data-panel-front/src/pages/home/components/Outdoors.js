@@ -65,13 +65,13 @@ export default function Outdoors(props) {
 
                     return a.start_offset - b.start_offset;
                 })
-                .map((alert, index) => {
-                    if (alert.start_offset >= 0) {
+                .map((warning, index) => {
+                    if (warning.start_offset >= 0) {
                         const getStyle = () => {
                             let severity = "alertsNormal"
-                            if (alert.level.includes("rojo")) severity = "alertsHigh"
-                            else if (alert.level.includes("naranja")) severity = "alertsMiddle"
-                            else if (alert.level.includes("amarillo")) severity = "alertsLow"
+                            if (warning.level.includes("rojo")) severity = "alertsHigh"
+                            else if (warning.level.includes("naranja")) severity = "alertsMiddle"
+                            else if (warning.level.includes("amarillo")) severity = "alertsLow"
                             return severity
                         }
                         
@@ -79,7 +79,7 @@ export default function Outdoors(props) {
                             <div className="outdoorCardRow" key={index}>
                                 <div className="outdoorCardWeatherRow">
                                     <div className={"outdoorCardAlertContainer " +  getStyle()}>
-                                        {"(" + (alert.is_active ? "A" : alert.start_offset) + ") " + alert.title + " " + alert.description}
+                                        {"(" + (warning.is_active ? "A" : warning.start_offset) + ") " + warning.title + " " + warning.description}
                                     </div>
                                 </div>
                             </div>
