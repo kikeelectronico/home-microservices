@@ -25,22 +25,38 @@ class Ikea:
     if fail:
       exit()
       
-  # Get device
-  def getDevices(self, device_id="all"):
+  # Get devices
+  def getDevices(self):
     try:
+      url = f"https://{self.__host}:8443/v1/devices"
       headers = {
         "Authorization": f"Bearer {self.__token}"
       }
-      url = f"https://{self.__host}:8443/v1/devices"
-      if device_id != "all":
-        url = f"{url}/{device_id}"
       response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
-      response.raise_for_status()
-      devices = response.json()
-      return devices
+      if response.status_code == 200:
+        return response.json()
+      logging.warning("Fail to get devices from Ikea Bridge. Status code: " + str(response.status_code))
+      return []
     except (requests.ConnectionError, requests.Timeout) as exception:
-        logging.warning("Fail to get the IKEA device %s. Connection error.", device_id)
-        if device_id == "all": return []
+        logging.warning("Fail to get devices from Ikea Bridge. Connection error.")
+        return []
+    
+  # Get device
+  def getDevice(self, device_id=None):
+    if not device_id:
+      return {}
+    try:
+      url = f"https://{self.__host}:8443/v1/devices/{device_id}"
+      headers = {
+        "Authorization": f"Bearer {self.__token}"
+      }
+      response = requests.get(url, headers=headers, verify=False, timeout=REQUEST_TIMEOUT)
+      if response.status_code == 200:
+        return response.json()
+      logging.warning("Fail to get the device with id " + device_id + " from Ikea Bridge. Status code: " + str(response.status_code))
+      return {}
+    except (requests.ConnectionError, requests.Timeout) as exception:
+        logging.warning("Fail to get the device with id " + device_id + " from Ikea Bridge. Connection error.")
         return {}
       
   # Update device

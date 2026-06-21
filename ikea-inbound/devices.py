@@ -52,7 +52,7 @@ def motionSensor(data, homeware):
 def airPurifier(data, homeware):
   attributes = data.get("attributes")
   if "isReachable" in data:
-    if not homeware.get(data["id"], "online") == data["isReachable"]:
+    if homeware.get(data["id"], "online") != data["isReachable"]:
       homeware.execute(data["id"], "online", data["isReachable"])
   if "currentPM25" in attributes:
     homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
@@ -97,30 +97,34 @@ def airPurifier(data, homeware):
       homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
   if "fanMode" in attributes:
     ikea_fan_mode = attributes.get("fanMode", None)
-    homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
-    match ikea_fan_mode:
-      case "off":
-        if homeware_mode != "Apagado":
-          homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
-      case "auto":
-        if homeware_mode != "Automático":
-          homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
-      case "on":
-        if homeware_mode != "Manual":
-          homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
-      case "low" | "medium" | "high":
-        if "motorState" in attributes:
-          new_homeware_fan_speed = "Baja"
-          motorState = attributes["motorState"]
-          if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
-          elif motorState == 30: new_homeware_fan_speed = "Media"
-          elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
-          homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
-          if not new_homeware_fan_speed == homeware_fan_speed:
-            homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
+    homeware_current_mode_settings = homeware.get(data["id"], "currentModeSettings")["Modo"]
+    if "Modo" in homeware_current_mode_settings:
+      homeware_mode = homeware_current_mode_settings["Modo"]
+      match ikea_fan_mode:
+        case "off":
+          if homeware_mode != "Apagado":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
+        case "auto":
+          if homeware_mode != "Automático":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
+        case "on":
+          if homeware_mode != "Manual":
+            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
+        case "low" | "medium" | "high":
+          if "motorState" in attributes:
+            new_homeware_fan_speed = "Baja"
+            motorState = attributes["motorState"]
+            if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
+            elif motorState == 30: new_homeware_fan_speed = "Media"
+            elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
+            homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
+            if new_homeware_fan_speed != homeware_fan_speed:
+              homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
 
 def environmentSensor(data, homeware):
   attributes = data.get("attributes")
+  if not data["id"] in IDS_MAP:
+    return
   homeware_id = IDS_MAP[data["id"]]
   if "isOn" in attributes:
     homeware.execute(homeware_id, "online", attributes["isOn"])

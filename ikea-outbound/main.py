@@ -35,7 +35,7 @@ mqtt_client = mqtt.Client(
 )
 ikea = Ikea(IKEA_HOST, IKEA_TOKEN)
 
-# Suscribe to topics on connect
+# Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
 	for topic in TOPICS:
 		client.subscribe(topic, qos=1)

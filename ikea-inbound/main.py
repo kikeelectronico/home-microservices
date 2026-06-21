@@ -97,13 +97,13 @@ def on_message(ws, message):
 
 
 def on_error(ws, error):
-  logging.warning("Error: " + error)
+  logging.warning("IKEA WebSocket error: %s", error)
 
 def on_close(ws, close_status_code, close_msg):
-  logging.info("Conexión cerrada")
+  logging.info("IKEA WebSocket closed")
 
 def on_open(ws):
-  logging.info("Conexión abierta")
+  logging.info("IKEA WebSocket opened")
 
   def run():
     while True:
@@ -115,7 +115,11 @@ def on_open(ws):
         "type": "ping",
         "data": None
       }
-      ws.send(json.dumps(ping_msg))
+      try:
+        ws.send(json.dumps(ping_msg))
+      except Exception as exc:
+        logging.warning("Fail to send IKEA WebSocket ping: %s", exc)
+        break
       time.sleep(30)
 
   thread = threading.Thread(target=run)
