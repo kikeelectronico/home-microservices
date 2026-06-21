@@ -209,19 +209,17 @@ async def streamEvents(queue):
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
     # Weather
-    (fail_to_update, current_flag, current, forecast_flag, forecast, alerts_flag, alerts) = weatherapi.getWeather()
+    (fail_to_update, current_flag, current, forecast_flag, forecast) = weatherapi.getWeather()
     if not last.get("forecast", {}) == forecast:
       event = {
         "type": "weather",
         "data": {
           "current": current,
-          "forecast": forecast,
-          "alerts": alerts
+          "forecast": forecast
         },
         "flags": {
           "current": current_flag,
-          "forecast": forecast_flag,
-          "alerts": alerts_flag
+          "forecast": forecast_flag
         }
       }
       last["forecast"] = forecast
