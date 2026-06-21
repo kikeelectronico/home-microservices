@@ -61,7 +61,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 def updateAstroData():
   try:
     url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
-    response = requests.request("GET", url, timeout=5)
+    response = requests.get(url, timeout=5)
     if response.status_code == 200:
       global astro_data
       data = response.json()
