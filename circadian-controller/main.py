@@ -31,7 +31,8 @@ SERVICE = "circadian-controller-" + ENV
 last_heartbeat_timestamp = 0
 just_executed = False
 solar_cycle = {
-  "sunset": ""
+  "sunset": 0,
+  "sunrise": 0
 }
 
 # Instantiate objects
@@ -58,7 +59,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 def updateSolarData():
   try:
     url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
-    response = requests.request("GET", url, timeout=5)
+    response = requests.get(url, timeout=5)
     if response.status_code == 200:
       global solar_cycle
       data = response.json()
@@ -91,6 +92,10 @@ def colorTemperature(hour, sunrise, sunset, Tmin=2200, Tmax=6500):
 def main():
   global last_heartbeat_timestamp
   global just_executed
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -100,8 +105,8 @@ def main():
   if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
   if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
   if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
+  if WHEATHER_API_KEY == "no_set": report("WHEATHER_API_KEY env vars no set")
+  if WHEATHER_QUERY == "no_set": report("WHEATHER_QUERY env vars no set")
 
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
