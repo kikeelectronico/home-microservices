@@ -31,7 +31,8 @@ SERVICE = "circadian-controller-" + ENV
 last_heartbeat_timestamp = 0
 just_executed = False
 solar_cycle = {
-  "sunset": ""
+  "sunset": 0,
+  "sunrise": 0
 }
 
 # Instantiate objects
