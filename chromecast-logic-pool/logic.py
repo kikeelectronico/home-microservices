@@ -4,7 +4,7 @@ import json
 prev_player_playing_state = False 
 prev_status = {}
 
-def playingLights(homeware, mqtt_client):
+def playingLights(homeware):
   global prev_player_playing_state
   if not prev_player_playing_state:
     if homeware.get("hue_17", "on") and homeware.get("pressure001", "occupancy") == "OCCUPIED" and homeware.get("scene_dim", "enable"):
@@ -18,7 +18,7 @@ def playingLights(homeware, mqtt_client):
     homeware.execute("hue_10", "on", False)
     prev_player_playing_state = True
       
-def notPlayingLights(homeware, mqtt_client):
+def notPlayingLights(homeware):
   global prev_player_playing_state
   if prev_player_playing_state:
     if homeware.get("hue_17","on"):

@@ -88,9 +88,9 @@ if __name__ == "__main__":
           device_controller = device.media_controller
           device_controller.block_until_active(5)
           if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
-            logic.notPlayingLights(homeware, mqtt_client)
+            logic.notPlayingLights(homeware)
           if device_controller.status.player_state == "PLAYING":
-            logic.playingLights(homeware, mqtt_client)
+            logic.playingLights(homeware)
         time.sleep(5)
     except Exception:
         logging.exception("Chromecast connection lost. Reconnecting in 10s")
