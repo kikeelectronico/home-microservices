@@ -29,7 +29,10 @@ SERVICE = "chromecast-logic-pool-" + ENV
 last_heartbeat_timestamp = 0
 
 # Instantiate objects
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+  level=logging.INFO,
+  format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+)
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
   client_id=SERVICE,
