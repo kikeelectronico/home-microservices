@@ -97,13 +97,13 @@ def on_message(ws, message):
 
 
 def on_error(ws, error):
-  logging.warning("Error: " + error)
+  logging.warning("IKEA WebSocket error: %s", error)
 
 def on_close(ws, close_status_code, close_msg):
-  logging.info("Conexión cerrada")
+  logging.info("IKEA WebSocket closed")
 
 def on_open(ws):
-  logging.info("Conexión abierta")
+  logging.info("IKEA WebSocket opened")
 
   def run():
     while True:
