@@ -20,7 +20,7 @@ export default function Home(props) {
   const [home, setHome] = useState(null)
   const [water, setWater] = useState(null)
   const [weather, setWeather] = useState(null)
-  const [weather_warning, setWeatherWarning] = useState(null)
+  const [weather_warnings, setWeatherWarnings] = useState(null)
   const [spotify, setSpotify] = useState(null)
   const [spotify_playing, setSpotifyPlaying] = useState(false);
   const [see_closed, setSeeClosed] = useState(false)
@@ -34,7 +34,7 @@ export default function Home(props) {
       else if (event.type === "home") {setHome(event.data)}
       else if (event.type === "water") {setWater(event.data);}
       else if (event.type === "weather") {setWeather(event.data)}
-      else if (event.type === "weather-warning") {setWeatherWarning(event.data);}
+      else if (event.type === "weather-warnings") {setWeatherWarnings(event.data);}
     };
     sse.onerror = () => {
       setSeeClosed(true)
@@ -61,7 +61,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { weather ? <Outdoors weather={weather} weather_warning={weather_warning} water={water} playing={spotify_playing}/> : <></> }
+            { weather ? <Outdoors weather={weather} weather_warnings={weather_warnings} water={water} playing={spotify_playing}/> : <></> }
             { home ? <Power home={home} playing={spotify_playing}/> : <></> }
             { internet ? <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/> : <></> }
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 

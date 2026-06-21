@@ -92,7 +92,7 @@ def on_message(client, userdata, msg):
       logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
       return
     event = {
-      "type": "weather-warning",
+      "type": "weather-warnings",
       "data": warnings
     }
     mqtt_events.put(event)
