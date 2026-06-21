@@ -104,7 +104,7 @@ def publishWarnings(force=False):
                       warning["probability"] = parameter.find("cap:value", ns).text
 
               warnings.append(warning)
-        mqtt_client.publish("meteo/warnings", json.dumps(warning))
+        mqtt_client.publish("meteo/warnings", json.dumps(warnings))
         last_build_date = build_date
 
 # Subscribe to topics on connect
