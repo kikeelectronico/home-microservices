@@ -56,14 +56,18 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 def on_message(client, userdata, msg):
 	if msg.topic == "device/heartbeat":
 		# Save the timestamp when a device sends a heartbeat
-		service = msg.payload
+		service = msg.payload.decode("utf-8")
 		if not service in devices_heartbeats:
-				logging.info(service.decode("utf-8") + ": arriba")
+				logging.info(service + ": arriba")
 		devices_heartbeats[service] = time.time()
-		homeware.execute(service.decode("utf-8"), "online", True)
+		homeware.execute(service, "online", True)
 
 # Main entry point
 if __name__ == "__main__":
+	logging.basicConfig(
+		level=logging.INFO,
+		format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+	)
 	# Check env vars
 	def report(message):
 		print(message)
