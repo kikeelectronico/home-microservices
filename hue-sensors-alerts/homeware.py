@@ -48,9 +48,10 @@ class Homeware:
         return response.json()
       else:
         logging.warning("Fail to get Homeware status. Status code: " + str(response.status_code))
-        return (False, {})
+        return {}
     except (requests.ConnectionError, requests.Timeout) as exception:
       logging.warning("Fail to get Homeware status. Connection error.")
+      return {}
 
   def getDevices(self):
     try:
