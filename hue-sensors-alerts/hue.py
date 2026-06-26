@@ -3,6 +3,9 @@ import logging
 from sseclient import SSEClient
 import time
 
+import urllib3
+urllib3.disable_warnings()
+
 REQUEST_TIMEOUT = 10
 
 class Hue:
