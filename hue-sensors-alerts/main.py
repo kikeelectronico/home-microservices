@@ -75,7 +75,7 @@ if __name__ == "__main__":
   logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
-  hue_devices = hue.getServices(resource="device")
+  hue_devices = hue.getServices(type="device")
   for hue_device in hue_devices:
     for service in hue_device["services"]:
       device_id_service_id[service["rid"]] = hue_device["id"]
