@@ -29,7 +29,6 @@ MQTT_PORT = 1883
 SERVICE = "hue-sensors-alerts-" + ENV
 
 # Declare variables
-cache = {}
 device_id_service_id = {}
 
 # Instantiate objects
