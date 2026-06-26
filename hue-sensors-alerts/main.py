@@ -1,16 +1,11 @@
 import paho.mqtt.client as mqtt
 import os
 import json
-from sseclient import SSEClient
-import requests
 import logging
 import time
 
 from hue import Hue
 from homeware import Homeware
-
-import urllib3
-urllib3.disable_warnings()
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -31,7 +26,6 @@ MQTT_PORT = 1883
 SERVICE = "hue-sensors-alerts-" + ENV
 
 # Declare variables
-cache = {}
 device_id_service_id = {}
 
 # Instantiate objects
@@ -58,6 +52,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -77,31 +75,45 @@ if __name__ == "__main__":
   logging.info("Starting " + SERVICE)
 
   # Get devices ids relation
-  hue_devices = hue.getResource(resource="device")
+  hue_devices = hue.getServices(resource="device")
   for hue_device in hue_devices:
     for service in hue_device["services"]:
       device_id_service_id[service["rid"]] = hue_device["id"]
       
-  # Connect to Hue bridge
-  url = "https://" + HUE_HOST + "/eventstream/clip/v2"
-  headers = {
-    'hue-application-key': HUE_TOKEN,
-    'Accept': 'text/event-stream'
-  }
-  stream_response = requests.get(url, headers=headers, stream=True, verify=False)
-  client = SSEClient(stream_response)
-  
-  # Handle events
-  for message in client.events():
-    for event in json.loads(message.data):
-      for service in event["data"]:
-        if not homeware.get("switch_at_home", "on"):
-          if service["type"] == "contact":
-            if service["contact_report"]["state"] == "no_contact":
-              mqtt_client.publish("message-alerts", "Alerta de contacto")
-          elif service["type"] == "motion":
-            if service["motion"]["motion"]:
-              mqtt_client.publish("message-alerts", "Alerta de movimiento")
+  while True:
+    try:
+      # Connect to Hue bridge
+      client = hue.getEventStreamClient()
+      
+      # Handle events
+      for message in client.events():
+        try:
+          events = json.loads(message.data)
+        except ValueError:
+          logging.warning("Invalid SSE JSON payload: %r", message.data)
+          continue
+        if not isinstance(events, list):
+          logging.warning("Invalid SSE payload type: %r", events)
+          continue
+        for event in events:
+          data = event.get("data") if isinstance(event, dict) else None
+          if not isinstance(data, list):
+            logging.warning("Invalid SSE event data type: %r", event)
+            continue
+          for service in data:
+            if not homeware.get("switch_at_home", "on"):
+              if service["type"] == "contact":
+                if service["contact_report"]["state"] == "no_contact":
+                  mqtt_client.publish("message-alerts", "Alerta de contacto")
+              elif service["type"] == "motion":
+                if service["motion"]["motion"]:
+                  mqtt_client.publish("message-alerts", "Alerta de movimiento")
+
+      logging.warning("Hue SSE stream closed. Reconnecting in 5s")
+      time.sleep(5)
+    except Exception:
+      logging.exception("Hue SSE stream failed. Reconnecting in 5s")
+      time.sleep(5)
         
 
     
