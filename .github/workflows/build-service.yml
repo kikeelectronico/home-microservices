@@ -10,12 +10,14 @@ on:
                 required: true
                 type: string
         secrets:
-            REGISTRY_REPO:
+            REGISTRY_REPOSITORY:
               required: true
-            REGISTRY:
-                required: true
-            GOOGLE_APPLICATION_CREDENTIALS:
-                required: true
+            REGISTRY_URL:
+              required: true
+            REGISTRY_USERNAME:
+              required: true
+            REGISTRY_PASSWORD:
+              required: true
   
 jobs:
   path-filter:
@@ -42,13 +44,15 @@ jobs:
       packages: write
     if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
     steps:
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      - name: Login to registry
+        uses: docker/login-action@v3
         with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Tag rollback image
         run: |
-          gcloud container images add-tag ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }} ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }}-rollback
+          docker buildx imagetools create \ -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback \ ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
   
   build_and_push:
     name: Build and push ${{ inputs.service }}
@@ -65,15 +69,13 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      - name: Login to registry
         if: inputs.tag != 'test'
+        uses: docker/login-action@v3
         with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Configure docker
-        if: inputs.tag != 'test'
-        run: |
-          gcloud auth configure-docker ${{ secrets.REGISTRY }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -81,4 +83,4 @@ jobs:
           file: ${{ inputs.service }}/Dockerfile
           platforms: linux/amd64
           push: ${{ inputs.tag != 'test' }}
-          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY,secrets.REGISTRY_REPO, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}
+          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL,secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}

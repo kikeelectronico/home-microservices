@@ -41,6 +41,7 @@ jobs:
       service: ${{ matrix.service }}
       tag: test
     secrets:
-      REGISTRY: ${{secrets.REGISTRY}}
-      REGISTRY_REPO: ${{secrets.REGISTRY_REPO}}
-      GOOGLE_APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+      REGISTRY_URL: ${{secrets.REGISTRY_URL}}
+      REGISTRY_REPOSITORY: ${{secrets.REGISTRY_REPOSITORY}}
+      REGISTRY_USERNAME: ${{secrets.REGISTRY_USERNAME}}
+      REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
