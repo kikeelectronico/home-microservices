@@ -112,7 +112,6 @@ def on_message(client, userdata, msg):
       switches.bathroom(homeware, msg.topic, payload)
       switches.mirror(homeware, msg.topic, payload)
       switches.hallway(homeware, msg.topic, payload)
-      thermostats.livingroom(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 
