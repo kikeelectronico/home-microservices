@@ -99,34 +99,5 @@ class BathroomLightHandler:
                         }
                     ]
                 })
-                actions.append({
-                    "type": "schedule_task",
-                    "task_id": "bedroom_fan",
-                    "delta": 60,
-                    "target": {
-                        "device_id": "hue_8",
-                        "param": "on",
-                        "value": False
-                    },
-                    "asserts": [
-                        {
-                            "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                            "param": "currentToggleSettings",
-                            "value": {
-                                "last_seen": False
-                            }
-                        },
-                        {
-                            "device_id": "scene_summer",
-                            "param": "enable",
-                            "value": True
-                        },
-                        {
-                            "device_id": "hue_8",
-                            "param": "on",
-                            "value": True
-                        }
-                    ]
-                })
 
         return actions
