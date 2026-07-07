@@ -8,4 +8,6 @@ TOPICS = [
     "device/scene_headphones/enable",
     "device/hue_17/brightness",
     "device/hallway_switch/on",
+    "device/hue_sensor_2/on",
+    "device/hue_sensor_14/on",
 ]
