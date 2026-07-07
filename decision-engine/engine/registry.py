@@ -4,8 +4,9 @@ from domains.notification.voice.night_time import NightTimeVoiceNotificationHand
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom import BedroomLightHandler
 from domains.light.hallway import HallwayLightHandler
-from domains.light.livingroom_table import LivingroomTableLightHandler
 from domains.light.livingroom_fairy import LivingroomFairyLightHandler
+from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
+from domains.light.livingroom_table import LivingroomTableLightHandler
 from domains.light.livingroom import LivingroomLightHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
@@ -21,8 +22,9 @@ def build_handlers() -> List[Handler]:
         BathroomLightHandler(),
         BedroomLightHandler(),
         HallwayLightHandler(),
-        LivingroomTableLightHandler(),
         LivingroomFairyLightHandler(),
+        LivingroomPyramidLightHandler(),
+        LivingroomTableLightHandler(),
         LivingroomLightHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),

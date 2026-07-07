@@ -10,7 +10,6 @@ from Alert import Alert
 import alerts
 import power
 import general
-import lights
 import scenes
 import sensors
 import switches
@@ -98,7 +97,6 @@ def on_message(client, userdata, msg):
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
       general.atHome(homeware, msg.topic, payload)
       general.prepareHome(homeware, msg.topic, payload)
-      lights.pyramids(homeware, msg.topic, payload)
       power.powerManagment(homeware, msg.topic, payload)
       scenes.dim(homeware, msg.topic, payload)
       scenes.shower(homeware, alert, msg.topic, payload)
