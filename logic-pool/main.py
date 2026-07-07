@@ -13,7 +13,6 @@ import general
 import scenes
 import sensors
 import switches
-import thermostats
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
