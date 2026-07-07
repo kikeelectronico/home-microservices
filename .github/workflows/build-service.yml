@@ -18,6 +18,9 @@ on:
               required: true
             REGISTRY_PASSWORD:
               required: true
+
+env:
+  DOCKER_BUILD_RECORD_UPLOAD: false
   
 jobs:
   path-filter:
