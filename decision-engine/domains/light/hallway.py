@@ -15,14 +15,15 @@ class HallwayLightHandler:
         actions = []
         
         if event.get("device_id") == "ee2fcd12-9b2e-478f-826f-a4a5447d3a27":
-            actions =  [
-                {
-                    "type": "device_param_update",
-                    "device_id": "hue_7",
-                    "param": "on",
-                    "value": event.get("value") == "OCCUPIED"
-                }
-            ]
+            if not context.get("hallway_switch", "on"):
+                actions =  [
+                    {
+                        "type": "device_param_update",
+                        "device_id": "hue_7",
+                        "param": "on",
+                        "value": event.get("value") == "OCCUPIED"
+                    }
+                ]
         
         if event.get("device_id") == "hallway_switch":
             actions =  [
