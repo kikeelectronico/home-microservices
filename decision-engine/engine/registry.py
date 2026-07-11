@@ -1,5 +1,7 @@
 from typing import List
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
+from domains.air.temperature.bedroom import BedroomAirTemperatureHandler
+from domains.air.temperature.livingroom import LivingroomAirTemperatureHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
@@ -24,6 +26,8 @@ from engine.engine import Handler
 def build_handlers() -> List[Handler]:
     return [
         LivingroomAirQualityHandler(),
+        BedroomAirTemperatureHandler(),
+        LivingroomAirTemperatureHandler(),
         BathroomMirrorLightHandler(),
         BathroomLightHandler(),
         BedroomBrightnessLightHandler(),

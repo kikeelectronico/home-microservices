@@ -92,7 +92,6 @@ def on_message(client, userdata, msg):
     if payload is not None:
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
       general.atHome(homeware, msg.topic, payload)
-      general.prepareHome(homeware, msg.topic, payload)
       power.powerManagment(homeware, msg.topic, payload)
       scenes.dim(homeware, msg.topic, payload)
       scenes.shower(homeware, alert, msg.topic, payload)
