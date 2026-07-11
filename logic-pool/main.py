@@ -105,7 +105,6 @@ def on_message(client, userdata, msg):
       scenes.headphones(homeware, alert, msg.topic, payload)
       scenes.awake(homeware, alert, msg.topic, payload)
       sensors.livingroom(homeware, msg.topic, payload)
-      sensors.sofa(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 

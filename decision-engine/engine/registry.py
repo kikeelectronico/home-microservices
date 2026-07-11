@@ -9,6 +9,7 @@ from domains.light.livingroom_fairy import LivingroomFairyLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
 from domains.light.livingroom_table import LivingroomTableLightHandler
 from domains.light.livingroom import LivingroomLightHandler
+from domains.light.office import OfficeLightHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
@@ -28,6 +29,7 @@ def build_handlers() -> List[Handler]:
         LivingroomPyramidLightHandler(),
         LivingroomTableLightHandler(),
         LivingroomLightHandler(),
+        OfficeLightHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),

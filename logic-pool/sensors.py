@@ -10,11 +10,3 @@ def livingroom(homeware, topic, payload):
       homeware.execute("hue_7", "brightness", brightness)
       # else:
       #   homeware.execute("scene_dim", "eneable", True)
-
-def sofa(homeware, topic, payload):
-  if topic == "device/pressure001/occupancy":
-    if payload == "OCCUPIED":
-      homeware.execute("hue_9", "on", False)
-      homeware.execute("hue_10", "on", False)
-      if not homeware.get("scene_awake", "enable"):
-        homeware.execute("scene_awake", "enable", True)
