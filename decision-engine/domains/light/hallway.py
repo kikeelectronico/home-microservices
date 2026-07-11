@@ -25,7 +25,7 @@ class HallwayLightHandler:
                     }
                 ]
         
-        if event.get("device_id") == "hallway_switch":
+        elif event.get("device_id") == "hallway_switch":
             actions =  [
                 {
                     "type": "device_param_update",

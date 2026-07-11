@@ -103,7 +103,7 @@ class BathroomLightHandler:
                         ]
                     })
 
-        if event.get("device_id") == "hue_sensor_14":
+        elif event.get("device_id") == "hue_sensor_14":
             if event.get("value"):
                 if context.get("scene_dim", "enable"):
                     actions.append({
