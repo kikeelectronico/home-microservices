@@ -90,7 +90,6 @@ def on_message(client, userdata, msg):
     # Exec the logic
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
-      alerts.battery(homeware, alert, msg.topic, payload)
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
       general.atHome(homeware, msg.topic, payload)
       general.prepareHome(homeware, msg.topic, payload)
