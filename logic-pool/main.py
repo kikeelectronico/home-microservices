@@ -12,7 +12,6 @@ import power
 import general
 import scenes
 import sensors
-import switches
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -107,7 +106,6 @@ def on_message(client, userdata, msg):
       scenes.awake(homeware, alert, msg.topic, payload)
       sensors.livingroom(homeware, msg.topic, payload)
       sensors.sofa(homeware, msg.topic, payload)
-      switches.bedroom(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 
