@@ -36,6 +36,10 @@ def action_to_mqtt_message(action: Dict) -> Tuple[str, str]:
             topic = "notificacion/voice/alert"
             payload = action["text"]
             return topic, payload
+        case "notification_message_alert":
+            topic = "message-alerts"
+            payload = action["text"]
+            return topic, payload
     logging.warning("Invalid action: %r", str(action))
     return None, None
 
