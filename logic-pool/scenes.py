@@ -157,12 +157,6 @@ def powerAlert(homeware, alert, topic, payload):
         if power_alert_counter == 1:
           power_alert_counter = 0
 
-# Set dim scene
-def astro_day(homeware, alert, topic, payload):
-  if topic == "device/scene_astro_day/enable":
-    if not payload:
-      homeware.execute("scene_dim", "enable", True)
-
 # Headphones related logic
 def headphones(homeware, alert, topic, payload):
   if topic == "device/scene_headphones/enable":

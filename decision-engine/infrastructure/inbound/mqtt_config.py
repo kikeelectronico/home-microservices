@@ -14,4 +14,5 @@ TOPICS = [
     "device/pressure001/occupancy",
     "device/+/capacityRemaining",
     "device/switch_prepare_home/on",
+    "device/scene_astro_day/enable",
 ]
