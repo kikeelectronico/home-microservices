@@ -7,7 +7,6 @@ import functions
 from Homeware import Homeware
 from Alert import Alert
 import lights
-import air
 import scenes
 
 # Load env vars
@@ -73,7 +72,6 @@ def on_message(client, userdata, msg):
     # Exec the logic
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
-      air.hood(homeware, msg.topic, payload)
       lights.resetEdisonBulb(homeware, msg.topic, payload)
       lights.sofaLight(homeware, msg.topic, payload)
       lights.workbenchLight(homeware, msg.topic, payload)
