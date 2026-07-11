@@ -2,7 +2,7 @@ from typing import List
 from shared.context import Context
 
 
-class LivingroomTableLightHandler:
+class LivingroomTableBrightnessLightHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
             event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
