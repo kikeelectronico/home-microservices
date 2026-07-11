@@ -44,80 +44,80 @@ class BedroomLightHandler:
                                 "value": True
                             })
             else:
-            if not context.get("hue_sensor_12", "on"):
-                actions.append({
-                    "type": "schedule_task",
-                    "task_id": "bedroom_hue_6",
-                    "delta": 60,
-                    "target": {
-                        "device_id": "hue_6",
-                        "param": "on",
-                        "value": False
-                    },
-                    "asserts": [
-                        {
-                            "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                            "param": "occupancy",
-                            "value": "UNOCCUPIED"
+                if not context.get("hue_sensor_12", "on"):
+                    actions.append({
+                        "type": "schedule_task",
+                        "task_id": "bedroom_hue_6",
+                        "delta": 60,
+                        "target": {
+                            "device_id": "hue_6",
+                            "param": "on",
+                            "value": False
                         },
-                        {
-                            "device_id": "pressure002",
-                            "param": "occupancy",
-                            "value": "UNOCCUPIED"
-                        }
-                    ]
-                })
-                actions.append({
-                    "type": "schedule_task",
-                    "task_id": "bedroom_rgb003",
-                    "delta": 60,
-                    "target": {
-                        "device_id": "rgb003",
-                        "param": "on",
-                        "value": False
-                    },
-                    "asserts": [
-                        {
-                            "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                            "param": "occupancy",
-                            "value": "UNOCCUPIED"
-                        },
-                        {
-                            "device_id": "pressure002",
-                            "param": "occupancy",
-                            "value": "UNOCCUPIED"
-                        }
-                    ]
-                })
-                actions.append({
-                    "type": "schedule_task",
-                    "task_id": "bedroom_fan",
-                    "delta": 60,
-                    "target": {
-                        "device_id": "hue_8",
-                        "param": "on",
-                        "value": False
-                    },
-                    "asserts": [
-                        {
-                            "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
-                            "param": "currentToggleSettings",
-                            "value": {
-                                "last_seen": False
+                        "asserts": [
+                            {
+                                "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+                                "param": "occupancy",
+                                "value": "UNOCCUPIED"
+                            },
+                            {
+                                "device_id": "pressure002",
+                                "param": "occupancy",
+                                "value": "UNOCCUPIED"
                             }
+                        ]
+                    })
+                    actions.append({
+                        "type": "schedule_task",
+                        "task_id": "bedroom_rgb003",
+                        "delta": 60,
+                        "target": {
+                            "device_id": "rgb003",
+                            "param": "on",
+                            "value": False
                         },
-                        {
-                            "device_id": "scene_summer",
-                            "param": "enable",
-                            "value": True
-                        },
-                        {
+                        "asserts": [
+                            {
+                                "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+                                "param": "occupancy",
+                                "value": "UNOCCUPIED"
+                            },
+                            {
+                                "device_id": "pressure002",
+                                "param": "occupancy",
+                                "value": "UNOCCUPIED"
+                            }
+                        ]
+                    })
+                    actions.append({
+                        "type": "schedule_task",
+                        "task_id": "bedroom_fan",
+                        "delta": 60,
+                        "target": {
                             "device_id": "hue_8",
                             "param": "on",
-                            "value": True
-                        }
-                    ]
-                })
+                            "value": False
+                        },
+                        "asserts": [
+                            {
+                                "device_id": "c2b38173-883e-4766-bcb5-0cce2dc0e00e",
+                                "param": "currentToggleSettings",
+                                "value": {
+                                    "last_seen": False
+                                }
+                            },
+                            {
+                                "device_id": "scene_summer",
+                                "param": "enable",
+                                "value": True
+                            },
+                            {
+                                "device_id": "hue_8",
+                                "param": "on",
+                                "value": True
+                            }
+                        ]
+                    })
         
         elif event.get("device_id") == "hue_sensor_12":
             if event.get("value"):
