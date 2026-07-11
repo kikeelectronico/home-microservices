@@ -157,14 +157,6 @@ def powerAlert(homeware, alert, topic, payload):
         if power_alert_counter == 1:
           power_alert_counter = 0
 
-# Headphones related logic
-def headphones(homeware, alert, topic, payload):
-  if topic == "device/scene_headphones/enable":
-    if not homeware.get("ac_001", "currentFanSpeedSetting") == "Media":
-      if homeware.get("thermostat_livingroom", "thermostatMode") in ["cool", "fan-only"]:
-        if homeware.get("thermostat_livingroom", "thermostatTemperatureAmbient") > homeware.get("thermostat_livingroom", "thermostatTemperatureSetpoint"):
-          homeware.execute("ac_001", "currentFanSpeedSetting", "Alta" if payload else "Baja")
-
 def awake(homeware, alert, topic, payload):
   if topic == "device/scene_awake/enable":
     if payload:
