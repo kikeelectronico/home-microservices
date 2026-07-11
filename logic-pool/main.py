@@ -11,8 +11,6 @@ import alerts
 import power
 import general
 import scenes
-import sensors
-import switches
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -92,7 +90,6 @@ def on_message(client, userdata, msg):
     # Exec the logic
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
-      alerts.battery(homeware, alert, msg.topic, payload)
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
       general.atHome(homeware, msg.topic, payload)
       general.prepareHome(homeware, msg.topic, payload)
@@ -105,9 +102,6 @@ def on_message(client, userdata, msg):
       scenes.astro_day(homeware, alert, msg.topic, payload)
       scenes.headphones(homeware, alert, msg.topic, payload)
       scenes.awake(homeware, alert, msg.topic, payload)
-      sensors.livingroom(homeware, msg.topic, payload)
-      sensors.sofa(homeware, msg.topic, payload)
-      switches.bedroom(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 

@@ -10,4 +10,7 @@ TOPICS = [
     "device/hallway_switch/on",
     "device/hue_sensor_2/on",
     "device/hue_sensor_14/on",
+    "device/hue_sensor_12/on",
+    "device/pressure001/occupancy",
+    "device/+/capacityRemaining",
 ]
