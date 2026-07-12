@@ -18,7 +18,6 @@ jobs:
           - data-panel-api
           - data-panel-front
           - decision-engine
-          - device-controller
           - dns-updater
           - hue-inbound
           - hue-logic-pool
