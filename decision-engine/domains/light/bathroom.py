@@ -10,7 +10,9 @@ class BathroomLightHandler:
             (event.get("device_id") == "hue_sensor_14" and \
             event.get("param") == "on") or \
             (event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
-            event.get("param") == "occupancy"))
+            event.get("param") == "occupancy") or \
+            (event.get("device_id") == "switch_at_home" and \
+            event.get("param") == "on"))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         
@@ -160,4 +162,12 @@ class BathroomLightHandler:
                             "value": False
                         })
 
+        elif event.get("device_id") == "switch_at_home":
+            actions.append({
+                "type": "device_param_update",
+                "device_id": "hue_sensor_14",
+                "param": "on",
+                "value": False
+            })
+        
         return actions
