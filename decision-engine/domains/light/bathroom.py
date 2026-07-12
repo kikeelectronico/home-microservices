@@ -22,13 +22,13 @@ class BathroomLightHandler:
             occupied = event.get("value") == "OCCUPIED"
             if occupied:
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bathroom_light001"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bathroom_light001"
+                })
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bathroom_hue_sensor_2"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bathroom_hue_sensor_2"
+                })
                 
                 if context.get("scene_ducha", "enable"):
                     actions.append({
@@ -142,32 +142,33 @@ class BathroomLightHandler:
             if occupied:
                 if context.get("e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4", "openPercent") == 0:
                     actions.append({
-                            "type": "cancel_task",
-                            "task_id": "bathroom_light001"
-                        })
+                        "type": "cancel_task",
+                        "task_id": "bathroom_light001"
+                    })
                     actions.append({
-                            "type": "cancel_task",
-                            "task_id": "bathroom_hue_sensor_2"
-                        })
+                        "type": "cancel_task",
+                        "task_id": "bathroom_hue_sensor_2"
+                    })
                     actions.append({
-                            "type": "device_param_update",
-                            "device_id": "light001",
-                            "param": "on",
-                            "value": False
-                        })
+                        "type": "device_param_update",
+                        "device_id": "light001",
+                        "param": "on",
+                        "value": False
+                    })
                     actions.append({
-                            "type": "device_param_update",
-                            "device_id": "hue_sensor_2",
-                            "param": "on",
-                            "value": False
-                        })
+                        "type": "device_param_update",
+                        "device_id": "hue_sensor_2",
+                        "param": "on",
+                        "value": False
+                    })
 
         elif event.get("device_id") == "switch_at_home":
-            actions.append({
-                "type": "device_param_update",
-                "device_id": "hue_sensor_14",
-                "param": "on",
-                "value": False
-            })
+            if not event.get("value"):
+                actions.append({
+                    "type": "device_param_update",
+                    "device_id": "hue_sensor_14",
+                    "param": "on",
+                    "value": False
+                })
         
         return actions
