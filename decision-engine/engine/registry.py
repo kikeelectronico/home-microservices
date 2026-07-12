@@ -1,6 +1,7 @@
 from typing import List
 from domains.air.quality.bathroom import BathroomAirQualityHandler
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
+from domains.air.temperature.bathroom import BathroomAirTemperatureHandler
 from domains.air.temperature.bedroom import BedroomAirTemperatureHandler
 from domains.air.temperature.livingroom import LivingroomAirTemperatureHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
@@ -9,6 +10,7 @@ from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
 from domains.light.bedroom import BedroomLightHandler
 from domains.light.hallway_brightness import HallwayBrightnessLightHandler
 from domains.light.hallway import HallwayLightHandler
+from domains.light.kitchen import KitchenLightHandler
 from domains.light.livingroom_fairy_brightness import LivingroomFairyBrightneesLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
 from domains.light.livingroom_sofa import LivingroomSofaLightHandler
@@ -27,6 +29,8 @@ from domains.presence.livingroom import LivingroomPresenceHandler
 from domains.scenes.awake import AwakeSceneHandler
 from domains.scenes.sensors import SensorsSceneHandler
 from domains.scenes.dim import DimSceneHandler
+from domains.switch.prepare_home import PrepareHomeSwitchHandler
+
 from engine.engine import Handler
 
 
@@ -34,6 +38,7 @@ def build_handlers() -> List[Handler]:
     return [
         BathroomAirQualityHandler(),
         LivingroomAirQualityHandler(),
+        BathroomAirTemperatureHandler(),
         BedroomAirTemperatureHandler(),
         LivingroomAirTemperatureHandler(),
         BathroomMirrorLightHandler(),
@@ -42,6 +47,7 @@ def build_handlers() -> List[Handler]:
         BedroomLightHandler(),
         HallwayBrightnessLightHandler(),
         HallwayLightHandler(),
+        KitchenLightHandler(),
         LivingroomFairyBrightneesLightHandler(),
         LivingroomPyramidLightHandler(),
         LivingroomSofaLightHandler(),
@@ -60,4 +66,5 @@ def build_handlers() -> List[Handler]:
         AwakeSceneHandler(),
         DimSceneHandler(),
         SensorsSceneHandler(),
+        PrepareHomeSwitchHandler(),
     ]

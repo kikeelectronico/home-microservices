@@ -9,7 +9,6 @@ from Homeware import Homeware
 from Alert import Alert
 import alerts
 import power
-import general
 import scenes
 
 # Load env vars
@@ -91,7 +90,6 @@ def on_message(client, userdata, msg):
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
-      general.atHome(homeware, msg.topic, payload)
       power.powerManagment(homeware, msg.topic, payload)
       scenes.dim(homeware, msg.topic, payload)
       scenes.shower(homeware, alert, msg.topic, payload)

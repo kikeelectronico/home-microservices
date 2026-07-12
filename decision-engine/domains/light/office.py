@@ -8,7 +8,9 @@ class OfficeLightHandler:
             ((event.get("device_id") == "pressure001" and \
             event.get("param") == "occupancy") or \
             (event.get("device_id") == "0b97c3c8-cb02-4f6d-9e60-d5755b25b968_1" and \
-            event.get("param") == "occupancy"))
+            event.get("param") == "occupancy") or \
+            (event.get("device_id") == "switch_at_home" and \
+            event.get("param") == "on"))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         
@@ -44,5 +46,19 @@ class OfficeLightHandler:
                         "param": "on",
                         "value": True
                     })
+        elif event.get("device_id") == "switch_at_home":
+            if not event.get("value"):
+                actions.append({
+                    "type": "device_param_update",
+                    "device_id": "hue_9",
+                    "param": "on",
+                    "value": False
+                })
+                actions.append({
+                    "type": "device_param_update",
+                    "device_id": "hue_10",
+                    "param": "on",
+                    "value": False
+                })
 
         return actions

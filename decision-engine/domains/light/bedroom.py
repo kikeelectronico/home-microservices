@@ -8,6 +8,8 @@ class BedroomLightHandler:
             ((event.get("device_id") == "c2b38173-883e-4766-bcb5-0cce2dc0e00e" and \
             event.get("param") == "occupancy") or \
             (event.get("device_id") == "hue_sensor_12" and \
+            event.get("param") == "on") or \
+            (event.get("device_id") == "switch_at_home" and \
             event.get("param") == "on"))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
@@ -19,13 +21,13 @@ class BedroomLightHandler:
 
             if occupied:
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bedroom_rgb003"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bedroom_rgb003"
+                })
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bedroom_hue_6"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bedroom_hue_6"
+                })
                 
                 if context.get("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "brightness") < 40:
                     if context.get("scene_sensors_enable","enable"):
@@ -145,6 +147,15 @@ class BedroomLightHandler:
                 actions.append({
                     "type": "device_param_update",
                     "device_id": "rgb003",
+                    "param": "on",
+                    "value": False
+                })
+
+        elif event.get("device_id") == "switch_at_home":
+            if not event.get("value"):
+                actions.append({
+                    "type": "device_param_update",
+                    "device_id": "hue_sensor_12",
                     "param": "on",
                     "value": False
                 })
