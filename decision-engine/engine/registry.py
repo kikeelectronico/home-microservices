@@ -12,6 +12,7 @@ from domains.light.hallway import HallwayLightHandler
 from domains.light.livingroom_fairy_brightness import LivingroomFairyBrightneesLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
 from domains.light.livingroom_table_brightness import LivingroomTableBrightnessLightHandler
+from domains.light.livingroom_table_color import LivingroomTableColorLightHandler
 from domains.light.livingroom import LivingroomLightHandler
 from domains.light.office import OfficeLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
@@ -40,6 +41,7 @@ def build_handlers() -> List[Handler]:
         LivingroomFairyBrightneesLightHandler(),
         LivingroomPyramidLightHandler(),
         LivingroomTableBrightnessLightHandler(),
+        LivingroomTableColorLightHandler(),
         LivingroomLightHandler(),
         OfficeLightHandler(),
         BatteryNotificationMessageHandler(),
