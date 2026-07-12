@@ -15,6 +15,7 @@ from domains.light.livingroom_sofa import LivingroomSofaLightHandler
 from domains.light.livingroom_table_brightness import LivingroomTableBrightnessLightHandler
 from domains.light.livingroom_table_color import LivingroomTableColorLightHandler
 from domains.light.livingroom import LivingroomLightHandler
+from domains.light.office_brightness import OfficeBrightnessLightHandler
 from domains.light.office import OfficeLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
@@ -22,6 +23,7 @@ from domains.notification.voice.night_time import NightTimeVoiceNotificationHand
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
+from domains.scenes.awake import AwakeSceneHandler
 from domains.scenes.sensors import SensorsSceneHandler
 from domains.scenes.dim import DimSceneHandler
 from engine.engine import Handler
@@ -45,6 +47,7 @@ def build_handlers() -> List[Handler]:
         LivingroomTableBrightnessLightHandler(),
         LivingroomTableColorLightHandler(),
         LivingroomLightHandler(),
+        OfficeBrightnessLightHandler(),
         OfficeLightHandler(),
         BatteryNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
@@ -52,6 +55,7 @@ def build_handlers() -> List[Handler]:
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),
+        AwakeSceneHandler(),
         DimSceneHandler(),
         SensorsSceneHandler(),
     ]

@@ -72,7 +72,6 @@ def on_message(client, userdata, msg):
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
       lights.workbenchLight(homeware, msg.topic, payload)
-      lights.worktableLight(homeware, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 
