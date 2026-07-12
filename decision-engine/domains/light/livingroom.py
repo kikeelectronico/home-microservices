@@ -17,12 +17,6 @@ class LivingroomLightHandler:
         if event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9":
             occupied = event.get("value") == "OCCUPIED"
             if occupied:
-                actions.append({
-                        "type": "device_param_update",
-                        "device_id": "scene_sensors_enable",
-                        "param": "enable",
-                        "value": True
-                    })
                 if not context.get("scene_awake", "enable"):
                     actions.append({
                             "type": "cancel_task",
