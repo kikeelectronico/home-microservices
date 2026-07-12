@@ -17,6 +17,7 @@ from domains.light.livingroom_table_color import LivingroomTableColorLightHandle
 from domains.light.livingroom import LivingroomLightHandler
 from domains.light.office_brightness import OfficeBrightnessLightHandler
 from domains.light.office import OfficeLightHandler
+from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
@@ -49,6 +50,7 @@ def build_handlers() -> List[Handler]:
         LivingroomLightHandler(),
         OfficeBrightnessLightHandler(),
         OfficeLightHandler(),
+        WorkbenchLightHandler(),
         BatteryNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
