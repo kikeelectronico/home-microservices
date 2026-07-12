@@ -22,4 +22,5 @@ TOPICS = [
     "device/hue_11/brightness",
     "device/hue_11/color",
     "device/temp_switch/on",
+    "device/switch_at_home/on",
 ]
