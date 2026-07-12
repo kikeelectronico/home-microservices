@@ -21,13 +21,13 @@ class BedroomLightHandler:
 
             if occupied:
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bedroom_rgb003"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bedroom_rgb003"
+                })
                 actions.append({
-                        "type": "cancel_task",
-                        "task_id": "bedroom_hue_6"
-                    })
+                    "type": "cancel_task",
+                    "task_id": "bedroom_hue_6"
+                })
                 
                 if context.get("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "brightness") < 40:
                     if context.get("scene_sensors_enable","enable"):
