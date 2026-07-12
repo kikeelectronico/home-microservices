@@ -21,4 +21,5 @@ TOPICS = [
     "device/thermostat_bathroom/thermostatHumidityAmbient",
     "device/hue_11/brightness",
     "device/hue_11/color",
+    "device/temp_switch/on",
 ]
