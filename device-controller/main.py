@@ -71,7 +71,6 @@ def on_message(client, userdata, msg):
     # Exec the logic
     payload = functions.loadPayload(msg.payload)
     if payload is not None:
-      lights.sofaLight(homeware, msg.topic, payload)
       lights.workbenchLight(homeware, msg.topic, payload)
       lights.worktableLight(homeware, msg.topic, payload)
   except Exception as e:
