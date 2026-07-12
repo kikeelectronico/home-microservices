@@ -157,29 +157,6 @@ def powerAlert(homeware, alert, topic, payload):
         if power_alert_counter == 1:
           power_alert_counter = 0
 
-# Set sensors scene
-def sensors(homeware, alert, topic, payload):
-  pass
-  # if topic == "device/scene_sensors_enable/enable":
-  #   if not payload:
-  #     homeware.execute("rgb003", "on", False)
-  #     homeware.execute("hue_6", "on", False)
-  #     homeware.execute("hue_sensor_12", "on", False)
-
-# Set dim scene
-def astro_day(homeware, alert, topic, payload):
-  if topic == "device/scene_astro_day/enable":
-    if not payload:
-      homeware.execute("scene_dim", "enable", True)
-
-# Headphones related logic
-def headphones(homeware, alert, topic, payload):
-  if topic == "device/scene_headphones/enable":
-    if not homeware.get("ac_001", "currentFanSpeedSetting") == "Media":
-      if homeware.get("thermostat_livingroom", "thermostatMode") in ["cool", "fan-only"]:
-        if homeware.get("thermostat_livingroom", "thermostatTemperatureAmbient") > homeware.get("thermostat_livingroom", "thermostatTemperatureSetpoint"):
-          homeware.execute("ac_001", "currentFanSpeedSetting", "Alta" if payload else "Baja")
-
 def awake(homeware, alert, topic, payload):
   if topic == "device/scene_awake/enable":
     if payload:

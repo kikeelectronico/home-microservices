@@ -1,5 +1,8 @@
 from typing import List
+from domains.air.quality.bathroom import BathroomAirQualityHandler
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
+from domains.air.temperature.bedroom import BedroomAirTemperatureHandler
+from domains.air.temperature.livingroom import LivingroomAirTemperatureHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
@@ -8,7 +11,9 @@ from domains.light.hallway_brightness import HallwayBrightnessLightHandler
 from domains.light.hallway import HallwayLightHandler
 from domains.light.livingroom_fairy_brightness import LivingroomFairyBrightneesLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
+from domains.light.livingroom_sofa import LivingroomSofaLightHandler
 from domains.light.livingroom_table_brightness import LivingroomTableBrightnessLightHandler
+from domains.light.livingroom_table_color import LivingroomTableColorLightHandler
 from domains.light.livingroom import LivingroomLightHandler
 from domains.light.office import OfficeLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
@@ -18,12 +23,16 @@ from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
 from domains.scenes.sensors import SensorsSceneHandler
+from domains.scenes.dim import DimSceneHandler
 from engine.engine import Handler
 
 
 def build_handlers() -> List[Handler]:
     return [
+        BathroomAirQualityHandler(),
         LivingroomAirQualityHandler(),
+        BedroomAirTemperatureHandler(),
+        LivingroomAirTemperatureHandler(),
         BathroomMirrorLightHandler(),
         BathroomLightHandler(),
         BedroomBrightnessLightHandler(),
@@ -32,7 +41,9 @@ def build_handlers() -> List[Handler]:
         HallwayLightHandler(),
         LivingroomFairyBrightneesLightHandler(),
         LivingroomPyramidLightHandler(),
+        LivingroomSofaLightHandler(),
         LivingroomTableBrightnessLightHandler(),
+        LivingroomTableColorLightHandler(),
         LivingroomLightHandler(),
         OfficeLightHandler(),
         BatteryNotificationMessageHandler(),
@@ -41,5 +52,6 @@ def build_handlers() -> List[Handler]:
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),
+        DimSceneHandler(),
         SensorsSceneHandler(),
     ]

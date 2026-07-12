@@ -5,10 +5,10 @@ from shared.context import Context
 class LivingroomAirQualityHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
-            ( event.get("device_id") == "scene_headphones" and \
+            (( event.get("device_id") == "scene_headphones" and \
             event.get("param") == "enable" ) or \
             ( event.get("device_id") == "9260ed68-0542-4248-9f23-babfae1db2a1_1" and \
-            event.get("param") == "occupancy" )
+            event.get("param") == "occupancy" ))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         
