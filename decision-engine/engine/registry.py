@@ -23,6 +23,7 @@ from domains.notification.voice.night_time import NightTimeVoiceNotificationHand
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
+from domains.scenes.awake import AwakeSceneHandler
 from domains.scenes.sensors import SensorsSceneHandler
 from domains.scenes.dim import DimSceneHandler
 from engine.engine import Handler
@@ -54,6 +55,7 @@ def build_handlers() -> List[Handler]:
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),
+        AwakeSceneHandler(),
         DimSceneHandler(),
         SensorsSceneHandler(),
     ]
