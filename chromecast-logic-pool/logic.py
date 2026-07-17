@@ -20,6 +20,7 @@ def playingLights(homeware):
 def notPlayingLights(homeware):
   global prev_player_playing_state
   if prev_player_playing_state:
-    if homeware.get("hue_17","on"):
-      homeware.execute("hue_17", "brightness", prev_status["hue_17"]["brightness"])
+    if "hue_17" in prev_status:
+      if homeware.get("hue_17","on"):
+        homeware.execute("hue_17", "brightness", prev_status["hue_17"]["brightness"])
     prev_player_playing_state = False
