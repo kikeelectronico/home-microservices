@@ -81,12 +81,12 @@ if __name__ == "__main__":
             raise Exception("Chromecast not found")
       device = chromecasts[0]
       device.wait()
+      device_controller = device.media_controller
+      device_controller.block_until_active(5)
       while True:
         if not device.socket_client.is_connected:
           raise Exception("Chromecast disconnected")
-        if not device.app_display_name == None:
-          device_controller = device.media_controller
-          device_controller.block_until_active(5)
+        if device.app_display_name is not None:
           if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
             logic.notPlayingLights(homeware)
           if device_controller.status.player_state == "PLAYING":
@@ -99,5 +99,9 @@ if __name__ == "__main__":
           
         time.sleep(5)
     except Exception:
-        logging.exception("Chromecast connection lost. Reconnecting in 10s")
+        try:
+            device.disconnect()
+        except Exception:
+            logging.info("Fail to force disconnect.")
+        logging.info("Chromecast connection lost. Reconnecting in 10s.")
         time.sleep(10)
