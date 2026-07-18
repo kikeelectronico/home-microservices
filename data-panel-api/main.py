@@ -140,7 +140,7 @@ internet = Internet()
 devices_ids = [
   "current001",
   "thermostat_livingroom",
-  "hue_8",
+  "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
   "ac_001",
   "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
   "temperature_001",

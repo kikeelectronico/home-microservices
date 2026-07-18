@@ -104,7 +104,7 @@ def powerManagment(homeware, topic, payload):
         shower_state = 0
         rule_14 = not homeware.get("switch_at_home", "on")
         heat_pump_current_status = False
-        bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "hue_8", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14) and (not heat_pump_current_status)
+        bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14) and (not heat_pump_current_status)
         bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1") and (not heat_pump_current_status)
         # heat_pump = True
         water_heater = True
@@ -117,10 +117,10 @@ def powerManagment(homeware, topic, payload):
     # Send new values to Homeware
     
     # Check power budget for bedroom radiator
-    bedroom_radiator_current_status = homeware.get("hue_8", "on")
+    bedroom_radiator_current_status = homeware.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on")
     if bedroom_radiator and (not bedroom_radiator_current_status) and (homeware.get("current001", "brightness") > 70):
       bedroom_radiator = False
-    homeware.execute("hue_8","on",bedroom_radiator)
+    homeware.execute("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1","on",bedroom_radiator)
     
     # Check power budget for bathroom radiator
     bathroom_radiator_current_status = homeware.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on")

@@ -13,7 +13,7 @@ export default function Livingroom(props) {
 
     const thermostatColor = () => {
         var mode = props.home.status.thermostat_livingroom.thermostatMode
-        if (mode === "heat" && props.home.status.hue_8.on) return "255,0,0"
+        if (mode === "heat" && props.home.status["fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"].on) return "255,0,0"
         else if (mode === "cool" && props.home.status.ac_001.on) return "0,0,255"
         else if (mode === "fan-only" && props.home.status.ac_001.on) return "255,255,255"
         else return "0,0,0"
