@@ -146,7 +146,7 @@ devices_ids = [
   "temperature_001",
   "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
   "thermostat_bathroom",
-  "hue_12",
+  "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
   "scene_ducha",
   "thermostat_dormitorio",
   "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",

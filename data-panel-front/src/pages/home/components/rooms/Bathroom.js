@@ -13,7 +13,7 @@ export default function Bathroom(props) {
 
     const thermostatColor = () => {
         var mode = props.home.status.thermostat_bathroom.thermostatMode
-        if (mode === "heat" && props.home.status.hue_12.on) return "255,0,0"
+        if (mode === "heat" && props.home.status["9339195d-75c3-4fc1-aeac-03f8af899e40_1"].on) return "255,0,0"
         else return "0,0,0"
     }
 
