@@ -96,7 +96,7 @@ class BedroomLightHandler:
                         "task_id": "bedroom_fan",
                         "delta": 60,
                         "target": {
-                            "device_id": "hue_8",
+                            "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
                             "param": "on",
                             "value": False
                         },
@@ -114,7 +114,7 @@ class BedroomLightHandler:
                                 "value": True
                             },
                             {
-                                "device_id": "hue_8",
+                                "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
                                 "param": "on",
                                 "value": True
                             }
