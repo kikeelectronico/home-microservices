@@ -97,7 +97,7 @@ def powerManagment(homeware, topic, payload):
               shower_state = 2
         elif shower_state == 2: # If winter: heat up the bathroom air and keep the livingroom and water tank at temperature
           bedroom_radiator = False
-          bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "hue_12")
+          bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1")
           # heat_pump = True
           water_heater = not bathroom_radiator
       else:
@@ -105,7 +105,7 @@ def powerManagment(homeware, topic, payload):
         rule_14 = not homeware.get("switch_at_home", "on")
         heat_pump_current_status = False
         bedroom_radiator = shouldHeat(homeware, "thermostat_dormitorio", "hue_8", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14) and (not heat_pump_current_status)
-        bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "hue_12") and (not heat_pump_current_status)
+        bathroom_radiator = shouldHeat(homeware, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1") and (not heat_pump_current_status)
         # heat_pump = True
         water_heater = True
     else:
@@ -123,10 +123,10 @@ def powerManagment(homeware, topic, payload):
     homeware.execute("hue_8","on",bedroom_radiator)
     
     # Check power budget for bathroom radiator
-    bathroom_radiator_current_status = homeware.get("hue_12", "on")
+    bathroom_radiator_current_status = homeware.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on")
     if bathroom_radiator and (not bathroom_radiator_current_status) and (homeware.get("current001", "brightness") > 40):
       bathroom_radiator = False
-    homeware.execute("hue_12","on",bathroom_radiator)
+    homeware.execute("9339195d-75c3-4fc1-aeac-03f8af899e40_1","on",bathroom_radiator)
 
     # Check power budget for water heater
     water_heater_current_status = homeware.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on")

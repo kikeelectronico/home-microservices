@@ -24,6 +24,7 @@ TOPICS = [
 	"device/b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
 	"device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1",
 	"device/df31ac85-be3f-48db-ab5e-483001f3ad27_1",
+	"device/9339195d-75c3-4fc1-aeac-03f8af899e40_1",
 ]
 SERVICE = "ikea-outbound-" + ENV
 
