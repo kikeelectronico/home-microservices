@@ -23,7 +23,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-SERVICE = "timer-" + ENV
+SERVICE = "meteo-inflow-" + ENV
 REQUEST_TIMEOUT = 10
 
 # Declare variables
