@@ -82,20 +82,18 @@ if __name__ == "__main__":
       device = chromecasts[0]
       device.wait()
       device_controller = device.media_controller
-      device_controller.block_until_active(5)
-      while True:
-        if not device.socket_client.is_connected:
-          raise Exception("Chromecast disconnected")
-        if device.app_display_name is not None:
-          if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
-            logic.notPlayingLights(homeware)
-          if device_controller.status.player_state == "PLAYING":
-            logic.playingLights(homeware)
+      # device_controller.block_until_active(5)
+      while device.socket_client.is_connected:
+        # if device.app_display_name is not None:
+        if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
+          logic.notPlayingLights(homeware)
+        if device_controller.status.player_state == "PLAYING":
+          logic.playingLights(homeware)
 
-        # Send the heartbeat
-        if time.time() - last_heartbeat_timestamp > 10:
-          mqtt_client.publish("heartbeats", SERVICE)
-          last_heartbeat_timestamp = time.time()
+          # Send the heartbeat
+          if time.time() - last_heartbeat_timestamp > 10:
+            mqtt_client.publish("heartbeats", SERVICE)
+            last_heartbeat_timestamp = time.time()
           
         time.sleep(5)
     except Exception:
@@ -103,5 +101,10 @@ if __name__ == "__main__":
             device.disconnect()
         except Exception:
             logging.info("Fail to force disconnect.")
+        try:
+            browser.stop_discovery()
+        except Exception:
+            logging.info("Fail to stop discovery.")
+
         logging.info("Chromecast connection lost. Reconnecting in 10s.")
         time.sleep(10)
