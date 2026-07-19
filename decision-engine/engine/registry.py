@@ -23,12 +23,14 @@ from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
+from domains.outlet.office import OfficeOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
 from domains.scenes.awake import AwakeSceneHandler
-from domains.scenes.sensors import SensorsSceneHandler
 from domains.scenes.dim import DimSceneHandler
+from domains.scenes.sensors import SensorsSceneHandler
+from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
 
 from engine.engine import Handler
@@ -60,11 +62,13 @@ def build_handlers() -> List[Handler]:
         BatteryNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
+        OfficeOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),
         AwakeSceneHandler(),
         DimSceneHandler(),
         SensorsSceneHandler(),
+        ShowerSceneHandler(),
         PrepareHomeSwitchHandler(),
     ]
