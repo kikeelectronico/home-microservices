@@ -157,9 +157,3 @@ def powerAlert(homeware, alert, topic, payload):
         if power_alert_counter == 1:
           power_alert_counter = 0
 
-def awake(homeware, alert, topic, payload):
-  if topic == "device/scene_awake/enable":
-    if payload:
-      pass
-    else:
-      homeware.execute("hue_12", "on", False)
