@@ -29,6 +29,7 @@ from domains.presence.livingroom import LivingroomPresenceHandler
 from domains.scenes.awake import AwakeSceneHandler
 from domains.scenes.sensors import SensorsSceneHandler
 from domains.scenes.dim import DimSceneHandler
+from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
 
 from engine.engine import Handler
@@ -65,6 +66,7 @@ def build_handlers() -> List[Handler]:
         LivingroomPresenceHandler(),
         AwakeSceneHandler(),
         DimSceneHandler(),
+        ShowerSceneHandler(),
         SensorsSceneHandler(),
         PrepareHomeSwitchHandler(),
     ]

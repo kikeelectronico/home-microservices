@@ -2,7 +2,7 @@ from typing import List
 from shared.context import Context
 
 
-class DimSceneHandler:
+class ShowerSceneHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
             event.get("device_id") == "scene_awake" and \
