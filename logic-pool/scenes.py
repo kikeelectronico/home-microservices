@@ -160,8 +160,6 @@ def powerAlert(homeware, alert, topic, payload):
 def awake(homeware, alert, topic, payload):
   if topic == "device/scene_awake/enable":
     if payload:
-      homeware.execute("rgb001", "on", True)
-      homeware.execute("hue_11", "on", True)
       homeware.execute("hue_15", "on", True)
       homeware.execute("hue_16", "on", True)
       if homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
