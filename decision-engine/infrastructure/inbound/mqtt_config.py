@@ -23,4 +23,5 @@ TOPICS = [
     "device/hue_11/color",
     "device/temp_switch/on",
     "device/switch_at_home/on",
+    "device/scene_awake/enable",
 ]
