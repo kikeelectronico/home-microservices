@@ -9,7 +9,10 @@ class BedroomAirTemperatureHandler:
             event.get("param") == "on" and \
             event.get ("value")) or \
             (event.get("device_id") == "switch_at_home" and \
-            event.get("param") == "on"))
+            event.get("param") == "on") or \
+            (event.get("device_id") == "scene_awake" and \
+            event.get("param") == "enable" and \
+            not event.get("value")))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         
@@ -52,6 +55,18 @@ class BedroomAirTemperatureHandler:
                     "param": "thermostatMode",
                     "value": "off"
                 })
-
+        elif event.get("device_id") == "scene_awake":
+            actions.append({
+                "type": "device_param_update",
+                "device_id": "thermostat_dormitorio",
+                "param": "thermostatTemperatureSetpoint",
+                "value": 18
+            })
+            actions.append({
+                "type": "device_param_update",
+                "device_id": "thermostat_dormitorio",
+                "param": "thermostatMode",
+                "value": "heat" if context.get("scene_winter", "enable") else "off"
+            })
 
         return actions
