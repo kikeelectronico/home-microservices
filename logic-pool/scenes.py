@@ -167,7 +167,6 @@ def awake(homeware, alert, topic, payload):
       if homeware.get("pressure001", "occupancy") == "UNOCCUPIED":
         homeware.execute("hue_1", "on", True)
     else:
-      homeware.execute("scene_ducha", "enable", False)
       homeware.execute("thermostat_livingroom", "thermostatMode", "off")
       homeware.execute("thermostat_dormitorio", "thermostatMode", "heat" if homeware.get("scene_winter", "enable") else "off")
       homeware.execute("thermostat_dormitorio", "thermostatTemperatureSetpoint", "18")
