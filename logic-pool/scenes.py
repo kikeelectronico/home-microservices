@@ -169,5 +169,4 @@ def awake(homeware, alert, topic, payload):
     else:
       homeware.execute("thermostat_dormitorio", "thermostatMode", "heat" if homeware.get("scene_winter", "enable") else "off")
       homeware.execute("thermostat_dormitorio", "thermostatTemperatureSetpoint", "18")
-      homeware.execute("thermostat_bathroom", "thermostatMode", "off")
       homeware.execute("hue_12", "on", False)
