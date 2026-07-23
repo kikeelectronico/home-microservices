@@ -81,7 +81,7 @@ export default function Outdoors(props) {
                             <div className="outdoorCardRow" key={index}>
                                 <div className="outdoorCardWeatherRow">
                                     <div className={"outdoorCardAlertContainer " +  getStyle()}>
-                                        {day_map[warning.start_offset] + " - " + (warning.is_active ? "Activa" : "")}
+                                        {day_map[warning.start_offset] + (warning.is_active ? " - Activa" : "")}
                                         <br/>
                                         {warning.title + " " + warning.description}
                                     </div>
