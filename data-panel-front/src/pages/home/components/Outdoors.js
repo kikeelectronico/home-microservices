@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./outdoors.css"
 
+const day_map = ["Hoy", "Mañana", "Pasadomañana"]
+
 export default function Outdoors(props) {
 
     const [time, setTime] = useState("11:20");
@@ -79,7 +81,9 @@ export default function Outdoors(props) {
                             <div className="outdoorCardRow" key={index}>
                                 <div className="outdoorCardWeatherRow">
                                     <div className={"outdoorCardAlertContainer " +  getStyle()}>
-                                        {"(" + (warning.is_active ? "A" : warning.start_offset) + ") " + warning.title + " " + warning.description}
+                                        {day_map[warning.start_offset] + " - " + (warning.is_active ? "Activa" : "")}
+                                        <br/>
+                                        {warning.title + " " + warning.description}
                                     </div>
                                 </div>
                             </div>
