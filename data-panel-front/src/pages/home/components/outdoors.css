@@ -93,19 +93,3 @@
     color: white;
     font-size: 25px;
 }
-
-.alertsNormal {
-    color: lightgreen;
-}
-
-.alertsLow {
-    color: yellow;
-}
-
-.alertsMiddle {
-    color: orange;
-}
-
-.alertsHigh {
-    color: red;
-}
