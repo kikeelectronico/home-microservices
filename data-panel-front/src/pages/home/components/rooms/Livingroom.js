@@ -19,6 +19,12 @@ export default function Livingroom(props) {
         else return "0,0,0"
     }
 
+    const pm25AlertColor = (level) => {
+        if (level > 85) return "alertsHigh"
+        else if (level > 15) return "alertsMiddle"
+        else return ""
+    }
+
   return (
     <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")} style={{boxShadow: "0 0.1rem 1rem rgba(" + thermostatColor() + ", 0.8)"}}>
         <div className="homeCardTitle">
@@ -78,15 +84,10 @@ export default function Livingroom(props) {
         }
         {
             props.home.status["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.currentSensorStateData?.map(sensor => {
-               return sensor.name === "PM2.5" && sensor.rawValue > 15 ?
+               return sensor.name === "PM2.5" && sensor.rawValue > 5 ?
                     <div className="homeCardRow" key={sensor.name}>
-                        <div className={"roomCardAlertContainer " + (props.home.status["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.online ? "deviceOnline" : "deviceOffline")}>
-                            {
-                                sensor.rawValue < 85 ?
-                                    <>PM2.5 moderado</>
-                                :
-                                    <>PM2.5 alto</>
-                            }
+                        <div className={"roomCardAlertContainer " + (sensor.rawValue  ? "deviceOnline" : "deviceOffline")  + " " + pm25AlertColor(sensor.rawValue)}>
+                            PM2.5: {sensor.rawValue} ppm
                         </div>
                     </div>
                 : <></>
