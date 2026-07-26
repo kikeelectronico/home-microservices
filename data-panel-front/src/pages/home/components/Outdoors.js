@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./outdoors.css"
 
-const day_map = ["Hoy", "Mañana", "Pasadomañana"]
+const day_map = ["Hoy", "Mañana", "Pasado mañana"]
 
 export default function Outdoors(props) {
 
