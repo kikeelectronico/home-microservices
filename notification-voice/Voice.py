@@ -1,7 +1,6 @@
 from google.cloud import texttospeech
 import threading
 import os
-import json
 
 DEVICES_IPS = {
   "livingroom": "192.168.10.15",
@@ -24,7 +23,7 @@ class Voice:
     )
     self.homeware = homeware
 
-  # Genereate mp3 file if needed
+  # Generate mp3 file if needed
   def getFile(self, text):
     # Create file name
     file_name = text

@@ -5,7 +5,7 @@ import functions
 import logging
 
 # Load env vars
-if os.environ.get("MQTT_PASS", "pass") == "pass":
+if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
   load_dotenv(dotenv_path="../.env")
 
@@ -46,6 +46,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -80,7 +84,7 @@ if __name__ == "__main__":
       mqtt_client.publish("voice-alert/text", "Hue bridge no responde")
       mqtt_client.publish("message-alerts", "Hue bridge no responde")
       time.sleep(BLOCK_TIME)
-    # Send heartbeart
+    # Send heartbeat
     mqtt_client.publish("heartbeats", SERVICE)
     # Wait until next iteration
     time.sleep(SLEEP_TIME)

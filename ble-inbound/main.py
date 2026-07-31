@@ -55,7 +55,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
         logging.warning("Reconnect failed: %s", exc)
         time.sleep(5)
 
-# Callback for BLE sensots
+# Callback for BLE sensors
 class MyDelegate(btle.DefaultDelegate):
     def __init__(self, device_id):
         self.device_id = device_id
@@ -65,7 +65,7 @@ class MyDelegate(btle.DefaultDelegate):
         data = bytearray(data)
         if data[0] == 1:
             if len(data) == 5:
-                # Update batery
+                # Update battery
                 homeware.execute(self.device_id,"capacityRemaining",[{"rawValue": data[1], "unit":"PERCENTAGE"}])
                 if data[1] == 100: homeware.execute(self.device_id,"descriptiveCapacityRemaining","FULL")
                 elif data[1] >= 70: homeware.execute(self.device_id,"descriptiveCapacityRemaining","HIGH")
@@ -116,7 +116,7 @@ def getSensors():
         setup_data = b"\x01\x00"
         cHandle = tx_char.valHandle
         ble_link.writeCharacteristic(cHandle + 1, setup_data)
-        # Get API RX the characteristic
+        # Get the API RX characteristic
         rx_uuid = btle.UUID(API_RX_CHARACTERISTIC_UUID)
         rx_char = ble_service.getCharacteristics(rx_uuid)[0]
         # Request temperature and humidity
@@ -151,6 +151,11 @@ def verifyPresence():
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
+
   # Check env vars
   def report(message):
     print(message)

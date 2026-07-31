@@ -1,6 +1,7 @@
 import requests
-from requests.exceptions import ConnectionError
 import logging
+
+REQUEST_TIMEOUT = 10
 
 # Test both the API and the db getting the status of a device
 def homewareTest(api_url, api_key):
@@ -10,14 +11,14 @@ def homewareTest(api_url, api_key):
         "Authorization": "bearer " + api_key
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
     if response.status_code == 200:
       status = response.json()
       return "enable" in status
     else:
-      logging.warning("Homeware response with " + response.status_code + " code")
+      logging.warning("Homeware response with " + str(response.status_code) + " code")
       return False
-  except ConnectionError:
+  except requests.ConnectionError:
     logging.warning("Unable to connect to Homeware")
     return False
   
@@ -25,13 +26,13 @@ def homewareTest(api_url, api_key):
 def hueTest(api_url, api_token):     
   try:
     url = "http://" + api_url + "/api/" +	api_token + "/lights"
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
                 
     if response.status_code == 200:
       return True
     else:
-      logging.warning("Hue Bridge response with " + response.status_code + " code")
+      logging.warning("Hue Bridge response with " + str(response.status_code) + " code")
       return False
-  except ConnectionError:
+  except requests.ConnectionError:
     logging.warning("Unable to connect to Hue Bridge")
     return False

@@ -16,8 +16,6 @@ MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
 MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
 HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
 HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-WHEATHER_API_KEY = os.environ.get("WHEATHER_API_KEY", "no_set")
-WHEATHER_QUERY = os.environ.get("WHEATHER_QUERY", "no_set")
 ENV = os.environ.get("ENV", "dev")
 
 # Define constants
@@ -83,6 +81,10 @@ def on_message(client, userdata, msg):
             mqtt_client.publish("tasks/ack", json.dumps(new_task))
 
 def main():
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
@@ -92,8 +94,6 @@ def main():
   if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
   if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
   if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   
   logging.info("Starting " + SERVICE)
 
