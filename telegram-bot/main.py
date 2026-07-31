@@ -1,5 +1,6 @@
 import telebot
 import os
+import logging
 from google.cloud import storage
 
 import functions
@@ -32,15 +33,15 @@ def send_welcome(message):
         if 'test' in message.text:
             # Test an authenticated command
             response = functions.test()
-            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode= 'Markdown')
+            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
         elif 'home' in message.text:
             # Test Homeware API and db
             response = functions.getHomewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY)
-            bot.send_message(ENRIQUE_CHAT_ID, "Corriendo" if response else "Caido", parse_mode= 'Markdown')
+            bot.send_message(ENRIQUE_CHAT_ID, "Corriendo" if response else "Caido", parse_mode='Markdown')
         elif 'directions' in message.text:
             # Get the public IP
             response = functions.getPublicIP(GET_IP_ENDPOINT)
-            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode= 'Markdown')
+            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
     else:
         bot.reply_to(message, "I am sorry but I don't know you.")
 
@@ -50,15 +51,20 @@ def echo_message(message):
     if str(message.from_user.id) == ENRIQUE_CHAT_ID:
         # Download the YouTube video once the URL is given
         if "youtube.com" in message.text or "youtu.be" in message.text:
-            bot.send_message(ENRIQUE_CHAT_ID, "Descargando...", parse_mode= 'Markdown')
+            bot.send_message(ENRIQUE_CHAT_ID, "Descargando...", parse_mode='Markdown')
             url = message.text
             urls = functions.downloadYouTubeVideo(url, storage_client, BUCKET_NAME)
-            bot.send_message(ENRIQUE_CHAT_ID, "Lo tenemos", parse_mode= 'Markdown')
+            bot.send_message(ENRIQUE_CHAT_ID, "Lo tenemos", parse_mode='Markdown')
             for url in urls:
-                bot.send_message(ENRIQUE_CHAT_ID, url, parse_mode= 'Markdown')
+                bot.send_message(ENRIQUE_CHAT_ID, url, parse_mode='Markdown')
 
 # Main entry point
 if __name__ == "__main__":
+    logging.basicConfig(
+      level=logging.INFO,
+      format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+    )
+
     # Check env vars
     if BOT_TOKEN == "no_set":
       print("BOT_TOKEN env vars no set")
