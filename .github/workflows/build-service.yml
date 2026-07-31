@@ -55,7 +55,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Tag rollback image
         run: |
-          docker buildx imagetools create \ -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback \ ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
+          docker buildx imagetools create -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
   
   build_and_push:
     name: Build and push ${{ inputs.service }}
