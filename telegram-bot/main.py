@@ -66,23 +66,14 @@ if __name__ == "__main__":
     )
 
     # Check env vars
-    if BOT_TOKEN == "no_set":
-      print("BOT_TOKEN env vars no set")
-      exit()
-    if ENRIQUE_CHAT_ID == "no_set":
-      print("ENRIQUE_CHAT_ID env vars no set")
-      exit()
-    if HOMEWARE_API_KEY == "no_set":
-      print("HOMEWARE_API_KEY env vars no set")
-      exit()
-    if HOMEWARE_API_URL == "no_set":
-      print("HOMEWARE_API_URL env vars no set")
-      exit()
-    if GET_IP_ENDPOINT == "no_set":
-      print("GET_IP_ENDPOINT env vars no set")
-      exit()
-    if BUCKET_NAME == "no_set":
-      print("BUCKET_NAME env vars no set")
-      exit()
+    def report(message):
+        print(message)
+        exit()
+    if BOT_TOKEN == "no_set": report("BOT_TOKEN env vars no set")
+    if ENRIQUE_CHAT_ID == "no_set": report("ENRIQUE_CHAT_ID env vars no set")
+    if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
+    if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
+    if GET_IP_ENDPOINT == "no_set": report("GET_IP_ENDPOINT env vars no set")
+    if BUCKET_NAME == "no_set": report("BUCKET_NAME env vars no set")
     # Main loop
     bot.infinity_polling()
