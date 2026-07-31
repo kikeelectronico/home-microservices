@@ -22,6 +22,7 @@ ENV = os.environ.get("ENV", "dev")
 # Define constants
 MQTT_PORT = 1883
 SLEEP_TIME = 10
+REQUEST_TIMEOUT = 10
 SERVICE = "dns-updater-" + ENV
 
 # Declare variables
@@ -48,6 +49,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
         time.sleep(5)
 
 def main():
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   global last_ip
   # Check env vars
   def report(message):
@@ -72,7 +77,7 @@ def main():
   # Main loop
   while True:
     # Get current public IP
-    ip = requests.get(GET_IP_ENDPOINT).text
+    ip = requests.get(GET_IP_ENDPOINT, timeout=REQUEST_TIMEOUT).text
     # Verify if the API has changed
     if not ip == last_ip and len(ip.split(".")) == 4:
       # Homeware
@@ -83,7 +88,7 @@ def main():
         'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
         'Content-Type': 'application/json'
       }
-      response = requests.request("PATCH", url, headers=headers, data=payload).json()
+      response = requests.request("PATCH", url, headers=headers, data=payload, timeout=REQUEST_TIMEOUT).json()
       # Verify the response from Cloudflare
       if response["success"]:
         logging.info("IP de Homeware actualizada")
@@ -98,7 +103,7 @@ def main():
         'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
         'Content-Type': 'application/json'
       }
-      response = requests.request("PATCH", url, headers=headers, data=payload).json()
+      response = requests.request("PATCH", url, headers=headers, data=payload, timeout=REQUEST_TIMEOUT).json()
       # Verify the response from Cloudflare
       if response["success"]:
         logging.info("IP de PB actualizada")
