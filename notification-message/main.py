@@ -31,8 +31,8 @@ bot = telebot.TeleBot(token=BOT_TOKEN)
 
 # Suscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
-    for topic in TOPICS:
-        client.subscribe(topic, qos=1)
+  for topic in TOPICS:
+    client.subscribe(topic, qos=1)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -50,7 +50,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
   # Send the message to the Telegram API
-  payload = msg.payload.decode('utf-8').replace("\'", "\"")
+  payload = msg.payload.decode('utf-8')
   bot.send_message(ENRIQUE_CHAT_ID, payload)
 	
 # Main entry point
