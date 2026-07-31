@@ -15,7 +15,7 @@ def homewareTest(api_url, api_key):
       status = response.json()
       return "enable" in status
     else:
-      logging.warning("Homeware response with " + response.status_code + " code")
+      logging.warning("Homeware response with " + str(response.status_code) + " code")
       return False
   except ConnectionError:
     logging.warning("Unable to connect to Homeware")
@@ -30,7 +30,7 @@ def hueTest(api_url, api_token):
     if response.status_code == 200:
       return True
     else:
-      logging.warning("Hue Bridge response with " + response.status_code + " code")
+      logging.warning("Hue Bridge response with " + str(response.status_code) + " code")
       return False
   except ConnectionError:
     logging.warning("Unable to connect to Hue Bridge")
