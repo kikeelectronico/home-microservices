@@ -40,6 +40,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Main entry point
 if __name__ == "__main__":
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
