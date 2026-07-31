@@ -1,5 +1,4 @@
 import requests
-from requests.exceptions import ConnectionError
 import logging
 
 # Test both the API and the db getting the status of a device
@@ -17,7 +16,7 @@ def homewareTest(api_url, api_key):
     else:
       logging.warning("Homeware response with " + str(response.status_code) + " code")
       return False
-  except ConnectionError:
+  except requests.ConnectionError:
     logging.warning("Unable to connect to Homeware")
     return False
   
@@ -32,6 +31,6 @@ def hueTest(api_url, api_token):
     else:
       logging.warning("Hue Bridge response with " + str(response.status_code) + " code")
       return False
-  except ConnectionError:
+  except requests.ConnectionError:
     logging.warning("Unable to connect to Hue Bridge")
     return False
