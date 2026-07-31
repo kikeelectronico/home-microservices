@@ -54,11 +54,11 @@ def on_message(client, userdata, msg):
   if msg.topic == "voice-alert/text":
     # Send the message to the Smart Speakers
     if homeware.get("scene_awake", "enable"):
-      payload = msg.payload.decode('utf-8').replace("\'", "\"")
+      payload = msg.payload.decode('utf-8')
       voice.getAndPlay(payload)
   elif msg.topic == "notificacion/voice/alert":
     # Send the message to the Smart Speakers
-    payload = msg.payload.decode('utf-8').replace("\'", "\"")
+    payload = msg.payload.decode('utf-8')
     voice.getAndPlay(payload)
   elif msg.topic == "voice-alert/speakers":
     voice.setSpeakers(msg.payload.decode('utf-8'))
