@@ -83,6 +83,10 @@ def on_message(client, userdata, msg):
             mqtt_client.publish("tasks/ack", json.dumps(new_task))
 
 def main():
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
   # Check env vars
   def report(message):
     print(message)
