@@ -80,7 +80,7 @@ if __name__ == "__main__":
       mqtt_client.publish("voice-alert/text", "Hue bridge no responde")
       mqtt_client.publish("message-alerts", "Hue bridge no responde")
       time.sleep(BLOCK_TIME)
-    # Send heartbeart
+    # Send heartbeat
     mqtt_client.publish("heartbeats", SERVICE)
     # Wait until next iteration
     time.sleep(SLEEP_TIME)
