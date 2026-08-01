@@ -10,28 +10,6 @@ initial_bathroom_humidity = 0
 shower_informed = False
 shower_initiated = False
 
-# Set dim scene
-def dim(homeware, topic, payload):
-  if topic == "device/scene_dim/enable":
-    if payload:
-      # Adjust bathroom lights
-      devices_ids = ["hue_2","hue_3"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", {"temperatureK": 3000})
-        homeware.execute(device_id, "brightness", 20)
-      if homeware.get("light001", "on"):
-        homeware.execute("hue_sensor_2", "on", True)
-        homeware.execute("light001", "on", False)
-    else:
-      # Adjust bathroom lights
-      devices_ids = ["hue_2","hue_3"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", {"temperatureK": 5000})
-        homeware.execute(device_id, "brightness", 80)
-      if homeware.get("hue_sensor_2", "on"):
-        homeware.execute("light001", "on", True)
-        homeware.execute("hue_sensor_2", "on", False)
-
 # Set the shower scene
 def shower(homeware, alert, topic, payload):
   global waiting_for_shower
