@@ -14,10 +14,6 @@ shower_initiated = False
 def dim(homeware, topic, payload):
   if topic == "device/scene_dim/enable":
     if payload:
-      # Adjust bedroom lights
-      if homeware.get("hue_6", "on"):
-        homeware.execute("rgb003", "on", True)
-        homeware.execute("hue_6", "on", False)
       # Adjust bathroom lights
       devices_ids = ["hue_2","hue_3"]
       for device_id in devices_ids:
@@ -39,10 +35,6 @@ def dim(homeware, topic, payload):
       for device_id in devices_ids:
         homeware.execute(device_id, "color", color)
     else:
-      # Adjust bedroom lights
-      if homeware.get("rgb003", "on"):
-        homeware.execute("hue_6", "on", True)
-        homeware.execute("rgb003", "on", False)
       # Adjust bathroom lights
       devices_ids = ["hue_2","hue_3"]
       for device_id in devices_ids:
