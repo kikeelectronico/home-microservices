@@ -19,14 +19,12 @@ class HallwayBrightnessLightHandler:
                 new_hallway_brightness = int((int(event.get("value")) * 1.4) + 20)
                 
                 if not context.get("hue_7", "brightness") == new_hallway_brightness:
-                    actions =  [
-                        {
-                            "type": "device_param_update",
-                            "device_id": "hue_7",
-                            "param": "brightness",
-                            "value": new_hallway_brightness
-                        }
-                    ]
+                    actions.append({
+                        "type": "device_param_update",
+                        "device_id": "hue_7",
+                        "param": "brightness",
+                        "value": new_hallway_brightness
+                    })
 
         elif event.get("device_id") == "scene_dim":
             actions.append({
