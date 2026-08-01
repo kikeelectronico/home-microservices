@@ -22,10 +22,6 @@ def dim(homeware, topic, payload):
       if homeware.get("light001", "on"):
         homeware.execute("hue_sensor_2", "on", True)
         homeware.execute("light001", "on", False)
-      # Adjust hall light
-      devices_ids = ["hue_7"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "brightness", 30) 
     else:
       # Adjust bathroom lights
       devices_ids = ["hue_2","hue_3"]
@@ -35,10 +31,6 @@ def dim(homeware, topic, payload):
       if homeware.get("hue_sensor_2", "on"):
         homeware.execute("light001", "on", True)
         homeware.execute("hue_sensor_2", "on", False)
-      # Adjust hall light      
-      devices_ids = ["hue_7"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "brightness", 100)
 
 # Set the shower scene
 def shower(homeware, alert, topic, payload):
