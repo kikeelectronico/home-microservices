@@ -26,14 +26,6 @@ def dim(homeware, topic, payload):
       devices_ids = ["hue_7"]
       for device_id in devices_ids:
         homeware.execute(device_id, "brightness", 30) 
-      # Adjust RGB strips
-      devices_ids = ["hue_16", "rgb003"]
-      color = {
-        "spectrumRGB": 16729344,
-        "spectrumRgb": 16729344
-      }
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", color)
     else:
       # Adjust bathroom lights
       devices_ids = ["hue_2","hue_3"]
@@ -47,14 +39,6 @@ def dim(homeware, topic, payload):
       devices_ids = ["hue_7"]
       for device_id in devices_ids:
         homeware.execute(device_id, "brightness", 100)
-      # Adjust RGB strips
-      devices_ids = ["hue_16", "rgb003"]
-      color = {
-        "spectrumRGB": 16741656,
-        "spectrumRgb": 16741656
-      }
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", color)
 
 # Set the shower scene
 def shower(homeware, alert, topic, payload):
