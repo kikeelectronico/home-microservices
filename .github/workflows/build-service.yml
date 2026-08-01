@@ -18,6 +18,10 @@ on:
               required: true
             REGISTRY_PASSWORD:
               required: true
+            COSIGN_PRIVATE_KEY:
+              required: true
+            COSIGN_PASSWORD:
+              required: true
 
 env:
   DOCKER_BUILD_RECORD_UPLOAD: false
@@ -87,3 +91,17 @@ jobs:
           platforms: linux/amd64
           push: ${{ inputs.tag != 'test' }}
           tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL,secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}
+      - name: Install Cosign
+        if: inputs.tag != 'test'
+        uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        if: inputs.tag != 'test'
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
+
+          cosign sign \
+            --key env://COSIGN_PRIVATE_KEY \
+            ${IMAGE}:${{ inputs.tag }}
