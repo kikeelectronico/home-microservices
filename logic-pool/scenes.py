@@ -102,4 +102,3 @@ def powerAlert(homeware, alert, topic, payload):
         
         if power_alert_counter == 1:
           power_alert_counter = 0
-
