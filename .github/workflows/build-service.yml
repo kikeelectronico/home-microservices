@@ -18,6 +18,10 @@ on:
               required: true
             REGISTRY_PASSWORD:
               required: true
+            COSIGN_PRIVATE_KEY:
+              required: true
+            COSIGN_PASSWORD:
+              required: true
 
 env:
   DOCKER_BUILD_RECORD_UPLOAD: false
@@ -94,6 +98,7 @@ jobs:
         if: inputs.tag != 'test'
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
 
