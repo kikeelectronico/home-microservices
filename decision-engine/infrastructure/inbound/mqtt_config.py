@@ -24,4 +24,5 @@ TOPICS = [
     "device/temp_switch/on",
     "device/switch_at_home/on",
     "device/scene_awake/enable",
+    "device/scene_dim/enable",
 ]

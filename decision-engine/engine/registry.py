@@ -4,6 +4,8 @@ from domains.air.quality.livingroom import LivingroomAirQualityHandler
 from domains.air.temperature.bathroom import BathroomAirTemperatureHandler
 from domains.air.temperature.bedroom import BedroomAirTemperatureHandler
 from domains.air.temperature.livingroom import LivingroomAirTemperatureHandler
+from domains.light.bathroom_brightness import BathroomBrightnessLightHandler
+from domains.light.bathroom_color import BathroomColorLightHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
@@ -43,6 +45,8 @@ def build_handlers() -> List[Handler]:
         BathroomAirTemperatureHandler(),
         BedroomAirTemperatureHandler(),
         LivingroomAirTemperatureHandler(),
+        BathroomBrightnessLightHandler(),
+        BathroomColorLightHandler(),
         BathroomMirrorLightHandler(),
         BathroomLightHandler(),
         BedroomBrightnessLightHandler(),

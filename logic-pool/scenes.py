@@ -10,60 +10,6 @@ initial_bathroom_humidity = 0
 shower_informed = False
 shower_initiated = False
 
-# Set dim scene
-def dim(homeware, topic, payload):
-  if topic == "device/scene_dim/enable":
-    if payload:
-      # Adjust bedroom lights
-      if homeware.get("hue_6", "on"):
-        homeware.execute("rgb003", "on", True)
-        homeware.execute("hue_6", "on", False)
-      # Adjust bathroom lights
-      devices_ids = ["hue_2","hue_3"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", {"temperatureK": 3000})
-        homeware.execute(device_id, "brightness", 20)
-      if homeware.get("light001", "on"):
-        homeware.execute("hue_sensor_2", "on", True)
-        homeware.execute("light001", "on", False)
-      # Adjust hall light
-      devices_ids = ["hue_7"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "brightness", 30) 
-      # Adjust RGB strips
-      devices_ids = ["hue_16", "rgb003"]
-      color = {
-        "spectrumRGB": 16729344,
-        "spectrumRgb": 16729344
-      }
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", color)
-    else:
-      # Adjust bedroom lights
-      if homeware.get("rgb003", "on"):
-        homeware.execute("hue_6", "on", True)
-        homeware.execute("rgb003", "on", False)
-      # Adjust bathroom lights
-      devices_ids = ["hue_2","hue_3"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", {"temperatureK": 5000})
-        homeware.execute(device_id, "brightness", 80)
-      if homeware.get("hue_sensor_2", "on"):
-        homeware.execute("light001", "on", True)
-        homeware.execute("hue_sensor_2", "on", False)
-      # Adjust hall light      
-      devices_ids = ["hue_7"]
-      for device_id in devices_ids:
-        homeware.execute(device_id, "brightness", 100)
-      # Adjust RGB strips
-      devices_ids = ["hue_16", "rgb003"]
-      color = {
-        "spectrumRGB": 16741656,
-        "spectrumRgb": 16741656
-      }
-      for device_id in devices_ids:
-        homeware.execute(device_id, "color", color)
-
 # Set the shower scene
 def shower(homeware, alert, topic, payload):
   global waiting_for_shower
