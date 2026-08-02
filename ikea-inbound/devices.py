@@ -13,12 +13,12 @@ def outlet(data, homeware, tasks, voltages_map):
     homeware.execute(data["id"], "on", attributes["isOn"])
   if "currentVoltage" in attributes:
     voltages_map[data["id"]] = attributes["currentVoltage"]
-    homeware.publish(data["id"], "voltage", round(attributes["currentVoltage"],1))
+    homeware.execute(data["id"], "voltage", round(attributes["currentVoltage"],1))
   if "currentAmps" in attributes:
-    homeware.publish(data["id"], "current", round(attributes["currentAmps"],1))
+    homeware.execute(data["id"], "current", round(attributes["currentAmps"],1))
     if voltages_map.get(data["id"]):
       active_power = round(attributes["currentAmps"] * voltages_map.get(data["id"]))
-      homeware.publish(data["id"], "power", active_power)
+      homeware.execute(data["id"], "power", active_power)
     if attributes["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
       homeware.execute(data["id"], "isRunning", True)
       task_id = str(data["id"]) + "-" + "isRunning"
