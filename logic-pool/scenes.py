@@ -17,15 +17,15 @@ def shower(homeware, alert, topic, payload):
     if payload:
       alert.voice("Vale, preparo el baño.")
       # Start preparing the bathroom
-      homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 25)
-      homeware.execute("thermostat_bathroom", "thermostatMode", "heat")
+      # homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 25)
+      # homeware.execute("thermostat_bathroom", "thermostatMode", "heat")
       waiting_for_shower = True
       initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
     else:
       # Return the bathroom to normal
       alert.voice("Genial. Dejo de priorizar el baño.")
-      homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
-      homeware.execute("thermostat_bathroom", "thermostatMode", "off")
+      # homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
+      # homeware.execute("thermostat_bathroom", "thermostatMode", "off")
       waiting_for_shower = False
       shower_informed = False
       shower_initiated = False

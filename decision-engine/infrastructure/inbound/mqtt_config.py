@@ -27,4 +27,5 @@ TOPICS = [
     "device/scene_dim/enable",
     "device/current001/brightness",
     "device/scene_power_alert/enable",
+    "device/scene_ducha/enable",
 ]
