@@ -1,10 +1,7 @@
 import time
 
-DELAY_BETWEEN_POWER_ALERTS = 40
 BATHROOM_HUMIDITY_DELTA = 10
 
-power_alert_counter = 0
-last_power_check = 0
 waiting_for_shower = False
 initial_bathroom_humidity = 0
 shower_informed = False
@@ -64,42 +61,4 @@ def disableShowerScene(homeware, alert, topic, payload):
           shower_informed = False
           shower_initiated = False
           alert.voice("Veo que ya te has duchado. Dejo de priorizar el baño.")
-
-# Set the power alert scene
-def powerAlert(homeware, alert, topic, payload):
-  if topic == "device/control":
-    if payload["id"] == "current001" and payload["param"] == "brightness":
-      global last_power_check
-      global power_alert_counter
-      power = payload["value"]
-      if time.time() - last_power_check > DELAY_BETWEEN_POWER_ALERTS:
-        last_power_check = time.time()
-        # Power alerts
-        if power >= 100:
-          power_alert_counter += 1
-          if power_alert_counter > 1:
-            # Send voice and text alerts
-            # alert.voice("Sobrecarga de potencia, nivel crítico.")
-            # alert.message("Sobrecarga de potencia")
-            # Change the status of some lights
-            currentToggleSettings = {
-              "emergencia": True
-            }
-            devices_id = ["rgb003", "hue_15"]
-            for device_id in devices_id:
-              homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
-      if power < 85:
-        if power_alert_counter > 1:
-          power_alert_counter = 0
-          # Send voice alerts
-          # alert.voice("Sistemas de potencia bajo control.")
-          currentToggleSettings = {
-            "emergencia": False
-          }
-          devices_id = ["rgb003", "hue_15"]
-          for device_id in devices_id:
-            homeware.execute(device_id, "currentToggleSettings", currentToggleSettings)
-        
-        if power_alert_counter == 1:
-          power_alert_counter = 0
 

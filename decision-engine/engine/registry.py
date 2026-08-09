@@ -9,9 +9,11 @@ from domains.light.bathroom_color import BathroomColorLightHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
+from domains.light.bedroom_color import BedroomColorLightHandler
 from domains.light.bedroom import BedroomLightHandler
 from domains.light.hallway_brightness import HallwayBrightnessLightHandler
 from domains.light.hallway import HallwayLightHandler
+from domains.light.kitchen_color import KitchenColorLightHandler
 from domains.light.kitchen import KitchenLightHandler
 from domains.light.livingroom_fairy_brightness import LivingroomFairyBrightneesLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
@@ -53,10 +55,12 @@ def build_handlers() -> List[Handler]:
         BathroomColorLightHandler(),
         BathroomMirrorLightHandler(),
         BathroomLightHandler(),
+        BedroomColorLightHandler(),
         BedroomBrightnessLightHandler(),
         BedroomLightHandler(),
         HallwayBrightnessLightHandler(),
         HallwayLightHandler(),
+        KitchenColorLightHandler(),
         KitchenLightHandler(),
         LivingroomFairyBrightneesLightHandler(),
         LivingroomPyramidLightHandler(),
