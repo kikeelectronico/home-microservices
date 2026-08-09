@@ -12,7 +12,14 @@ class ShowerInitiatedSceneHandler:
 
         actions = []
 
-        if not event.get("value"):
+        if event.get("value"):
+            actions.append({
+                "type": "device_param_update",
+                "device_id": "scene_shower_initiated",
+                "param": "initial_bathroom_humidity",
+                "value": context.get("thermostat_bathroom", "thermostatHumidityAmbient")
+            })
+        else:
             actions.append({
                 "type": "device_param_update",
                 "device_id": "scene_shower_initiated",

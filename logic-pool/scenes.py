@@ -15,12 +15,13 @@ def shower(homeware, alert, topic, payload):
   global initial_bathroom_humidity
   if topic == "device/scene_ducha/enable":
     if payload:
+      pass
       # alert.voice("Vale, preparo el baño.")
       # Start preparing the bathroom
       # homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 25)
       # homeware.execute("thermostat_bathroom", "thermostatMode", "heat")
       # waiting_for_shower = True
-      initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
+      # initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
     else:
       # Return the bathroom to normal
       # alert.voice("Genial. Dejo de priorizar el baño.")
