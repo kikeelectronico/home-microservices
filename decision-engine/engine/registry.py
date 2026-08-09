@@ -25,6 +25,7 @@ from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
+from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
 from domains.outlet.office import OfficeOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
@@ -68,6 +69,7 @@ def build_handlers() -> List[Handler]:
         BatteryNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
+        PowerAlertNotificationVoiceHandler(),
         OfficeOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
