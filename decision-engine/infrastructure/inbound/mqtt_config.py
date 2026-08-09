@@ -25,4 +25,5 @@ TOPICS = [
     "device/switch_at_home/on",
     "device/scene_awake/enable",
     "device/scene_dim/enable",
+    "device/current001/brightness",
 ]
