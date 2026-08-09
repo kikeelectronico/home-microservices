@@ -91,8 +91,6 @@ def on_message(client, userdata, msg):
     if payload is not None:
       alerts.abnormalLivingroomTemperature(homeware, alert, msg.topic, payload)
       power.powerManagment(homeware, msg.topic, payload)
-      scenes.shower(homeware, alert, msg.topic, payload)
-      scenes.disableShowerScene(homeware, alert, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 
