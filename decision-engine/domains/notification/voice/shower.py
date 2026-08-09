@@ -8,7 +8,10 @@ class ShowerVoiceNotificationHandler:
             ((event.get("device_id") == "scene_ducha" and \
             event.get("param") == "enable") or \
             (event.get("device_id") == "thermostat_bathroom" and \
-            event.get("param") == "thermostatTemperatureAmbient"))
+            event.get("param") == "thermostatTemperatureAmbient") or \
+            (event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
+            event.get("param") == "occupancy" and \
+            event.get("value")))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
 
@@ -33,5 +36,12 @@ class ShowerVoiceNotificationHandler:
                             "type": "notification_voice_alert",
                             "text": "El baño está listo.",
                         })
+        elif event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9":
+            if context.get("scene_ducha", "enable"):
+                if context.get("scene_shower_initiated", "enable"):
+                    actions.append({
+                        "type": "notification_voice_alert",
+                        "text": "Veo que ya te has duchado. Dejo de priorizar el baño.",
+                    })
 
         return actions
