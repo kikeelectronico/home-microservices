@@ -12,7 +12,7 @@ class PowerAlertSceneHandler:
 
         actions =  []
 
-        if event.get("value") >= 100 and context.get("scene_power_prealert", "enable"):
+        if event.get("value") >= 100 and context.get("scene_power_prealert", "enable") and not context.get("scene_power_alert", "enable"):
             actions.append({
                 "type": "device_param_update",
                 "device_id": "scene_power_alert",
