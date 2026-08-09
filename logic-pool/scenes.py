@@ -23,6 +23,7 @@ def shower(homeware, alert, topic, payload):
       # waiting_for_shower = True
       # initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
     else:
+      pass
       # Return the bathroom to normal
       # alert.voice("Genial. Dejo de priorizar el baño.")
       # homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
@@ -30,8 +31,8 @@ def shower(homeware, alert, topic, payload):
       # waiting_for_shower = False
       # shower_informed = False
       # shower_initiated = False
-      if homeware.get("hue_sensor_14","on"):
-        homeware.execute("hue_sensor_14","on",False)
+      # if homeware.get("hue_sensor_14","on"):
+      #   homeware.execute("hue_sensor_14","on",False)
   # Announce that the bathroom is ready to taking a shower
   # if topic == "device/thermostat_bathroom" and waiting_for_shower:
   #   if homeware.get("scene_winter", "enable"):
@@ -47,6 +48,7 @@ def disableShowerScene(homeware, alert, topic, payload):
   global shower_informed
   global shower_initiated
   global initial_bathroom_humidity
+  pass
   # if topic == "device/thermostat_bathroom/thermostatHumidityAmbient":
   #   # if initial_bathroom_humidity == 0: initial_bathroom_humidity = homeware.get("thermostat_bathroom", "thermostatHumidityAmbient")
   #   if waiting_for_shower:
