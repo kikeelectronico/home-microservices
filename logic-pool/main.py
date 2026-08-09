@@ -93,7 +93,6 @@ def on_message(client, userdata, msg):
       power.powerManagment(homeware, msg.topic, payload)
       scenes.shower(homeware, alert, msg.topic, payload)
       scenes.disableShowerScene(homeware, alert, msg.topic, payload)
-      scenes.powerAlert(homeware, alert, msg.topic, payload)
   except Exception as e:
     logging.warning("Excepción en Logic pool mqtt")
     logging.warning(str(e)) 

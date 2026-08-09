@@ -9,9 +9,11 @@ from domains.light.bathroom_color import BathroomColorLightHandler
 from domains.light.bathroom_mirror import BathroomMirrorLightHandler
 from domains.light.bathroom import BathroomLightHandler
 from domains.light.bedroom_brightness import BedroomBrightnessLightHandler
+from domains.light.bedroom_color import BedroomColorLightHandler
 from domains.light.bedroom import BedroomLightHandler
 from domains.light.hallway_brightness import HallwayBrightnessLightHandler
 from domains.light.hallway import HallwayLightHandler
+from domains.light.kitchen_color import KitchenColorLightHandler
 from domains.light.kitchen import KitchenLightHandler
 from domains.light.livingroom_fairy_brightness import LivingroomFairyBrightneesLightHandler
 from domains.light.livingroom_pyramid import LivingroomPyramidLightHandler
@@ -23,6 +25,7 @@ from domains.light.office_brightness import OfficeBrightnessLightHandler
 from domains.light.office import OfficeLightHandler
 from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
+from domains.notification.message.power_alert import PowerAlertNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
@@ -52,10 +55,12 @@ def build_handlers() -> List[Handler]:
         BathroomColorLightHandler(),
         BathroomMirrorLightHandler(),
         BathroomLightHandler(),
+        BedroomColorLightHandler(),
         BedroomBrightnessLightHandler(),
         BedroomLightHandler(),
         HallwayBrightnessLightHandler(),
         HallwayLightHandler(),
+        KitchenColorLightHandler(),
         KitchenLightHandler(),
         LivingroomFairyBrightneesLightHandler(),
         LivingroomPyramidLightHandler(),
@@ -67,6 +72,7 @@ def build_handlers() -> List[Handler]:
         OfficeLightHandler(),
         WorkbenchLightHandler(),
         BatteryNotificationMessageHandler(),
+        PowerAlertNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
         PowerAlertNotificationVoiceHandler(),
