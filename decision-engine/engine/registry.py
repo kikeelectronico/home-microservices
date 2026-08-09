@@ -29,6 +29,7 @@ from domains.notification.message.power_alert import PowerAlertNotificationMessa
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
+from domains.notification.voice.shower import ShowerVoiceNotificationHandler
 from domains.outlet.office import OfficeOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
@@ -38,6 +39,9 @@ from domains.scenes.dim import DimSceneHandler
 from domains.scenes.power_alert import PowerAlertSceneHandler
 from domains.scenes.power_prealert import PowerPrealertSceneHandler
 from domains.scenes.sensors import SensorsSceneHandler
+from domains.scenes.shower_informed import ShowerInformedSceneHandler
+from domains.scenes.shower_initiated import ShowerInitiatedSceneHandler
+from domains.scenes.shower_waiting import ShowerWaitingSceneHandler
 from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
 
@@ -76,6 +80,7 @@ def build_handlers() -> List[Handler]:
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
         PowerAlertNotificationVoiceHandler(),
+        ShowerVoiceNotificationHandler(),
         OfficeOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
@@ -85,6 +90,9 @@ def build_handlers() -> List[Handler]:
         PowerAlertSceneHandler(),
         PowerPrealertSceneHandler(),
         SensorsSceneHandler(),
+        ShowerInformedSceneHandler(),
+        ShowerInitiatedSceneHandler(),
+        ShowerWaitingSceneHandler(),
         ShowerSceneHandler(),
         PrepareHomeSwitchHandler(),
     ]
