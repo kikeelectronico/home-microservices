@@ -23,6 +23,7 @@ from domains.light.office_brightness import OfficeBrightnessLightHandler
 from domains.light.office import OfficeLightHandler
 from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
+from domains.notification.message.power_alert import PowerAlertNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
@@ -67,6 +68,7 @@ def build_handlers() -> List[Handler]:
         OfficeLightHandler(),
         WorkbenchLightHandler(),
         BatteryNotificationMessageHandler(),
+        PowerAlertNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
         PowerAlertNotificationVoiceHandler(),

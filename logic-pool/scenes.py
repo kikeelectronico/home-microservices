@@ -80,7 +80,7 @@ def powerAlert(homeware, alert, topic, payload):
           if power_alert_counter > 1:
             # Send voice and text alerts
             # alert.voice("Sobrecarga de potencia, nivel crítico.")
-            alert.message("Sobrecarga de potencia")
+            # alert.message("Sobrecarga de potencia")
             # Change the status of some lights
             currentToggleSettings = {
               "emergencia": True
