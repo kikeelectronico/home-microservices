@@ -34,7 +34,7 @@ class ShowerInitiatedSceneHandler:
                     "value": False
                 })
         elif event.get("device_id") == "thermostat_bathroom":
-            if context.get("scene_shower_waiting"):
+            if context.get("scene_shower_waiting", "enable"):
                 if context.get("thermostat_bathroom", "thermostatHumidityAmbient") > (context.get("scene_shower_initiated", "initial_bathroom_humidity") + BATHROOM_HUMIDITY_DELTA):
                     actions.append({
                         "type": "device_param_update",
