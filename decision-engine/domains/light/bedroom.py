@@ -33,20 +33,21 @@ class BedroomLightHandler:
                 
                 if context.get("c2b38173-883e-4766-bcb5-0cce2dc0e00e", "brightness") < 40:
                     if context.get("scene_sensors_enable","enable"):
-                        if context.get("scene_dim","enable"):
-                            actions.append({
-                                "type": "device_param_update",
-                                "device_id": "rgb003",
-                                "param": "on",
-                                "value": True
-                            })
-                        else:
-                            actions.append({
-                                "type": "device_param_update",
-                                "device_id": "hue_6",
-                                "param": "on",
-                                "value": True
-                            })
+                        if context.get("pressure002","occupancy") == "UNOCCUPIED":
+                            if context.get("scene_dim","enable"):
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "rgb003",
+                                    "param": "on",
+                                    "value": True
+                                })
+                            else:
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "hue_6",
+                                    "param": "on",
+                                    "value": True
+                                })
             else:
                 if not context.get("hue_sensor_12", "on"):
                     actions.append({
