@@ -9,7 +9,6 @@ from Homeware import Homeware
 from Alert import Alert
 import alerts
 import power
-import scenes
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
