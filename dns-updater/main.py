@@ -100,6 +100,8 @@ def main():
       mqtt_client.publish("heartbeats", SERVICE)
     except ConnectTimeout as e:
       logging.info("Connection timeout")
+    except ConnectionError as e:
+      logging.info("Connection error")
     finally:
       # Wait until next iteration
       time.sleep(SLEEP_TIME)
