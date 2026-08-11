@@ -7,6 +7,8 @@ class BathroomLightHandler:
         return event.get("type") == "device_param_update" and \
             ((event.get("device_id") == "06612edc-4b7c-4ef3-9f3c-157b9d482f8c" and \
             event.get("param") == "occupancy") or \
+            (event.get("device_id") == "9260ed68-0542-4248-9f23-babfae1db2a1_1" and \
+            event.get("param") == "occupancy") or \
             (event.get("device_id") == "hue_sensor_14" and \
             event.get("param") == "on") or \
             (event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
@@ -23,7 +25,7 @@ class BathroomLightHandler:
         
         actions = []
 
-        if event.get("device_id") == "06612edc-4b7c-4ef3-9f3c-157b9d482f8c":
+        if event.get("device_id") in ["06612edc-4b7c-4ef3-9f3c-157b9d482f8c", "9260ed68-0542-4248-9f23-babfae1db2a1_1"]:
             occupied = event.get("value") == "OCCUPIED"
             if occupied:
                 actions.append({
