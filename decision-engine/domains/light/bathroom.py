@@ -7,6 +7,8 @@ class BathroomLightHandler:
         return event.get("type") == "device_param_update" and \
             ((event.get("device_id") == "06612edc-4b7c-4ef3-9f3c-157b9d482f8c" and \
             event.get("param") == "occupancy") or \
+            (event.get("device_id") == "9260ed68-0542-4248-9f23-babfae1db2a1_1" and \
+            event.get("param") == "occupancy") or \
             (event.get("device_id") == "hue_sensor_14" and \
             event.get("param") == "on") or \
             (event.get("device_id") == "c8bd20a2-69a5-4946-b6d6-3423b560ffa9" and \
@@ -14,13 +16,16 @@ class BathroomLightHandler:
             (event.get("device_id") == "switch_at_home" and \
             event.get("param") == "on") or \
             (event.get("device_id") == "scene_dim" and \
-            event.get("param") == "enable"))
+            event.get("param") == "enable") or \
+            (event.get("device_id") == "scene_ducha" and \
+            event.get("param") == "enable" and \
+            not event.get("value")))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
         
         actions = []
 
-        if event.get("device_id") == "06612edc-4b7c-4ef3-9f3c-157b9d482f8c":
+        if event.get("device_id") in ["06612edc-4b7c-4ef3-9f3c-157b9d482f8c", "9260ed68-0542-4248-9f23-babfae1db2a1_1"]:
             occupied = event.get("value") == "OCCUPIED"
             if occupied:
                 actions.append({
@@ -200,6 +205,14 @@ class BathroomLightHandler:
                     "device_id": "light001",
                     "param": "on",
                     "value": True
+                })
+        elif event.get("device_id") == "scene_ducha":
+            if context.get("hue_sensor_14", "on"):
+                actions.append({
+                    "type": "device_param_update",
+                    "device_id": "hue_sensor_14",
+                    "param": "on",
+                    "value": False
                 })
         
         return actions
