@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import ConnectTimeout
 import os
 import time
 import paho.mqtt.client as mqtt
@@ -75,29 +76,35 @@ def main():
   # Main loop
   while True:
     # Get current public IP
-    ip = requests.get(GET_IP_ENDPOINT, timeout=REQUEST_TIMEOUT).text
-    # Verify if the API has changed
-    if not ip == last_ip and len(ip.split(".")) == 4:
-      # Homeware
-      # Make an update request to the Cloudflare API
-      url = "https://api.cloudflare.com/client/v4/zones/" + CLOUDFLARE_ZONE + "/dns_records/" + CLOUDFLARE_DNS_ID
-      payload="{\"content\": \"" + ip + "\"}"
-      headers = {
-        'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
-        'Content-Type': 'application/json'
-      }
-      response = requests.request("PATCH", url, headers=headers, data=payload, timeout=REQUEST_TIMEOUT).json()
-      # Verify the response from Cloudflare
-      if response["success"]:
-        logging.info("IP de Homeware actualizada")
-      else:
-        logging.error("Problemas al actualizar la IP de Homeware")
-        mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de Homeware")
-      last_ip = ip
-    # Send heartbeat
-    mqtt_client.publish("heartbeats", SERVICE)
-    # Wait until next iteration
-    time.sleep(SLEEP_TIME)
+    try:
+      ip = requests.get(GET_IP_ENDPOINT, timeout=REQUEST_TIMEOUT).text
+      # Verify if the API has changed
+      if not ip == last_ip and len(ip.split(".")) == 4:
+        # Homeware
+        # Make an update request to the Cloudflare API
+        url = "https://api.cloudflare.com/client/v4/zones/" + CLOUDFLARE_ZONE + "/dns_records/" + CLOUDFLARE_DNS_ID
+        payload="{\"content\": \"" + ip + "\"}"
+        headers = {
+          'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
+          'Content-Type': 'application/json'
+        }
+        response = requests.request("PATCH", url, headers=headers, data=payload, timeout=REQUEST_TIMEOUT).json()
+        # Verify the response from Cloudflare
+        if response["success"]:
+          logging.info("IP de Homeware actualizada")
+        else:
+          logging.error("Problemas al actualizar la IP de Homeware")
+          mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de Homeware")
+        last_ip = ip
+      # Send heartbeat
+      mqtt_client.publish("heartbeats", SERVICE)
+    except ConnectTimeout as e:
+      logging.info("Connection timeout")
+    except ConnectionError as e:
+      logging.info("Connection error")
+    finally:
+      # Wait until next iteration
+      time.sleep(SLEEP_TIME)
 
 if __name__ == "__main__":
   main()
