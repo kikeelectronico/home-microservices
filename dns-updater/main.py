@@ -1,5 +1,5 @@
 import requests
-from requests.exceptions import ConnectTimeout
+from requests.exceptions import ConnectTimeout, ConnectionError
 import os
 import time
 import paho.mqtt.client as mqtt
