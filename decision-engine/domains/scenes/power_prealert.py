@@ -19,7 +19,7 @@ class PowerPrealertSceneHandler:
                 "param": "enable",
                 "value": True
             })
-        elif event.get("value") < 85 and context.get("scene_power_prealert", "enable"):
+        elif event.get("value") < 95 and context.get("scene_power_prealert", "enable"):
             actions.append({
                 "type": "device_param_update",
                 "device_id": "scene_power_prealert",
