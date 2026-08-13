@@ -7,8 +7,14 @@ export default function Power(props) {
         return (props.home.status.current001.brightness * 35)
     }
 
+    const shadowColor = () => {
+        if (props.home.status.current001.brightness > 100) return "255,0,0"
+        else if (props.home.status.current001.brightness > 90) return "255,165,0"
+        else return "0,0,0"
+    }
+
     return (
-        <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")} style={{boxShadow: "0 0.1rem 1rem rgba(" + (props.home.status.current001.brightness > 90 ? "255,0,0" : "0,0,0")  + ", 0.8)"}}>
+        <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")} style={{boxShadow: "0 0.1rem 1rem rgba(" + shadowColor()  + ", 0.8)"}}>
             <div className="homeCardTitle">
                 Potencia
             </div>
@@ -18,7 +24,7 @@ export default function Power(props) {
                 </div>
             </div>
             {
-                props.home.status.current001.brightness > 90 ?
+                props.home.status.current001.brightness > 100 ?
                     <div className="homeCardRow">
                         <div className={"powerCardAlertContainer " + (props.home.status.current001.online ? "deviceOnline" : "deviceOffline")}>
                             Sobrecarga de potencia
