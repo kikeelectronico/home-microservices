@@ -3,11 +3,14 @@ import json
 import requests
 import logging
 
+POWER_THRESHOLD = 50
+
 class Context:
 
     __mqtt_client = None
     __url = "localhost"
     __token = "token"
+    __power_priority = ["b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"]
 
     def __init__(self, mqtt_client, host, token) -> None:
         self.__mqtt_client = mqtt_client
@@ -49,3 +52,13 @@ class Context:
         except (requests.ConnectionError, requests.Timeout) as exception:
             logging.warning("Fail to get Homeware device. Conection error.")
             return {}
+
+    def getLowerPriorityDevicePowerStatus(self, id: str) -> bool:
+        device_index = self.__power_priority.index(id)
+
+        if device_index + 1 >= len(self.__power_priority):
+            return False
+        else:
+            lower_priority_device_id = self.__power_priority[device_index+1]
+            lower_priority_device_power = self.get(lower_priority_device_id, "power")
+            return lower_priority_device_power > POWER_THRESHOLD
