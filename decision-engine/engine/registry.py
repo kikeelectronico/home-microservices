@@ -31,6 +31,7 @@ from domains.notification.voice.night_time import NightTimeVoiceNotificationHand
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
 from domains.notification.voice.shower import ShowerVoiceNotificationHandler
 from domains.outlet.office import OfficeOutlethHandler
+from domains.outlet.water_heater import WaterHeaterOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
@@ -82,6 +83,7 @@ def build_handlers() -> List[Handler]:
         PowerAlertNotificationVoiceHandler(),
         ShowerVoiceNotificationHandler(),
         OfficeOutlethHandler(),
+        WaterHeaterOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
         LivingroomPresenceHandler(),
