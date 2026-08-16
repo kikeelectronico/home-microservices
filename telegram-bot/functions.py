@@ -2,8 +2,10 @@ import os
 import requests
 from pytube import YouTube, Playlist
 
+REQUEST_TIMEOUT = 10
+
 def getPublicIP(endpoint):
-    ip = requests.get(endpoint).text
+    ip = requests.get(endpoint, timeout=REQUEST_TIMEOUT).text
     return ip
 
 def getHomewareTest(api_url, api_key):
@@ -13,7 +15,7 @@ def getHomewareTest(api_url, api_key):
             "Authorization": "bearer " + api_key
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             status = response.json()
             return "enable" in status
