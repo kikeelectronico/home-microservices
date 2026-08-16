@@ -1,12 +1,13 @@
 import paho.mqtt.client as mqtt
 import xml.etree.ElementTree as ElementTree
-import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 import os
 import time
 import requests
 import logging
 import json
+
+from weather import Weather
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -29,6 +30,7 @@ REQUEST_TIMEOUT = 10
 # Declare variables
 last_heartbeat_timestamp = 0
 last_build_date = ""
+last_weather_payload = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(
@@ -36,6 +38,7 @@ mqtt_client = mqtt.Client(
   client_id=SERVICE,
   protocol=mqtt.MQTTv5
 )
+weather = Weather()
 
 def relative_day(text: str) -> int:
     try:
@@ -107,11 +110,22 @@ def publishWarnings(force=False):
         mqtt_client.publish("meteo/warnings", json.dumps(warnings))
         last_build_date = build_date
 
+def publishWeather(force=False):
+    global last_weather_payload
+    weather_payload = weather.getWeather()
+    if not weather_payload:
+        return
+    if force or weather_payload != last_weather_payload:
+        mqtt_client.publish("meteo/weather", json.dumps(weather_payload))
+        last_weather_payload = weather_payload
+
 # Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
   client.subscribe("meteo/warnings/request", qos=1)
   logging.info("Subscribed to MQTT topic %s", "meteo/warnings/request")
+  client.subscribe("meteo/weather/request", qos=1)
+  logging.info("Subscribed to MQTT topic %s", "meteo/weather/request")
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -128,7 +142,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  publishWarnings(force=True)
+  if msg.topic == "meteo/warnings/request":
+    publishWarnings(force=True)
+  elif msg.topic == "meteo/weather/request":
+    publishWeather(force=True)
 
 def main():
   global last_heartbeat_timestamp
@@ -156,8 +173,8 @@ def main():
 
   # Main loop
   while True:
-    
     publishWarnings()
+    publishWeather()
 
     # Send the heartbeat
     if time.time() - last_heartbeat_timestamp > 10:
@@ -169,4 +186,3 @@ def main():
 # Main entry point
 if __name__ == "__main__":
   main()
-

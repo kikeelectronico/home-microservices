@@ -13,7 +13,6 @@ import logging
 
 # from spotify import Spotify
 from water import Water
-from weather import Weather
 from homeware import Homeware
 from internet import Internet
 
@@ -72,6 +71,8 @@ def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
   client.subscribe("meteo/warnings", qos=1)
   logging.info("Subscribed to MQTT topic meteo/warnings")
+  client.subscribe("meteo/weather", qos=1)
+  logging.info("Subscribed to MQTT topic meteo/weather")
 
 async def dispatch_mqtt_events():
   while True:
@@ -96,6 +97,17 @@ def on_message(client, userdata, msg):
       "data": {
         "warnings": warnings
       }
+    }
+    mqtt_events.put(event)
+  elif msg.topic == "meteo/weather":
+    try:
+      weather = json.loads(msg.payload)
+    except json.JSONDecodeError:
+      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+      return
+    event = {
+      "type": "weather",
+      "data": weather
     }
     mqtt_events.put(event)
 
@@ -133,7 +145,6 @@ app.add_middleware(
 
 # spotify = Spotify()
 water = Water()
-weatherapi = Weather()
 homeware = Homeware()
 internet = Internet()
 
@@ -205,19 +216,6 @@ async def streamEvents(queue):
       last["water_data"] = water_data
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Weather
-    (fail_to_update, current, forecast) = weatherapi.getWeather()
-    if not last.get("forecast", {}) == forecast:
-      event = {
-        "type": "weather",
-        "data": {
-          "current": current,
-          "forecast": forecast
-        }
-      }
-      last["forecast"] = forecast
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",
@@ -232,6 +230,7 @@ async def stream():
   queue = asyncio.Queue()
   sse_queues.add(queue)
   mqtt_client.publish("meteo/warnings/request", "")
+  mqtt_client.publish("meteo/weather/request", "")
 
   async def stream_with_cleanup():
     try:
