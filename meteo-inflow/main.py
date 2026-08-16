@@ -5,7 +5,7 @@ import logging
 import json
 
 from weather import getWeather
-from warnings import getWarnings
+from weather_warnings import getWarnings
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
