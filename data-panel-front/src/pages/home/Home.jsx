@@ -9,10 +9,9 @@ import Power from "./components/Power";
 import NotAtHome from "../../components/NotAtHome"
 import Connection from "./components/Connection";
 import Spotify from "./components/Spotify";
+import { DATA_PANEL_API_URL } from "../../config";
 
 import "./home.css"
-
-const API = process.env.REACT_APP_DATA_PANEL_API_URL
 
 export default function Home(props) {
 
@@ -26,7 +25,7 @@ export default function Home(props) {
   const [see_closed, setSeeClosed] = useState(false)
 
   useEffect(() => {
-    const sse = new EventSource(API + "/stream", { withCredentials: false });
+    const sse = new EventSource(DATA_PANEL_API_URL + "/stream", { withCredentials: false });
     sse.onmessage = e => {
       setSeeClosed(false)
       let event = JSON.parse(e.data)

@@ -1,5 +1,5 @@
 FROM node:lts-alpine AS base
-ENV REACT_APP_DATA_PANEL_API_URL="https://api.panel.home.enriquegomez.me"
+ENV VITE_DATA_PANEL_API_URL="https://api.panel.home.enriquegomez.me"
 RUN mkdir front
 WORKDIR /front
 COPY . ./
