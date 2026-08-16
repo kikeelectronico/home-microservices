@@ -24,21 +24,23 @@ storage_client = storage.Client()
 # Commands handler
 @bot.message_handler(commands=['start', 'help','test','office','home','directions','yt'])
 def send_welcome(message):
-  if 'start' in message.text:
+  command = message.text.split()[0]
+
+  if command == '/start':
     bot.reply_to(message, "Hi, I am Maguna")
-  elif 'help' in message.text:
+  elif command == '/help':
     bot.reply_to(message, "I am sorry but I don't know you.")
   else:
     if str(message.from_user.id) == ENRIQUE_CHAT_ID:
-        if 'test' in message.text:
+        if command == '/test':
             # Test an authenticated command
             response = functions.test()
             bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
-        elif 'home' in message.text:
+        elif command == '/home':
             # Test Homeware API and db
             response = functions.getHomewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY)
             bot.send_message(ENRIQUE_CHAT_ID, "Corriendo" if response else "Caido", parse_mode='Markdown')
-        elif 'directions' in message.text:
+        elif command == '/directions':
             # Get the public IP
             response = functions.getPublicIP(GET_IP_ENDPOINT)
             bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
