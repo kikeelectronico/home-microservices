@@ -26,9 +26,14 @@ ENV = os.environ.get("ENV", "dev")
 MQTT_PORT = 1883
 SERVICE = "meteo-inflow-" + ENV
 REQUEST_TIMEOUT = 10
+SLEEP_TIME = 10
+WARNINGS_INTERVAL = 1800
+WEATHER_INTERVAL = 1800
 
 # Declare variables
 last_heartbeat_timestamp = 0
+last_warnings_timestamp = 0
+last_weather_timestamp = 0
 last_build_date = ""
 last_weather_payload = {}
 
@@ -89,6 +94,8 @@ def on_message(client, userdata, msg):
 
 def main():
   global last_heartbeat_timestamp
+  global last_warnings_timestamp
+  global last_weather_timestamp
 
   # Check env vars
   def report(message):
@@ -115,15 +122,18 @@ def main():
 
   # Main loop
   while True:
-    publishWarnings()
-    publishWeather()
+    now = time.time()
+    if now - last_warnings_timestamp > WARNINGS_INTERVAL:
+      publishWarnings()
+      last_warnings_timestamp = now
 
-    # Send the heartbeat
-    if time.time() - last_heartbeat_timestamp > 10:
-      mqtt_client.publish("heartbeats", SERVICE)
-      last_heartbeat_timestamp = time.time()
+    if now - last_weather_timestamp > WEATHER_INTERVAL:
+      publishWeather()
+      last_weather_timestamp = now
 
-    time.sleep(1800)
+    mqtt_client.publish("heartbeats", SERVICE)
+
+    time.sleep(SLEEP_TIME)
 
 # Main entry point
 if __name__ == "__main__":

@@ -30,7 +30,6 @@ jobs:
           - ikea-inbound
           - ikea-outbound
           - meteo-inflow
-          - timer
           - monitor-heartbeat-control
           - monitor-heartbeat-request
           - monitor-http-request
@@ -38,6 +37,8 @@ jobs:
           - notification-voice
           - task-scheduler
           - telegram-bot
+          - timer
+          - water-inflow
     uses: ./.github/workflows/build-service.yml
     with:
       service: ${{ matrix.service }}
