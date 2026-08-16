@@ -22,7 +22,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 storage_client = storage.Client()
 
 # Commands handler
-@bot.message_handler(commands=['start', 'help','test','office','home','directions','yt'])
+@bot.message_handler(commands=['start', 'help','test','home','directions'])
 def send_welcome(message):
   command = message.text.split()[0]
 
