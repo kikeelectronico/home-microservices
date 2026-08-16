@@ -5,8 +5,11 @@ from pytube import YouTube, Playlist
 REQUEST_TIMEOUT = 10
 
 def getPublicIP(endpoint):
-    ip = requests.get(endpoint, timeout=REQUEST_TIMEOUT).text
-    return ip
+    try:
+        ip = requests.get(endpoint, timeout=REQUEST_TIMEOUT).text
+        return ip
+    except (requests.ConnectionError, requests.Timeout):
+        return "Fail"
 
 def getHomewareTest(api_url, api_key):
     try:
@@ -21,7 +24,7 @@ def getHomewareTest(api_url, api_key):
             return "enable" in status
         else:
             return False
-    except ConnectionError:
+    except (requests.ConnectionError, requests.Timeout):
         return False
 
 def test():
