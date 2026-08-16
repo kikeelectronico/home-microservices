@@ -25,7 +25,6 @@ jobs:
           - hue-sensors-alerts
           - ikea-inbound
           - ikea-outbound
-          - logic-pool
           - meteo-inflow
           - timer
           - monitor-heartbeat-control
