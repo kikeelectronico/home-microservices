@@ -1,12 +1,11 @@
 import paho.mqtt.client as mqtt
-import xml.etree.ElementTree as ElementTree
-import re
-from datetime import date, datetime, timedelta
 import os
 import time
-import requests
 import logging
 import json
+
+from weather import getWeather
+from weather_warnings import getWarnings
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -16,6 +15,8 @@ if os.environ.get("MQTT_PASS", "no_set") == "no_set":
 MQTT_USER = os.environ.get("MQTT_USER", "no_set")
 MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
 MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
+WHEATHER_API_KEY = os.environ.get("WHEATHER_API_KEY", "no_set")
+WHEATHER_QUERY = os.environ.get("WHEATHER_QUERY", "no_set")
 AEMET_RSS = os.environ.get("AEMET_RSS", "no_set")
 AEMET_AREA = os.environ.get("AEMET_AREA", "no_set")
 ENV = os.environ.get("ENV", "dev")
@@ -29,6 +30,7 @@ REQUEST_TIMEOUT = 10
 # Declare variables
 last_heartbeat_timestamp = 0
 last_build_date = ""
+last_weather_payload = {}
 
 # Instantiate objects
 mqtt_client = mqtt.Client(
@@ -37,81 +39,33 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 
-def relative_day(text: str) -> int:
-    try:
-        target_date = datetime.fromisoformat(text).date()
-    except ValueError:
-        return -1
-
-    return (target_date - date.today()).days
-
-def is_alert_active(start_text: str, end_text: str) -> bool:
-    try:
-        start_dt = datetime.fromisoformat(start_text)
-        end_dt = datetime.fromisoformat(end_text)
-    except ValueError:
-        return False
-
-    now = datetime.now(start_dt.tzinfo)
-
-    return start_dt <= now <= end_dt
-
 def publishWarnings(force=False):
-    global last_build_date
-    # Get AEMET RSS feed
-    feed_data = None
-    url = AEMET_RSS
-    response = requests.get(url, timeout=REQUEST_TIMEOUT)
-    if response.status_code == 200:
-        feed_data = response.text
-    else:
-      logging.warning("Fail to get AEMET RSS feed. Status code: " + str(response.status_code))
+  global last_build_date
+  warnings_payload = getWarnings(AEMET_RSS, AEMET_AREA, REQUEST_TIMEOUT)
+  if not warnings_payload:
+    return
 
-    # Manipulate data
-    if feed_data:
-      feed_root = ElementTree.fromstring(feed_data)
-      build_date = feed_root.find("channel").find("lastBuildDate").text
-      if force or build_date != last_build_date:
-        warnings = []
-        for item in feed_root.find("channel").findall("item"):
-          title = item.find("title").text
-          if AEMET_AREA in title:
-            link = item.find("link").text
-            # Gey warnings
-            warning_data = None
-            response = requests.get(link, timeout=REQUEST_TIMEOUT)
-            if response.status_code == 200:
-                warning_data = response.text
-            else:
-              logging.warning("Fail to get AEMET warning. Status code: " + str(response.status_code))
-            # Create and publish warning
-            if warning_data:
-              warning = {}
-              ns = {"cap": "urn:oasis:names:tc:emergency:cap:1.2"}
-              warning_root = ElementTree.fromstring(warning_data)
-              for info in warning_root.findall("cap:info", ns):
-                 if info.find("cap:language", ns).text == "es-ES":
-                  warning["title"] = info.find("cap:headline", ns).text.split(AEMET_AREA)[0]
-                  warning["description"] = info.find("cap:description", ns).text
-                  warning["starts"] = info.find("cap:onset", ns).text
-                  warning["ends"] = info.find("cap:expires", ns).text
-                  warning["start_offset"] = relative_day(warning["starts"])
-                  warning["is_active"] = is_alert_active(warning["starts"], warning["ends"])
-                  for parameter in info.findall("cap:parameter", ns):
-                    if parameter.find("cap:valueName", ns).text == "AEMET-Meteoalerta nivel":
-                      warning["level"] = parameter.find("cap:value", ns).text
-                    if parameter.find("cap:valueName", ns).text == "AEMET-Meteoalerta probabilidad":
-                      warning["probability"] = parameter.find("cap:value", ns).text
+  warnings, build_date = warnings_payload
+  if force or build_date != last_build_date:
+    mqtt_client.publish("meteo/warnings", json.dumps(warnings))
+    last_build_date = build_date
 
-              warnings.append(warning)
-        mqtt_client.publish("meteo/warnings", json.dumps(warnings))
-        last_build_date = build_date
+def publishWeather(force=False):
+    global last_weather_payload
+    weather_payload = getWeather(WHEATHER_API_KEY, WHEATHER_QUERY)
+    if not weather_payload:
+        return
+    if force or weather_payload != last_weather_payload:
+        mqtt_client.publish("meteo/weather", json.dumps(weather_payload))
+        last_weather_payload = weather_payload
 
 # Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
   client.subscribe("meteo/warnings/request", qos=1)
   logging.info("Subscribed to MQTT topic %s", "meteo/warnings/request")
+  client.subscribe("meteo/weather/request", qos=1)
+  logging.info("Subscribed to MQTT topic %s", "meteo/weather/request")
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -128,7 +82,10 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  publishWarnings(force=True)
+  if msg.topic == "meteo/warnings/request":
+    publishWarnings(force=True)
+  elif msg.topic == "meteo/weather/request":
+    publishWeather(force=True)
 
 def main():
   global last_heartbeat_timestamp
@@ -140,6 +97,8 @@ def main():
   if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
   if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
   if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
+  if WHEATHER_API_KEY == "no_set": report("WHEATHER_API_KEY env vars no set")
+  if WHEATHER_QUERY == "no_set": report("WHEATHER_QUERY env vars no set")
   if AEMET_RSS == "no_set": report("AEMET_RSS env vars no set")
   if AEMET_AREA == "no_set": report("AEMET_AREA env vars no set")
 
@@ -156,8 +115,8 @@ def main():
 
   # Main loop
   while True:
-    
     publishWarnings()
+    publishWeather()
 
     # Send the heartbeat
     if time.time() - last_heartbeat_timestamp > 10:
@@ -169,4 +128,3 @@ def main():
 # Main entry point
 if __name__ == "__main__":
   main()
-
