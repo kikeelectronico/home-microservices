@@ -67,7 +67,7 @@ def on_message(client, userdata, msg):
 def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s %(levelname)-10s %(name)-5s %(message)s"
+        format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
     )
     # Check env vars
     def report(message):
