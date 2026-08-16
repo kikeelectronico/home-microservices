@@ -12,7 +12,6 @@ import time
 import logging
 
 # from spotify import Spotify
-from water import Water
 from homeware import Homeware
 from internet import Internet
 
@@ -69,6 +68,8 @@ mqtt_client = mqtt.Client(
 # Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
+  client.subscribe("water", qos=1)
+  logging.info("Subscribed to MQTT topic water")
   client.subscribe("meteo/warnings", qos=1)
   logging.info("Subscribed to MQTT topic meteo/warnings")
   client.subscribe("meteo/weather", qos=1)
@@ -86,7 +87,20 @@ async def dispatch_mqtt_events():
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic == "meteo/warnings":
+  if msg.topic == "water":
+    try:
+      water = json.loads(msg.payload)
+    except json.JSONDecodeError:
+      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+      return
+    event = {
+      "type": "water",
+      "data": {
+        "water": water,
+      }
+    }
+    mqtt_events.put(event)
+  elif msg.topic == "meteo/warnings":
     try:
       warnings = json.loads(msg.payload)
     except json.JSONDecodeError:
@@ -144,7 +158,6 @@ app.add_middleware(
 )
 
 # spotify = Spotify()
-water = Water()
 homeware = Homeware()
 internet = Internet()
 
@@ -204,18 +217,6 @@ async def streamEvents(queue):
       last["home_status"] = home_status
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Water
-    water_data = water.getWater()
-    if not last.get("water_data", {}) == water_data:
-      event = {
-        "type": "water",
-        "data": {
-          "water": water_data,
-        }
-      }
-      last["water_data"] = water_data
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
     if time.time() - last.get("ping", 0) > 5:
       event = {
         "type": "ping",
@@ -229,6 +230,7 @@ async def streamEvents(queue):
 async def stream():
   queue = asyncio.Queue()
   sse_queues.add(queue)
+  mqtt_client.publish("water/request", "")
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
 
