@@ -13,8 +13,7 @@ import Bedroom from "../components/Bedroom"
 import NotAtHome from "../components/NotAtHome"
 import LightingScene from "../components/LightingScene"
 import React, { useState, useEffect } from "react";
-
-const API = process.env.REACT_APP_DATA_PANEL_API_URL
+import { DATA_PANEL_API_URL } from "../config";
 
 const scenes_to_show = [
   {
@@ -27,7 +26,7 @@ const home_alerts = [
   {
     "text": "Humedad baja",
     "severity": "normal",
-    "image": "drops.png",
+    "image": "/drops.png",
     "conditions": [
       {
         "device_id": "thermostat_livingroom",
@@ -40,7 +39,7 @@ const home_alerts = [
   {
     "text": "Humedad alta",
     "severity": "normal",
-    "image": "drops.png",
+    "image": "/drops.png",
     "conditions": [
       {
         "device_id": "thermostat_livingroom",
@@ -53,7 +52,7 @@ const home_alerts = [
   {
     "text": "Salón",
     "severity": "normal",
-    "image": "window.png",
+    "image": "/window.png",
     "conditions": [
       {
         "device_id": "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
@@ -66,7 +65,7 @@ const home_alerts = [
   {
     "text": "Dormitorio",
     "severity": "normal",
-    "image": "window.png",
+    "image": "/window.png",
     "conditions": [
       {
         "device_id": "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
@@ -148,7 +147,7 @@ export default function Home(props) {
   const [see_closed, setSeeClosed] = useState(false)
 
   useEffect(() => {
-    const sse = new EventSource(API + "/stream", { withCredentials: false });
+    const sse = new EventSource(DATA_PANEL_API_URL + "/stream", { withCredentials: false });
     sse.onmessage = e => {
       setSeeClosed(false)
       let event = JSON.parse(e.data)
