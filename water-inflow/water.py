@@ -19,16 +19,15 @@ def getWater(url=WATER_URL, timeout=10):
       return None
 
     tree = html.fromstring(page.content)
-    last_update = _first(tree.xpath('//*[@id="index_bodycenter"]/div[2]/div[2]/div[3]/div[1]/strong/text()'))
-    level = _first(tree.xpath('//*[@id="index_bodycenter"]/div[2]/div[2]/div[3]/div[4]/strong/text()'))
+    last_update = str(_first(tree.xpath('//*[@id="index_bodycenter"]/div[2]/div[2]/div[3]/div[1]/strong/text()'))).split("(")[1].split(")")[0]
+    level = float(str(_first(tree.xpath('//*[@id="index_bodycenter"]/div[2]/div[2]/div[3]/div[4]/strong/text()'))).replace(",","."))
 
     if not last_update or not level:
       logging.warning("Fail to parse embalses.net response.")
       return None
-
     return {
-      "level": float(level),
-      "last_update": last_update.split("(")[1].split(")")[0],
+      "level": level,
+      "last_update": last_update,
     }
   except Exception:
     logging.warning("Fail to reach embalses.net.")
