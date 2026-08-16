@@ -55,7 +55,7 @@ class Context:
             logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
             return {}
         except (requests.ConnectionError, requests.Timeout) as exception:
-            logging.warning("Fail to get Homeware device. Conection error.")
+            logging.warning("Fail to get Homeware device. Connection error.")
             return {}
 
     def getLowerPriorityDevicePowerStatus(self, id: str) -> bool:
