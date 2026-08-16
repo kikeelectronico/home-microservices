@@ -59,6 +59,9 @@ class Context:
             return {}
 
     def getLowerPriorityDevicePowerStatus(self, id: str) -> bool:
+        if not id in self.__power_priority:
+            return False
+
         device_index = self.__power_priority.index(id)
 
         if device_index + 1 >= len(self.__power_priority):
