@@ -7,7 +7,7 @@ import requests
 import logging
 import json
 
-from weather import Weather
+from weather import getWeather
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -17,6 +17,8 @@ if os.environ.get("MQTT_PASS", "no_set") == "no_set":
 MQTT_USER = os.environ.get("MQTT_USER", "no_set")
 MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
 MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
+WHEATHER_API_KEY = os.environ.get("WHEATHER_API_KEY", "no_set")
+WHEATHER_QUERY = os.environ.get("WHEATHER_QUERY", "no_set")
 AEMET_RSS = os.environ.get("AEMET_RSS", "no_set")
 AEMET_AREA = os.environ.get("AEMET_AREA", "no_set")
 ENV = os.environ.get("ENV", "dev")
@@ -38,7 +40,6 @@ mqtt_client = mqtt.Client(
   client_id=SERVICE,
   protocol=mqtt.MQTTv5
 )
-weather = Weather()
 
 def relative_day(text: str) -> int:
     try:
@@ -112,7 +113,7 @@ def publishWarnings(force=False):
 
 def publishWeather(force=False):
     global last_weather_payload
-    weather_payload = weather.getWeather()
+    weather_payload = getWeather(WHEATHER_API_KEY, WHEATHER_QUERY)
     if not weather_payload:
         return
     if force or weather_payload != last_weather_payload:
@@ -157,6 +158,8 @@ def main():
   if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
   if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
   if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
+  if WHEATHER_API_KEY == "no_set": report("WHEATHER_API_KEY env vars no set")
+  if WHEATHER_QUERY == "no_set": report("WHEATHER_QUERY env vars no set")
   if AEMET_RSS == "no_set": report("AEMET_RSS env vars no set")
   if AEMET_AREA == "no_set": report("AEMET_AREA env vars no set")
 
