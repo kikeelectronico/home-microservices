@@ -14,7 +14,7 @@ def payload_parser(payload: str):
         return payload
 
 def mqtt_to_event(topic: str, payload: str) -> Dict[str, Any]:
-    if "device" in topic:
+    if topic.startswith("device/"):
         _, device_id, param = topic.split("/")
         value = payload_parser(payload)
 

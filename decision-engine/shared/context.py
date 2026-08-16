@@ -4,6 +4,7 @@ import requests
 import logging
 
 POWER_THRESHOLD = 50
+REQUEST_TIMEOUT = 10
 
 class Context:
 
@@ -35,7 +36,7 @@ class Context:
         try:
             url = self.__url + "/api/devices/" + id + "/states/" + param
             headers = {"Authorization": "bearer " + self.__token}
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
@@ -48,16 +49,19 @@ class Context:
         try:
             url = self.__url + "/api/devices/" + id
             headers = {"Authorization": "bearer " + self.__token}
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
             return {}
         except (requests.ConnectionError, requests.Timeout) as exception:
-            logging.warning("Fail to get Homeware device. Conection error.")
+            logging.warning("Fail to get Homeware device. Connection error.")
             return {}
 
     def getLowerPriorityDevicePowerStatus(self, id: str) -> bool:
+        if not id in self.__power_priority:
+            return False
+
         device_index = self.__power_priority.index(id)
 
         if device_index + 1 >= len(self.__power_priority):
