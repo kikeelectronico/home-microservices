@@ -104,52 +104,37 @@ async def dispatch_mqtt_events():
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
+  try:
+    data = json.loads(msg.payload)
+  except json.JSONDecodeError:
+    logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+    return
   if msg.topic == "water":
-    try:
-      water = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
       "type": "water",
       "data": {
-        "water": water,
+        "water": data,
       }
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/warnings":
-    try:
-      warnings = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
       "type": "weather-warnings",
       "data": {
-        "warnings": warnings
+        "warnings": data
       }
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/weather":
-    try:
-      weather = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
       "type": "weather",
-      "data": weather
+      "data": data
     }
     mqtt_events.put(event)
   elif msg.topic.startswith("device"):
-    try:
-      data = json.loads(msg.payload)
-      device_id = msg.topic.split("/")[1]
-      status = {}
-      status[device_id] = data
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
+    device_id = msg.topic.split("/")[1]
+    status = {}
+    status[device_id] = data
     event = {
       "type": "home",
       "data": status
