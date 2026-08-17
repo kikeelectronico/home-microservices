@@ -37,7 +37,6 @@ DEVICE_IDS = [
   "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
   "thermostat_bathroom",
   "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
-  # "scene_ducha",
   "thermostat_dormitorio",
   "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
   "temperature_001",
@@ -208,13 +207,13 @@ async def stream():
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
   for device_id in DEVICE_IDS:
-      payload = {
-        "id": device_id,
-        "param":"",
-        "value": "",
-        "intent":"request"
-      }
-      mqtt_client.publish("device/control", json.dumps(payload))
+    payload = {
+      "id": device_id,
+      "param":"",
+      "value": "",
+      "intent":"request"
+    }
+    mqtt_client.publish("device/control", json.dumps(payload))
 
   async def stream_with_cleanup():
     try:
