@@ -31,18 +31,18 @@ export default function Outdoors(props) {
             <div className="outdoorCardColumn outdoorCardWeatherContainer">
                 <div className="outdoorCardWeatherRow">
                     <div className="outdoorCardWeatherTemperatureContainer">
-                            {props.weather.current.temp_c} ºC
+                            {props.meteo_weather.current.temp_c} ºC
                         </div>
                     </div>
                 <div className="outdoorCardWeatherRow">
                     <div className="outdoorCardWeatherSkyContainer">
-                        <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.weather.current.condition.icon}/>
+                        <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.meteo_weather.current.condition.icon}/>
                     </div>
                     <div className="outdoorCardWeatherUVindexContainer">
-                        {props.weather.current.uv}
+                        {props.meteo_weather.current.uv}
                     </div>
                     <div className="outdoorCardWeatherAQIContainer">
-                        {props.weather.current.air_quality['us-epa-index']}
+                        {props.meteo_weather.current.air_quality['us-epa-index']}
                     </div>
                 </div>
             </div>
@@ -50,16 +50,16 @@ export default function Outdoors(props) {
         <div className="outdoorCardRow">
             <div className="outdoorCardWeatherRow">
                 <div className="outdoorCardWindContainer">
-                    {props.weather.current.wind_kph} km/h
+                    {props.meteo_weather.current.wind_kph} km/h
                 </div>
                 <div className="outdoorCardWindContainer">
-                    {props.weather.current.wind_dir}
+                    {props.meteo_weather.current.wind_dir}
                 </div>
             </div>
         </div>
         {
-            props.weather_warnings ? 
-                [...props.weather_warnings]
+            props.meteo_warnings ? 
+                [...props.meteo_warnings]
                 .sort((a, b) => {
                     if (a.is_active !== b.is_active) {
                         return a.is_active ? -1 : 1;
@@ -93,11 +93,11 @@ export default function Outdoors(props) {
             : <></>
         }
         {
-            props.water?.water.level < 50 ? 
+            props.water?.level < 50 ? 
                 <div className="outdoorCardRow">
                     <div className="outdoorCardWeatherRow">
-                        <div className={"outdoorCardAlertContainer " +  (props.water.water.level < 40 ? "alertsLow" : "")}>
-                            {"Nivel de embalses: " + props.water.water.level + " %"}
+                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "")}>
+                            {"Nivel de embalses: " + props.water.level + " %"}
                         </div>
                     </div>
                 </div>

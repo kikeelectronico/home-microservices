@@ -12,7 +12,6 @@ import time
 import logging
 
 # from spotify import Spotify
-from homeware import Homeware
 from internet import Internet
 
 # Load env vars
@@ -28,6 +27,22 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 SERVICE = "data-panel-api-" + ENV
+DEVICE_IDS = [
+  "current001",
+  "thermostat_livingroom",
+  "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
+  "ac_001",
+  "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
+  "temperature_001",
+  "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
+  "thermostat_bathroom",
+  "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+  # "scene_ducha",
+  "thermostat_dormitorio",
+  "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
+  "temperature_001",
+  "switch_at_home"
+]
 
 # Instantiate objects
 sse_queues = set()
@@ -74,6 +89,8 @@ def on_connect(client, userdata, flags, rc, properties):
   logging.info("Subscribed to MQTT topic meteo/warnings")
   client.subscribe("meteo/weather", qos=1)
   logging.info("Subscribed to MQTT topic meteo/weather")
+  for topic in DEVICE_IDS:
+    client.subscribe(f"device/{topic}", qos=1)
 
 async def dispatch_mqtt_events():
   while True:
@@ -87,41 +104,36 @@ async def dispatch_mqtt_events():
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
+  try:
+    data = json.loads(msg.payload)
+  except json.JSONDecodeError:
+    logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+    return
   if msg.topic == "water":
-    try:
-      water = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
       "type": "water",
-      "data": {
-        "water": water,
-      }
+      "data": data
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/warnings":
-    try:
-      warnings = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
-      "type": "weather-warnings",
-      "data": {
-        "warnings": warnings
-      }
+      "type": "meteo-warnings",
+      "data": data
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/weather":
-    try:
-      weather = json.loads(msg.payload)
-    except json.JSONDecodeError:
-      logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
-      return
     event = {
-      "type": "weather",
-      "data": weather
+      "type": "meteo-weather",
+      "data": data
+    }
+    mqtt_events.put(event)
+  elif msg.topic.startswith("device"):
+    device_id = msg.topic.split("/")[1]
+    home = {}
+    home[device_id] = data
+    event = {
+      "type": "home",
+      "data": home
     }
     mqtt_events.put(event)
 
@@ -158,25 +170,7 @@ app.add_middleware(
 )
 
 # spotify = Spotify()
-homeware = Homeware()
 internet = Internet()
-
-devices_ids = [
-  "current001",
-  "thermostat_livingroom",
-  "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
-  "ac_001",
-  "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
-  "temperature_001",
-  "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
-  "thermostat_bathroom",
-  "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
-  "scene_ducha",
-  "thermostat_dormitorio",
-  "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
-  "temperature_001",
-  "switch_at_home"
-]
 
 @app.get("/")
 async def root():
@@ -205,26 +199,6 @@ async def streamEvents(queue):
       last["connected"] = connected
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    # Home
-    home_status = homeware.getStatus(devices_ids)
-    if not last.get("home_status", {}) == home_status:
-      event = {
-        "type": "home",
-        "data": {
-          "status": home_status
-        }
-      }
-      last["home_status"] = home_status
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
-    if time.time() - last.get("ping", 0) > 5:
-      event = {
-        "type": "ping",
-        "data": {}
-      }
-      last["ping"] = time.time()
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
 
 @app.get("/stream")
 async def stream():
@@ -233,6 +207,14 @@ async def stream():
   mqtt_client.publish("water/request", "")
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
+  for device_id in DEVICE_IDS:
+      payload = {
+        "id": device_id,
+        "param":"",
+        "value": "",
+        "intent":"request"
+      }
+      mqtt_client.publish("device/control", json.dumps(payload))
 
   async def stream_with_cleanup():
     try:
