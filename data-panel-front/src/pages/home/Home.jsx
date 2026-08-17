@@ -30,7 +30,12 @@ export default function Home(props) {
       setSeeClosed(false)
       let event = JSON.parse(e.data)
       if (event.type === "internet") {setInternet(event.data)}
-      else if (event.type === "home") {setHome(event.data)}
+      else if (event.type === "home") {
+        setHome(prev => ({
+            ...prev,
+            ...event.data
+        }));
+      }
       else if (event.type === "water") {setWater(event.data);}
       else if (event.type === "weather") {setWeather(event.data)}
       else if (event.type === "weather-warnings") {setWeatherWarnings(event.data.warnings);}

@@ -5,7 +5,7 @@ export default function NotAtHome(props) {
   return (
     <>
       {
-        props.data && !props.data.status.switch_at_home.on ? 
+        props.data && props.data.switch_at_home && !props.data.switch_at_home.on ? 
           <div className="notAtHomeCard">
             <div className="notAtHomeMain">
               Interruptor de presencia desactivado 

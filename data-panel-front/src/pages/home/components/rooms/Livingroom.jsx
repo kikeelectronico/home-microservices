@@ -4,7 +4,7 @@ import "./room.css"
 export default function Livingroom(props) {
 
     const thermostatMode = () => {
-        var mode = props.home.status.thermostat_livingroom.thermostatMode
+        var mode = props.home.thermostat_livingroom?.thermostatMode
         if (mode === "heat") return "Calefacción"
         if (mode === "cool") return "Aire acondicionado"
         if (mode === "fan-only") return "Ventilador"
@@ -12,10 +12,10 @@ export default function Livingroom(props) {
     }
 
     const thermostatColor = () => {
-        var mode = props.home.status.thermostat_livingroom.thermostatMode
-        if (mode === "heat" && props.home.status["fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"].on) return "255,0,0"
-        else if (mode === "cool" && props.home.status.ac_001.on) return "0,0,255"
-        else if (mode === "fan-only" && props.home.status.ac_001.on) return "255,255,255"
+        var mode = props.home.thermostat_livingroom?.thermostatMode
+        if (mode === "heat" && props.home["fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"]?.on) return "255,0,0"
+        else if (mode === "cool" && props.home.ac_001?.on) return "0,0,255"
+        else if (mode === "fan-only" && props.home.ac_001?.on) return "255,255,255"
         else return "0,0,0"
     }
 
@@ -31,8 +31,8 @@ export default function Livingroom(props) {
                 Salón
             </div>
             <div className="homeCardRow" style={{marginTop: 5}}>
-                <div className={"roomCardAmbientContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
-                    {props.home.status.thermostat_livingroom.thermostatTemperatureAmbient} ºC
+                <div className={"roomCardAmbientContainer " + (props.home.thermostat_livingroom?.online ? "deviceOnline" : "deviceOffline")}>
+                    {props.home.thermostat_livingroom?.thermostatTemperatureAmbient} ºC
                 </div>
             </div>
             {
@@ -45,45 +45,45 @@ export default function Livingroom(props) {
                 : <></>
             }
             {
-                props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 100 ?
+                props.home["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]?.openPercent === 100 ?
                     <div className="homeCardRow">
-                        <div className={"roomCardAlertContainer " + (props.home.status[["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]].online ? "deviceOnline" : "deviceOffline")}>
+                        <div className={"roomCardAlertContainer " + (props.home["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]?.online ? "deviceOnline" : "deviceOffline")}>
                             Ventana abierta
                         </div>
                     </div>
                 : <></>
             }
             {
-                props.home.status.thermostat_livingroom.thermostatHumidityAmbient < 30 ?
+                props.home.thermostat_livingroom?.thermostatHumidityAmbient < 30 ?
                     <div className="homeCardRow">
-                        <div className={"roomCardAlertContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
+                        <div className={"roomCardAlertContainer " + (props.home.thermostat_livingroom?.online ? "deviceOnline" : "deviceOffline")}>
                             Humedad baja
                         </div>
                     </div>
                 : <></>
             }
             {
-                props.home.status.thermostat_livingroom.thermostatHumidityAmbient > 55 ?
+                props.home.thermostat_livingroom?.thermostatHumidityAmbient > 55 ?
                     <div className="homeCardRow">
-                        <div className={"roomCardAlertContainer " + (props.home.status.thermostat_livingroom.online ? "deviceOnline" : "deviceOffline")}>
+                        <div className={"roomCardAlertContainer " + (props.home.thermostat_livingroom?.online ? "deviceOnline" : "deviceOffline")}>
                             Humedad alta
                         </div>
                     </div>
                 : <></>
             }
             {
-                props.home.status["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"].openPercent === 0 && 
-                props.home.status.thermostat_livingroom.thermostatMode === "cool" &&
-                props.home.status.thermostat_livingroom.thermostatTemperatureAmbient > props.home.status.temperature_001.temperatureAmbientCelsius ?
+                props.home["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]?.openPercent === 0 && 
+                props.home.thermostat_livingroom?.thermostatMode === "cool" &&
+                props.home.thermostat_livingroom?.thermostatTemperatureAmbient > props.home.temperature_001?.temperatureAmbientCelsius ?
                     <div className="homeCardRow">
-                        <div className={"roomCardAlertContainer " + (props.home.status[["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]].online ? "deviceOnline" : "deviceOffline")}>
+                        <div className={"roomCardAlertContainer " + (props.home["e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4"]?.online ? "deviceOnline" : "deviceOffline")}>
                             Abre la ventana
                         </div>
                     </div>
                 : <></>
             }
             {
-                props.home.status["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.currentSensorStateData?.map(sensor => {
+                props.home["df31ac85-be3f-48db-ab5e-483001f3ad27_1"]?.currentSensorStateData?.map(sensor => {
                 return sensor.name === "PM2.5" && sensor.rawValue > 5 ?
                         <div className="homeCardRow" key={sensor.name}>
                             <div className={"roomCardAlertContainer " + (sensor.rawValue  ? ("deviceOnline " + pm25AlertColor(sensor.rawValue)) : "deviceOffline")}>
