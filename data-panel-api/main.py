@@ -117,7 +117,7 @@ def on_message(client, userdata, msg):
     mqtt_events.put(event)
   elif msg.topic == "meteo/warnings":
     event = {
-      "type": "weather-warnings",
+      "type": "meteo-warnings",
       "data": data
     }
     mqtt_events.put(event)

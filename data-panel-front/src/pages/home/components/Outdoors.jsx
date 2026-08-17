@@ -58,8 +58,8 @@ export default function Outdoors(props) {
             </div>
         </div>
         {
-            props.weather_warnings ? 
-                [...props.weather_warnings]
+            props.meteo_warnings ? 
+                [...props.meteo_warnings]
                 .sort((a, b) => {
                     if (a.is_active !== b.is_active) {
                         return a.is_active ? -1 : 1;
