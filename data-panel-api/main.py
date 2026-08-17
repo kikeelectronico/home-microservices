@@ -112,17 +112,13 @@ def on_message(client, userdata, msg):
   if msg.topic == "water":
     event = {
       "type": "water",
-      "data": {
-        "water": data,
-      }
+      "data": data
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/warnings":
     event = {
       "type": "weather-warnings",
-      "data": {
-        "warnings": data
-      }
+      "data": data
     }
     mqtt_events.put(event)
   elif msg.topic == "meteo/weather":

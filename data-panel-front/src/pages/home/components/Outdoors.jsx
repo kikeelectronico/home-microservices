@@ -93,11 +93,11 @@ export default function Outdoors(props) {
             : <></>
         }
         {
-            props.water?.water.level < 50 ? 
+            props.water?.level < 50 ? 
                 <div className="outdoorCardRow">
                     <div className="outdoorCardWeatherRow">
-                        <div className={"outdoorCardAlertContainer " +  (props.water.water.level < 40 ? "alertsLow" : "")}>
-                            {"Nivel de embalses: " + props.water.water.level + " %"}
+                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "")}>
+                            {"Nivel de embalses: " + props.water.level + " %"}
                         </div>
                     </div>
                 </div>
