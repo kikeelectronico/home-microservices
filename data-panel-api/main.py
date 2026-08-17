@@ -133,11 +133,11 @@ def on_message(client, userdata, msg):
     mqtt_events.put(event)
   elif msg.topic.startswith("device"):
     device_id = msg.topic.split("/")[1]
-    status = {}
-    status[device_id] = data
+    home = {}
+    home[device_id] = data
     event = {
       "type": "home",
-      "data": status
+      "data": home
     }
     mqtt_events.put(event)
 
