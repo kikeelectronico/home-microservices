@@ -199,14 +199,6 @@ async def streamEvents(queue):
       last["connected"] = connected
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
-    if time.time() - last.get("ping", 0) > 5:
-      event = {
-        "type": "ping",
-        "data": {}
-      }
-      last["ping"] = time.time()
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
 
 @app.get("/stream")
 async def stream():
