@@ -199,6 +199,8 @@ async def streamEvents(queue):
       yield f"data: {json.dumps(event)}\n\n"
       await sleep(0.1)
 
+    await sleep(0.1)
+
 @app.get("/stream")
 async def stream():
   queue = asyncio.Queue()
