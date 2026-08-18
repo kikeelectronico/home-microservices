@@ -94,7 +94,7 @@ def main():
           logging.info("IP de Homeware actualizada")
         else:
           logging.error("Problemas al actualizar la IP de Homeware")
-          mqtt_client.publish("message-alerts", "Problemas al actualizar la IP de Homeware")
+          mqtt_client.publish("notificacion/text/alert", "Problemas al actualizar la IP de Homeware")
         last_ip = ip
       # Send heartbeat
       mqtt_client.publish("heartbeats", SERVICE)

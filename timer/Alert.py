@@ -15,4 +15,4 @@ class Alert:
 
   # Send a message alert
   def message(self, text):
-    self.__mqtt_client.publish("message-alerts", text)
+    self.__mqtt_client.publish("notificacion/text/alert", text)

@@ -76,13 +76,13 @@ if __name__ == "__main__":
     if not functions.homewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY):
       logging.warning("Homeware no responde")
       mqtt_client.publish("voice-alert/text", "Homeware no responde")
-      mqtt_client.publish("message-alerts", "Homeware no responde")
+      mqtt_client.publish("notificacion/text/alert", "Homeware no responde")
       time.sleep(BLOCK_TIME)
     # Verify Hue Bridge connectivity
     if not functions.hueTest(HUE_HOST, HUE_TOKEN):
       logging.warning("Hue bridge no responde")
       mqtt_client.publish("voice-alert/text", "Hue bridge no responde")
-      mqtt_client.publish("message-alerts", "Hue bridge no responde")
+      mqtt_client.publish("notificacion/text/alert", "Hue bridge no responde")
       time.sleep(BLOCK_TIME)
     # Send heartbeat
     mqtt_client.publish("heartbeats", SERVICE)
