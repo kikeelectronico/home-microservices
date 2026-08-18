@@ -76,7 +76,7 @@ export default function Home(props) {
             <Bedroom home={home} playing={spotify_playing}/>
             <Fridge home={home} playing={spotify_playing}/>
           </div>
-          { home ? <NotAtHome data={home}/> : <></> }
+          <NotAtHome home={home}/>
         </div>
     </div>
   )
