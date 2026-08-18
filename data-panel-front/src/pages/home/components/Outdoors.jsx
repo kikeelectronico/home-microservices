@@ -82,7 +82,7 @@ export default function Outdoors(props) {
                         }
                         
                         return (
-                            <div className="outdoorCardRow" key={index}>
+                            <div className="outdoorCardRow alertAnimated" key={index}>
                                 <div className="outdoorCardWeatherRow">
                                     <div className={"outdoorCardAlertContainer " +  getStyle()}>
                                         {day_map[warning.start_offset] + (warning.is_active ? " - Activa" : "")}
@@ -98,9 +98,9 @@ export default function Outdoors(props) {
         }
         {
             props.water?.level < 50 ? 
-                <div className="outdoorCardRow">
+                <div className="outdoorCardRow alertAnimated">
                     <div className="outdoorCardWeatherRow">
-                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "")}>
+                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "alertsNormal")}>
                             {"Nivel de embalses: " + props.water.level + " %"}
                         </div>
                     </div>
