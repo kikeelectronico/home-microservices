@@ -31,6 +31,7 @@ mqtt_client = mqtt.Client(
 
 
 def publishInternetStatus(force=False):
+  global last_internet_status
   internet_status = getInternetStatus()
 
   if force or internet_status != last_internet_status:
