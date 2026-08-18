@@ -10,7 +10,7 @@ class Alert:
   def voice(self, input_text):
     output_text = input_text
     # Send the message
-    self.__mqtt_client.publish("voice-alert/text", output_text)
+    self.__mqtt_client.publish("notificacion/voice/alert", output_text)
 
   # Send a message alert
   def message(self, text):
