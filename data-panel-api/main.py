@@ -126,6 +126,12 @@ def on_message(client, userdata, msg):
       "data": data
     }
     mqtt_events.put(event)
+  elif msg.topic == "internet":
+      event = {
+        "type": "internet",
+        "data": data
+      }
+      mqtt_events.put(event)
   elif msg.topic.startswith("device"):
     device_id = msg.topic.split("/")[1]
     home = {}
@@ -186,19 +192,6 @@ async def streamEvents(queue):
     except asyncio.QueueEmpty:
       pass
 
-    # Internet
-    connected = internet.checkConnectivity()
-    if not last.get("connected", False) == connected:
-      event = {
-        "type": "internet",
-        "data": {
-          "connected": connected
-        }
-      }
-      last["connected"] = connected
-      yield f"data: {json.dumps(event)}\n\n"
-      await sleep(0.1)
-
     await sleep(0.1)
 
 @app.get("/stream")
@@ -208,6 +201,7 @@ async def stream():
   mqtt_client.publish("water/request", "")
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
+  mqtt_client.publish("internet/request", "")
   for device_id in DEVICE_IDS:
     payload = {
       "id": device_id,
