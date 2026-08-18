@@ -90,6 +90,7 @@ def on_connect(client, userdata, flags, rc, properties):
   logging.info("Subscribed to MQTT topic meteo/weather")
   for topic in DEVICE_IDS:
     client.subscribe(f"device/{topic}", qos=1)
+  client.subscribe("device/scene_ducha", qos=1)
 
 async def dispatch_mqtt_events():
   while True:
