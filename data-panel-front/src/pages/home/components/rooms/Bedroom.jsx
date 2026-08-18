@@ -12,9 +12,11 @@ export default function Bedroom(props) {
     }
 
     const thermostatColor = () => {
-        var mode = props.home.thermostat_dormitorio?.thermostatMode
-        if (mode === "heat" && props.home["fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"]?.on) return "255,0,0"
-        else return "0,0,0"
+        if (props.home) {
+            var mode = props.home.thermostat_dormitorio?.thermostatMode
+            if (mode === "heat" && props.home["fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"]?.on) return "255,0,0"
+            else return "0,0,0"
+        } else return "0,0,0"
     }
 
   return (
@@ -23,37 +25,42 @@ export default function Bedroom(props) {
             Dormitorio
         </div>
         <div className="homeCardRow" style={{marginTop: 5}}>
-            <div className={"roomCardAmbientContainer " + (props.home.thermostat_dormitorio?.online ? "deviceOnline" : "deviceOffline")}>
-                {props.home.thermostat_dormitorio?.thermostatTemperatureAmbient} ºC
+            <div className={"roomCardAmbientContainer " + (props.home?.thermostat_dormitorio?.online ? "deviceOnline" : "deviceOffline")}>
+                {props.home?.thermostat_dormitorio?.thermostatTemperatureAmbient ?? "--.-"} ºC
             </div>
         </div>
         {
-            thermostatMode() !== "" ?
-                <div className="homeCardRow homeCardRowNoBorder">
-                    <div className="roomCardThermostatContainer deviceOnline">
-                        {thermostatMode()}
-                    </div>
-                </div>
-            : <></>
-        }
-        {
-            props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 ?
-                <div className="homeCardRow">
-                    <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
-                        Ventana abierta
-                    </div>
-                </div>
-            : <></>
-        }
-        {
-            props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 && 
-            props.home.thermostat_dormitorio?.thermostatMode === "cool" ?
-                <div className="homeCardRow">
-                    <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
-                        Cierra la ventana
-                    </div>
-                </div>
-            : <></>
+            props.home ?
+                <>
+                    {
+                        thermostatMode() !== "" ?
+                            <div className="homeCardRow homeCardRowNoBorder">
+                                <div className="roomCardThermostatContainer deviceOnline">
+                                    {thermostatMode()}
+                                </div>
+                            </div>
+                        : <></>
+                    }
+                    {
+                        props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 ?
+                            <div className="homeCardRow">
+                                <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
+                                    Ventana abierta
+                                </div>
+                            </div>
+                        : <></>
+                    }
+                    {
+                        props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 && 
+                        props.home.thermostat_dormitorio?.thermostatMode === "cool" ?
+                            <div className="homeCardRow">
+                                <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
+                                    Cierra la ventana
+                                </div>
+                            </div>
+                        : <></>
+                    }
+                </> : <></>
         }
     </div>
   )
