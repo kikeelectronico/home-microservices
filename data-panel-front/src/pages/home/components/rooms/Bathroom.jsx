@@ -35,7 +35,7 @@ export default function Bathroom(props) {
                 <>
                     {
                         thermostatMode() !== "" ?
-                            <div className="homeCardRow homeCardRowNoBorder">
+                            <div className="homeCardRow alertAnimated homeCardRowNoBorder">
                                 <div className="roomCardThermostatContainer deviceOnline">
                                     {thermostatMode()}
                                 </div>
@@ -44,7 +44,7 @@ export default function Bathroom(props) {
                     }
                     {
                         props.home.scene_ducha.enable ?
-                            <div className="homeCardRow">
+                            <div className="homeCardRow alertAnimated">
                                 <div className="roomCardAlertContainer deviceOnline">
                                     Modo ducha activo
                                 </div>

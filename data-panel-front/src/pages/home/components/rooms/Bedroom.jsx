@@ -34,7 +34,7 @@ export default function Bedroom(props) {
                 <>
                     {
                         thermostatMode() !== "" ?
-                            <div className="homeCardRow homeCardRowNoBorder">
+                            <div className="homeCardRow alertAnimated homeCardRowNoBorder">
                                 <div className="roomCardThermostatContainer deviceOnline">
                                     {thermostatMode()}
                                 </div>
@@ -43,7 +43,7 @@ export default function Bedroom(props) {
                     }
                     {
                         props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 ?
-                            <div className="homeCardRow">
+                            <div className="homeCardRow alertAnimated">
                                 <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
                                     Ventana abierta
                                 </div>
@@ -53,7 +53,7 @@ export default function Bedroom(props) {
                     {
                         props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.openPercent === 100 && 
                         props.home.thermostat_dormitorio?.thermostatMode === "cool" ?
-                            <div className="homeCardRow">
+                            <div className="homeCardRow alertAnimated">
                                 <div className={"roomCardAlertContainer " + (props.home["e6c2e2bd-5057-49bc-821f-a4b10e415ac6"]?.online ? "deviceOnline" : "deviceOffline")}>
                                     Cierra la ventana
                                 </div>
