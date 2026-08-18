@@ -9,8 +9,8 @@ export default function Fridge(props) {
             Nevera
         </div>
         <div className="homeCardRow" style={{marginTop: 5}}>
-            <div className={"roomCardAmbientContainer " + (props.home.temperature_001?.online ? "deviceOnline" : "deviceOffline")}>
-                {props.home.temperature_001?.temperatureAmbientCelsius} ºC
+            <div className={"roomCardAmbientContainer " + (props.home?.temperature_001?.online ? "deviceOnline" : "deviceOffline")}>
+                {props.home?.temperature_001?.temperatureAmbientCelsius ?? "-.-"} ºC
             </div>
         </div>
     </div>

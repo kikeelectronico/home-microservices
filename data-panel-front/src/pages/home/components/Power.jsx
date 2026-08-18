@@ -4,12 +4,12 @@ import "./power.css"
 export default function Power(props) {
 
     const calcPower = () => {
-        return (props.home.current001?.brightness * 35)
+        return props.home ? (props.home?.current001?.brightness * 35) : "----"
     }
 
     const shadowColor = () => {
-        if (props.home.current001?.brightness > 100) return "255,0,0"
-        else if (props.home.current001?.brightness > 90) return "255,165,0"
+        if (props.home?.current001?.brightness > 100) return "255,0,0"
+        else if (props.home?.current001?.brightness > 90) return "255,165,0"
         else return "0,0,0"
     }
 
@@ -19,19 +19,10 @@ export default function Power(props) {
                 Potencia
             </div>
             <div className="homeCardRow">
-                <div className={"powerCardPowerContainer " + (props.home.current001?.online ? "deviceOnline" : "deviceOffline")}>
+                <div className={"powerCardPowerContainer " + (props.home?.current001?.online ? "deviceOnline" : "deviceOffline")}>
                     {calcPower()} W
                 </div>
             </div>
-            {
-                props.home.current001?.brightness > 100 ?
-                    <div className="homeCardRow">
-                        <div className={"powerCardAlertContainer " + (props.home.current001?.online ? "deviceOnline" : "deviceOffline")}>
-                            Sobrecarga de potencia
-                        </div>
-                    </div>
-                : <></>
-            }
         </div>
     )
 }

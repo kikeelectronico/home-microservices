@@ -66,22 +66,17 @@ export default function Home(props) {
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
             <Outdoors meteo_weather={meteo_weather} meteo_warnings={meteo_warnings} water={water} playing={spotify_playing}/>
-            { home ? <Power home={home} playing={spotify_playing}/> : <></> }
-            { internet ? <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/> : <></> }
+            <Power home={home} playing={spotify_playing}/>
+            <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/>
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 
           </div>
           <div className="homeCardsColumn">
-            { home ?
-              <>
-                <Livingroom home={home} playing={spotify_playing}/>
-                <Bathroom home={home} playing={spotify_playing}/>
-                <Bedroom home={home} playing={spotify_playing}/>
-                <Fridge home={home} playing={spotify_playing}/>
-              </> 
-            : <></> }
-
+            <Livingroom home={home} playing={spotify_playing}/>
+            <Bathroom home={home} playing={spotify_playing}/>
+            <Bedroom home={home} playing={spotify_playing}/>
+            <Fridge home={home} playing={spotify_playing}/>
           </div>
-          { home ? <NotAtHome data={home}/> : <></> }
+          <NotAtHome home={home}/>
         </div>
     </div>
   )
