@@ -5,6 +5,56 @@
     flex-direction: row;
 }
 
+.outdoorCardRow.alertAnimated {
+    min-height: 0;
+    max-height: 0;
+    overflow: hidden;
+
+    animation: alertExpand 0.65s ease-out forwards;
+}
+
+.outdoorCardRow.alertAnimated .outdoorCardAlertContainer {
+    animation: weatherAlert 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes alertExpand {
+    0% {
+        min-height: 0;
+        max-height: 0;
+    }
+
+    99% {
+        min-height: 0;
+        max-height: 300px;
+    }
+
+    100% {
+        min-height: 60px;
+        max-height: 300px;
+    }
+}
+
+@keyframes weatherAlert {
+    0% {
+        opacity: 0;
+        transform: translateX(60px) scale(0.92);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-8px) scale(1.02);
+    }
+
+    75% {
+        transform: translateX(3px) scale(0.995);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
 .outdoorCardRow + .outdoorCardRow {
     position: relative;
 }
@@ -60,11 +110,13 @@
 }
 
 .outdoorCardWeatherTemperatureContainer {
-    color: white;
+    /* color: white; */
     font-size: 45px;    
 }
 
 .outdoorCardWeatherSkyContainer {
+    height: 60px;
+    width: 60px;
 }
 
 .outdoorCardWeatherSkyIcon {
@@ -72,17 +124,17 @@
 }
 
 .outdoorCardWeatherUVindexContainer {
-    color: white;
+    /* color: white; */
     font-size: 35px;    
 }
 
 .outdoorCardWeatherAQIContainer {
-    color: white;
+    /* color: white; */
     font-size: 35px;    
 }
 
 .outdoorCardWindContainer {
-    color: white;
+    /* color: white; */
     font-size: 30px;
 }
 
@@ -92,3 +144,4 @@
     padding-right: 15%;
     font-size: 25px;
 }
+

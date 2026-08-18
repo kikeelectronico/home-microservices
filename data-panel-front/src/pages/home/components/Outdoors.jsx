@@ -30,30 +30,34 @@ export default function Outdoors(props) {
             </div>
             <div className="outdoorCardColumn outdoorCardWeatherContainer">
                 <div className="outdoorCardWeatherRow">
-                    <div className="outdoorCardWeatherTemperatureContainer">
-                            {props.meteo_weather.current.temp_c} ºC
-                        </div>
+                    <div className={"outdoorCardWeatherTemperatureContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.temp_c ?? "--.-"} ºC
                     </div>
+                </div>
                 <div className="outdoorCardWeatherRow">
                     <div className="outdoorCardWeatherSkyContainer">
-                        <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.meteo_weather.current.condition.icon}/>
+                        {
+                            props.meteo_weather ? 
+                                <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.meteo_weather?.current.condition.icon}/>
+                            : <></>   
+                        }
                     </div>
-                    <div className="outdoorCardWeatherUVindexContainer">
-                        {props.meteo_weather.current.uv}
+                    <div className={"outdoorCardWeatherUVindexContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.uv ?? "-"}
                     </div>
-                    <div className="outdoorCardWeatherAQIContainer">
-                        {props.meteo_weather.current.air_quality['us-epa-index']}
+                    <div className={"outdoorCardWeatherAQIContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.air_quality['us-epa-index'] ?? "-"}
                     </div>
                 </div>
             </div>
         </div>
         <div className="outdoorCardRow">
             <div className="outdoorCardWeatherRow">
-                <div className="outdoorCardWindContainer">
-                    {props.meteo_weather.current.wind_kph} km/h
+                <div className={"outdoorCardWindContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                    {props.meteo_weather?.current.wind_kph ?? "--.-"} km/h
                 </div>
-                <div className="outdoorCardWindContainer">
-                    {props.meteo_weather.current.wind_dir}
+                <div className={"outdoorCardWindContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                    {props.meteo_weather?.current.wind_dir ?? "--"}
                 </div>
             </div>
         </div>
@@ -78,7 +82,7 @@ export default function Outdoors(props) {
                         }
                         
                         return (
-                            <div className="outdoorCardRow" key={index}>
+                            <div className="outdoorCardRow alertAnimated" key={index}>
                                 <div className="outdoorCardWeatherRow">
                                     <div className={"outdoorCardAlertContainer " +  getStyle()}>
                                         {day_map[warning.start_offset] + (warning.is_active ? " - Activa" : "")}
@@ -94,9 +98,9 @@ export default function Outdoors(props) {
         }
         {
             props.water?.level < 50 ? 
-                <div className="outdoorCardRow">
+                <div className="outdoorCardRow alertAnimated">
                     <div className="outdoorCardWeatherRow">
-                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "")}>
+                        <div className={"outdoorCardAlertContainer " +  (props.water.level < 40 ? "alertsLow" : "alertsNormal")}>
                             {"Nivel de embalses: " + props.water.level + " %"}
                         </div>
                     </div>
