@@ -16,6 +16,8 @@ HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
 HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
 HUE_HOST = os.environ.get("HUE_HOST", "no_set")
 HUE_TOKEN = os.environ.get("HUE_TOKEN", "no_set")
+IKEA_HOST = os.environ.get("IKEA_HOST", "no_set")
+IKEA_TOKEN = os.environ.get("IKEA_TOKEN", "no_set")
 ENV = os.environ.get("ENV", "dev")
 
 # Define constants
@@ -61,6 +63,8 @@ if __name__ == "__main__":
   if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
   if HUE_HOST == "no_set": report("HUE_HOST env vars no set")
   if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
+  if IKEA_HOST == "no_set": report("IKEA_HOST env vars no set")
+  if IKEA_TOKEN == "no_set": report("IKEA_TOKEN env vars no set")
 
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
@@ -83,6 +87,12 @@ if __name__ == "__main__":
       logging.warning("Hue bridge no responde")
       mqtt_client.publish("notificacion/voice/alert", "Hue bridge no responde")
       mqtt_client.publish("notificacion/text/alert", "Hue bridge no responde")
+      time.sleep(BLOCK_TIME)
+    # Verify Ikea Bridge connectivity
+    if not functions.ikeaTest(IKEA_HOST, IKEA_TOKEN):
+      logging.warning("Ikea bridge no responde")
+      mqtt_client.publish("notificacion/voice/alert", "Ikea bridge no responde")
+      mqtt_client.publish("notificacion/text/alert", "Ikea bridge no responde")
       time.sleep(BLOCK_TIME)
     # Send heartbeat
     mqtt_client.publish("heartbeats", SERVICE)
