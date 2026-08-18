@@ -65,7 +65,7 @@ export default function Home(props) {
     <div className="homePage">
         <div className="homeCardsContainer">
           <div className="homeCardsColumn">
-            { meteo_weather ? <Outdoors meteo_weather={meteo_weather} meteo_warnings={meteo_warnings} water={water} playing={spotify_playing}/> : <></> }
+            <Outdoors meteo_weather={meteo_weather} meteo_warnings={meteo_warnings} water={water} playing={spotify_playing}/>
             { home ? <Power home={home} playing={spotify_playing}/> : <></> }
             { internet ? <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/> : <></> }
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 

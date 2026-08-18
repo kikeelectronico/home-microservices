@@ -60,12 +60,13 @@
 }
 
 .outdoorCardWeatherTemperatureContainer {
-    color: white;
+    /* color: white; */
     font-size: 45px;    
 }
 
 .outdoorCardWeatherSkyContainer {
     height: 60px;
+    width: 60px;
 }
 
 .outdoorCardWeatherSkyIcon {
@@ -73,17 +74,17 @@
 }
 
 .outdoorCardWeatherUVindexContainer {
-    color: white;
+    /* color: white; */
     font-size: 35px;    
 }
 
 .outdoorCardWeatherAQIContainer {
-    color: white;
+    /* color: white; */
     font-size: 35px;    
 }
 
 .outdoorCardWindContainer {
-    color: white;
+    /* color: white; */
     font-size: 30px;
 }
 
