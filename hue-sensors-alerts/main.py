@@ -104,10 +104,10 @@ if __name__ == "__main__":
             if not homeware.get("switch_at_home", "on"):
               if service["type"] == "contact":
                 if service["contact_report"]["state"] == "no_contact":
-                  mqtt_client.publish("message-alerts", "Alerta de contacto")
+                  mqtt_client.publish("notificacion/text/alert", "Alerta de contacto")
               elif service["type"] == "motion":
                 if service["motion"]["motion"]:
-                  mqtt_client.publish("message-alerts", "Alerta de movimiento")
+                  mqtt_client.publish("notificacion/text/alert", "Alerta de movimiento")
 
       logging.warning("Hue SSE stream closed. Reconnecting in 5s")
       time.sleep(5)

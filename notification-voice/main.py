@@ -19,7 +19,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["voice-alert/text", "voice-alert/speakers", "notificacion/voice/alert"]
+TOPICS = ["notificacion/voice/alert"]
 SERVICE = "notification-voice-" + ENV
 
 # Instantiate objects
@@ -51,7 +51,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
-  if msg.topic == "voice-alert/text":
+  if msg.topic == "notificacion/voice/alert":
     # Send the message to the Smart Speakers
     if homeware.get("scene_awake", "enable"):
       payload = msg.payload.decode('utf-8')
@@ -60,8 +60,6 @@ def on_message(client, userdata, msg):
     # Send the message to the Smart Speakers
     payload = msg.payload.decode('utf-8')
     voice.getAndPlay(payload)
-  elif msg.topic == "voice-alert/speakers":
-    voice.setSpeakers(msg.payload.decode('utf-8'))
 
 # Main entry point
 if __name__ == "__main__":

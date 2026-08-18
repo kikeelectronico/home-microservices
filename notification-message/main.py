@@ -18,7 +18,7 @@ ENV = os.environ.get("ENV", "dev")
 
 # Define constants
 MQTT_PORT = 1883
-TOPICS = ["message-alerts"]
+TOPICS = ["notificacion/text/alert"]
 SERVICE = "notification-message-" + ENV
 
 # Instantiate objects
