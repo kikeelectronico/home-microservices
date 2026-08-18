@@ -23,15 +23,6 @@ export default function Power(props) {
                     {calcPower()} W
                 </div>
             </div>
-            {
-                props.home?.current001?.brightness > 100 ?
-                    <div className="homeCardRow">
-                        <div className={"powerCardAlertContainer " + (props.home?.current001?.online ? "deviceOnline" : "deviceOffline")}>
-                            Sobrecarga de potencia
-                        </div>
-                    </div>
-                : <></>
-            }
         </div>
     )
 }
