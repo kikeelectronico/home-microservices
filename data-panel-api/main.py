@@ -12,7 +12,6 @@ import time
 import logging
 
 # from spotify import Spotify
-from internet import Internet
 
 # Load env vars
 if os.environ.get("ENV", "dev") == "dev":
@@ -176,7 +175,6 @@ app.add_middleware(
 )
 
 # spotify = Spotify()
-internet = Internet()
 
 @app.get("/")
 async def root():
