@@ -33,7 +33,7 @@ from domains.notification.voice.shower import ShowerVoiceNotificationHandler
 from domains.outlet.bathroom_radiator import BathroomRadiatorOutlethHandler
 from domains.outlet.bedroom_fan import BedroomFanHandler
 from domains.outlet.bedroom_radiator import BedroomRadiatorOutlethHandler
-from domains.outlet.office import OfficeOutlethHandler
+from domains.outlet.office_table import OfficeTableOutlethHandler
 from domains.outlet.water_heater import WaterHeaterOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
@@ -88,7 +88,7 @@ def build_handlers() -> List[Handler]:
         BathroomRadiatorOutlethHandler(),
         BedroomFanHandler(),
         BedroomRadiatorOutlethHandler(),
-        OfficeOutlethHandler(),
+        OfficeTableOutlethHandler(),
         WaterHeaterOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
