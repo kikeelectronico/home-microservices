@@ -82,11 +82,9 @@ mqtt_client = mqtt.Client(
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
   client.subscribe("water", qos=1)
-  logging.info("Subscribed to MQTT topic water")
   client.subscribe("meteo/warnings", qos=1)
-  logging.info("Subscribed to MQTT topic meteo/warnings")
   client.subscribe("meteo/weather", qos=1)
-  logging.info("Subscribed to MQTT topic meteo/weather")
+  client.subscribe("electricity/grid", qos=1)
   for topic in DEVICE_IDS:
     client.subscribe(f"device/{topic}", qos=1)
   client.subscribe("device/scene_ducha", qos=1)
@@ -129,6 +127,12 @@ def on_message(client, userdata, msg):
   elif msg.topic == "internet":
       event = {
         "type": "internet",
+        "data": data
+      }
+      mqtt_events.put(event)
+  elif msg.topic == "electricity/grid":
+      event = {
+        "type": "electricity-grid",
         "data": data
       }
       mqtt_events.put(event)
@@ -201,6 +205,7 @@ async def stream():
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
   mqtt_client.publish("internet/request", "")
+  mqtt_client.publish("electricity/grid/request", "")
   for device_id in DEVICE_IDS:
     payload = {
       "id": device_id,
