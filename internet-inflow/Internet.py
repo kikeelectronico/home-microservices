@@ -1,9 +1,11 @@
 import logging
 import requests
 
+REQUEST_TIMEOUT = 10
+
 def getInternetStatus():
   try:
-    requests.get("https://www.google.com", timeout=2)
+    requests.get("https://www.google.com", timeout=REQUEST_TIMEOUT)
     return {
       "connected": True
     }
