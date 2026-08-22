@@ -20,7 +20,12 @@ export default function Power(props) {
             </div>
             <div className="homeCardRow">
                 <div className={"powerCardPowerContainer " + (props.home?.current001?.online ? "deviceOnline" : "deviceOffline")}>
-                    {calcPower()} W
+                    {calcPower()} W 
+                </div>
+            </div>
+            <div className="homeCardRow">
+                <div className={"powerCardSecondLevelContainer " + (props.home?.current001?.online ? "deviceOnline" : "deviceOffline")}>
+                    {props.electricity_grid.co2_free_generation_percentege} % libre de CO2
                 </div>
             </div>
         </div>
