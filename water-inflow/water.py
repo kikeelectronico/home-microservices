@@ -3,17 +3,15 @@ import logging
 import requests
 from lxml import html
 
-
 WATER_URL = "https://www.embalses.net/comunidad-13-comunidad-de-madrid.html"
-
+REQUEST_TIMEOUT = 10
 
 def _first(items):
   return items[0] if items else None
 
-
-def getWater(url=WATER_URL, timeout=10):
+def getWater(timeout=REQUEST_TIMEOUT):
   try:
-    page = requests.get(url, timeout=timeout)
+    page = requests.get(WATER_URL, timeout=REQUEST_TIMEOUT)
     if page.status_code != 200:
       logging.warning("Fail to reach embalses.net. Status code: %s", page.status_code)
       return None

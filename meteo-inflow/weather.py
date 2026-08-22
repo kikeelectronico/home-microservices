@@ -1,21 +1,14 @@
 import logging
 import requests
 
+API_URL = "https://api.weatherapi.com/v1/forecast.json"
+REQUEST_TIMEOUT = 10
 
 def getWeather(api_key, query):
-  if api_key == "no_set" or query == "no_set":
-    logging.error("Weather env vars aren't set")
-    return None
-
   try:
-    url = (
-      "https://api.weatherapi.com/v1/forecast.json?key="
-      + api_key
-      + "&q="
-      + query
-      + "&days=2&aqi=yes"
-    )
-    response = requests.request("GET", url, timeout=5)
+    url = f"{API_URL}?key={api_key}&q={query}&days=2&aqi=yes"
+
+    response = requests.request("GET", url, timeout=REQUEST_TIMEOUT)
     if response.status_code == 200:
       weather = response.json()
     else:
