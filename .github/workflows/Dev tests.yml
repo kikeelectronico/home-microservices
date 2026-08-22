@@ -19,6 +19,7 @@ jobs:
           - data-panel-front
           - decision-engine
           - dns-updater
+          - electricity-inflow
           - hue-inbound
           - hue-logic-pool
           - hue-outbound
