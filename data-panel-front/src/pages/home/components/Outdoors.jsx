@@ -107,6 +107,17 @@ export default function Outdoors(props) {
                 </div>
             : <></>
         }
+        {
+            props.fire_nearest?.distance < 300 ? 
+                <div className="outdoorCardRow alertAnimated">
+                    <div className="outdoorCardWeatherRow">
+                        <div className={"outdoorCardAlertContainer " +  (props.fire_nearest.distance < 2 ? "alertsHigh" : "alertsNormal")}>
+                            {"Incendio detectado a " + props.fire_nearest.distance + " km"}
+                        </div>
+                    </div>
+                </div>
+            : <></>
+        }
     </div>
   )
 }
