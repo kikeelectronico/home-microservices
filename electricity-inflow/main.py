@@ -23,7 +23,7 @@ SERVICE = "electricity-inflow-" + ENV
 SLEEP_TIME = 10
 ESIOS_INTERVAL = 300
 
-last_esios_timestamp = 0
+last_electricity_grid_timestamp = 0
 last_electricity_grid_payload = {}
 
 mqtt_client = mqtt.Client(
@@ -68,7 +68,7 @@ def on_message(client, userdata, msg):
 
 
 def main():
-  global last_esios_timestamp
+  global last_electricity_grid_timestamp
 
   logging.basicConfig(
     level=logging.INFO,
@@ -98,9 +98,9 @@ def main():
   logging.info("Starting " + SERVICE)
 
   while True:
-    if time.time() - last_esios_timestamp > ESIOS_INTERVAL:
+    if time.time() - last_electricity_grid_timestamp > ESIOS_INTERVAL:
       publishElectricityGrid()
-      last_esios_timestamp = time.time()
+      last_electricity_grid_timestamp = time.time()
 
     mqtt_client.publish("heartbeats", SERVICE)
 

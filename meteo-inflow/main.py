@@ -31,10 +31,9 @@ WARNINGS_INTERVAL = 1800
 WEATHER_INTERVAL = 1800
 
 # Declare variables
-last_heartbeat_timestamp = 0
 last_warnings_timestamp = 0
 last_weather_timestamp = 0
-last_build_date = ""
+last_warnings_payload = {}
 last_weather_payload = {}
 
 # Instantiate objects
@@ -45,15 +44,14 @@ mqtt_client = mqtt.Client(
 )
 
 def publishWarnings(force=False):
-  global last_build_date
+  global last_warnings_payload
   warnings_payload = getWarnings(AEMET_RSS, AEMET_AREA, REQUEST_TIMEOUT)
   if not warnings_payload:
     return
 
-  warnings, build_date = warnings_payload
-  if force or build_date != last_build_date:
-    mqtt_client.publish("meteo/warnings", json.dumps(warnings))
-    last_build_date = build_date
+  if force or warnings_payload != last_warnings_payload:
+    mqtt_client.publish("meteo/warnings", json.dumps(warnings_payload))
+    last_warnings_payload = warnings_payload
 
 def publishWeather(force=False):
     global last_weather_payload
@@ -93,7 +91,6 @@ def on_message(client, userdata, msg):
     publishWeather(force=True)
 
 def main():
-  global last_heartbeat_timestamp
   global last_warnings_timestamp
   global last_weather_timestamp
 
