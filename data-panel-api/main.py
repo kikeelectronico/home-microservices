@@ -85,6 +85,7 @@ def on_connect(client, userdata, flags, rc, properties):
   client.subscribe("meteo/warnings", qos=1)
   client.subscribe("meteo/weather", qos=1)
   client.subscribe("electricity/grid", qos=1)
+  client.subscribe("internet/status", qos=1)
   client.subscribe("fire/nearest", qos=1)
   for topic in DEVICE_IDS:
     client.subscribe(f"device/{topic}", qos=1)
@@ -125,9 +126,9 @@ def on_message(client, userdata, msg):
       "data": data
     }
     mqtt_events.put(event)
-  elif msg.topic == "internet":
+  elif msg.topic == "internet/status":
       event = {
-        "type": "internet",
+        "type": "internet-status",
         "data": data
       }
       mqtt_events.put(event)
@@ -211,7 +212,7 @@ async def stream():
   mqtt_client.publish("water/request", "")
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
-  mqtt_client.publish("internet/request", "")
+  mqtt_client.publish("internet/status/request", "")
   mqtt_client.publish("electricity/grid/request", "")
   mqtt_client.publish("fire/nearest/request", "")
   for device_id in DEVICE_IDS:

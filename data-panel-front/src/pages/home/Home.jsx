@@ -15,7 +15,7 @@ import "./home.css"
 
 export default function Home(props) {
 
-  const [internet, setInternet] = useState(null)
+  const [internet_status, setInternetStatus] = useState(null)
   const [home, setHome] = useState(null)
   const [water, setWater] = useState(null)
   const [meteo_weather, setMeteoWeather] = useState(null)
@@ -31,7 +31,7 @@ export default function Home(props) {
     sse.onmessage = e => {
       setSeeClosed(false)
       let event = JSON.parse(e.data)
-      if (event.type === "internet") {setInternet(event.data)}
+      if (event.type === "internet-status") {setInternetStatus(event.data)}
       else if (event.type === "home") {
         setHome(prev => ({
             ...prev,
@@ -71,7 +71,7 @@ export default function Home(props) {
           <div className="homeCardsColumn">
             <Outdoors meteo_weather={meteo_weather} meteo_warnings={meteo_warnings} water={water} fire_nearest={fire_nearest} playing={spotify_playing}/>
             <Power home={home} electricity_grid={electricity_grid} playing={spotify_playing}/>
-            <Connection internet={internet} see_closed={see_closed} playing={spotify_playing}/>
+            <Connection internet_status={internet_status} see_closed={see_closed} playing={spotify_playing}/>
             { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 
           </div>
           <div className="homeCardsColumn">

@@ -4,13 +4,13 @@ import "./connection.css"
 export default function Connection(props) {
 
     return (
-        (props.internet && !props.internet.connected) || props.see_closed ? 
+        (props.internet_status && !props.internet_status.connected) || props.see_closed ? 
             <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")}>
                 <div className="homeCardTitle">
                     Conectividad
                 </div>
                 {
-                    !props.internet.connected ?
+                    !props.internet_status.connected ?
                         <div className="homeCardRow">
                             <div className="connectionCardAlertContainer">
                                 Sin conexión a Internet
