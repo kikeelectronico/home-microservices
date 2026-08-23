@@ -108,7 +108,7 @@ export default function Outdoors(props) {
             : <></>
         }
         {
-            props.fire_nearest?.distance < 300 ? 
+            props.fire_nearest?.distance < 30 ? 
                 <div className="outdoorCardRow alertAnimated">
                     <div className="outdoorCardWeatherRow">
                         <div className={"outdoorCardAlertContainer " +  (props.fire_nearest.distance < 2 ? "alertsHigh" : "alertsNormal")}>
