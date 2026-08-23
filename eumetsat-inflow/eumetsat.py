@@ -171,10 +171,10 @@ def getNearestFire(consumer_key, consumer_secret, ref_lat, ref_lon, bbox):
 
 		distance, latitude, longitud, frp = nearest_fire_data
 		return {
-				"distance": distance,
+				"distance": round(distance, 1),
 				"latitude": float(latitude),
 				"longitud": float(longitud),
-				"frp": float(frp)
+				"frp": int(frp)
 		}
 	except Exception as e:
 		logging.error(f"Error at getNearestFire: {str(e)}")
