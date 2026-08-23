@@ -54,7 +54,7 @@ def publishNearestFire(force=False):
 
 def on_connect(client, userdata, flags, rc, properties):
   logging.info(f"Conectado al broker MQTT (rc={rc})")
-  client.subscribe("fire/request", qos=1)
+  client.subscribe("fire/nearest/request", qos=1)
   logging.info(f"Suscrito al topic MQTT 'fire/nearest/request'")
 
 
