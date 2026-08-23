@@ -20,6 +20,7 @@ jobs:
           - decision-engine
           - dns-updater
           - electricity-inflow
+          - eumetsat-inflow
           - hue-inbound
           - hue-logic-pool
           - hue-outbound
