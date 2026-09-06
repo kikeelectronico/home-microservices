@@ -19,29 +19,22 @@ FIRE_DIMENSION = 'fires_MWIR1km_standard'
 FIRE_SATELLITES = ["Sentinel-3A", "Sentinel-3B"]
 
 def getProducts(consumer_key, consumer_secret, bbox, start_date, end_date, satellites):
-    # Get token
-    token = eumdac.AccessToken(credentials=(consumer_key, consumer_secret))
+	# Get token
+	token = eumdac.AccessToken(credentials=(consumer_key, consumer_secret))
 
-    # Connect and get collection
-    datastore = eumdac.DataStore(token)
-    collection = datastore.get_collection(COLLECTION_ID)
-    
-    # Search for products
-    products = []    
-    for satellite in satellites:   
-      for product in collection.search(
-        bbox=bbox,
-        dtstart=start_date,
-        dtend=end_date,
-        sat=satellite
-      ):
-        products.append(product)
+	# Connect and get collection
+	datastore = eumdac.DataStore(token)
+	collection = datastore.get_collection(COLLECTION_ID)
 
-    if not products:
-      return None
-    
-    return products
-    
+	# Search for products    
+	for satellite in satellites:   
+		for product in collection.search(
+			bbox=bbox,
+			dtstart=start_date,
+			dtend=end_date,
+			sat=satellite
+		):
+			yield product
     
 
 def extractFireDataFromProduct(product_obj):
@@ -163,14 +156,12 @@ def getNearestFire(consumer_key, consumer_secret, ref_lat, ref_lon, bbox):
 
 		# Get products
 		products = getProducts(consumer_key, consumer_secret, bbox, start_date, end_date, FIRE_SATELLITES)
-		if not products:
-			logging.info("Not EUMETSAT products found")
-			return None
     
     	# Process products to get fires data
 		fires_data = []
 		for product in products:
 			fires_data.extend(extractFireDataFromProduct(product))
+			
 		if not fires_data:
 			logging.info("Not data fires found on products.")
 			return None
