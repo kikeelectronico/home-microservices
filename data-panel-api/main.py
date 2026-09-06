@@ -39,7 +39,7 @@ DEVICE_IDS = [
   "thermostat_dormitorio",
   "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
   "temperature_001",
-  "switch_at_home"
+  # "switch_at_home"
 ]
 
 # Instantiate objects
