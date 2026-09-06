@@ -19,29 +19,22 @@ FIRE_DIMENSION = 'fires_MWIR1km_standard'
 FIRE_SATELLITES = ["Sentinel-3A", "Sentinel-3B"]
 
 def getProducts(consumer_key, consumer_secret, bbox, start_date, end_date, satellites):
-    # Get token
-    token = eumdac.AccessToken(credentials=(consumer_key, consumer_secret))
+	# Get token
+	token = eumdac.AccessToken(credentials=(consumer_key, consumer_secret))
 
-    # Connect and get collection
-    datastore = eumdac.DataStore(token)
-    collection = datastore.get_collection(COLLECTION_ID)
-    
-    # Search for products
-    products = []    
-    for satellite in satellites:   
-      for product in collection.search(
-        bbox=bbox,
-        dtstart=start_date,
-        dtend=end_date,
-        sat=satellite
-      ):
-        products.append(product)
+	# Connect and get collection
+	datastore = eumdac.DataStore(token)
+	collection = datastore.get_collection(COLLECTION_ID)
 
-    if not products:
-      return None
-    
-    return products
-    
+	# Search for products    
+	for satellite in satellites:   
+		for product in collection.search(
+			bbox=bbox,
+			dtstart=start_date,
+			dtend=end_date,
+			sat=satellite
+		):
+			yield product
     
 
 def extractFireDataFromProduct(product_obj):
@@ -50,10 +43,7 @@ def extractFireDataFromProduct(product_obj):
 	try:
 		# Leer el contenido del producto en memoria
 		with product_obj.open() as f:
-			content = f.read()
-
-		# Abrir el archivo ZIP desde la memoria
-		zip_buffer = io.BytesIO(content)
+			zip_buffer = io.BytesIO(f.read())
 
 		with zipfile.ZipFile(zip_buffer) as z:
 			mwir_standard_nc_file_path = None
@@ -72,17 +62,29 @@ def extractFireDataFromProduct(product_obj):
 				# Verificar si todos los elementos requeridos están presentes
 				required_data_vars = [LATITUDE_VAR, LONGITUDE_VAR, FRP_VAR]
 				if all(var in ds_mwir_standard.data_vars for var in required_data_vars) and FIRE_DIMENSION in ds_mwir_standard.dims:
-					# Filtrar los puntos donde FRP_MWIR tiene valor
-					fire_events = ds_mwir_standard.where(ds_mwir_standard[FRP_VAR].notnull(), drop=True)
+					latitudes = ds_mwir_standard[LATITUDE_VAR].values
+					longitudes = ds_mwir_standard[LONGITUDE_VAR].values
+					frp_values = ds_mwir_standard[FRP_VAR].values
 
-					if fire_events[FIRE_DIMENSION].size > 0:
-						latitudes = fire_events[LATITUDE_VAR].values
-						longitudes = fire_events[LONGITUDE_VAR].values
-						frp_values = fire_events[FRP_VAR].values
+					# Máscara de valores FRP válidos
+					valid_mask = ~np.isnan(frp_values)
 
-						# Almacenar las coordenadas y el valor de FRP
-						for lat, lon, frp in zip(latitudes, longitudes, frp_values):
+					if np.any(valid_mask):
+						for lat, lon, frp in zip(
+							latitudes[valid_mask],
+							longitudes[valid_mask],
+							frp_values[valid_mask]
+						):
 							fire_coordinates.append((lat, lon, frp))
+
+						del valid_mask
+						del latitudes
+						del longitudes
+						del frp_values
+						ds_mwir_standard.close()
+						del ds_mwir_standard
+						nc_bytes.close()
+						del nc_bytes
 					else:
 						logging.warning(f"No se encontraron eventos de incendio válidos en '{FRP_NETCDF_FILENAME}' para el producto: {product_identifier}")
 				else:
@@ -91,6 +93,10 @@ def extractFireDataFromProduct(product_obj):
 				logging.warning(f"No se encontró el archivo '{FRP_NETCDF_FILENAME}' dentro del producto: {product_identifier}")
 	except Exception as e:
 		logging.warning(f"Error procesando el producto {product_identifier}: {e}")
+	finally:
+		if 'zip_buffer' in locals():
+			zip_buffer.close()
+			del zip_buffer
 
 	return fire_coordinates
 
@@ -150,20 +156,17 @@ def getNearestFire(consumer_key, consumer_secret, ref_lat, ref_lon, bbox):
 
 		# Get products
 		products = getProducts(consumer_key, consumer_secret, bbox, start_date, end_date, FIRE_SATELLITES)
-		if not products:
-			logging.info("Not EUMETSAT products found")
-			return None
     
-    # Process products to get fires data
+    	# Process products to get fires data
 		fires_data = []
 		for product in products:
-			products_fire_data = extractFireDataFromProduct(product)
-			fires_data.extend(products_fire_data)
+			fires_data.extend(extractFireDataFromProduct(product))
+			
 		if not fires_data:
 			logging.info("Not data fires found on products.")
 			return None
 
-    # Find nearearest fire
+    	# Find nearearest fire
 		nearest_fire_data = findNearestFireEvent(ref_lat, ref_lon, fires_data)
 		if not nearest_fire_data:
 			logging.info("Unable to find nearest fire")
