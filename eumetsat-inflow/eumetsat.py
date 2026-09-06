@@ -69,20 +69,22 @@ def extractFireDataFromProduct(product_obj):
 				# Verificar si todos los elementos requeridos están presentes
 				required_data_vars = [LATITUDE_VAR, LONGITUDE_VAR, FRP_VAR]
 				if all(var in ds_mwir_standard.data_vars for var in required_data_vars) and FIRE_DIMENSION in ds_mwir_standard.dims:
-					# Filtrar los puntos donde FRP_MWIR tiene valor
-					fire_events = ds_mwir_standard.where(ds_mwir_standard[FRP_VAR].notnull(), drop=True)
+					latitudes = ds_mwir_standard[LATITUDE_VAR].values
+					longitudes = ds_mwir_standard[LONGITUDE_VAR].values
+					frp_values = ds_mwir_standard[FRP_VAR].values
 
-					if fire_events[FIRE_DIMENSION].size > 0:
-						latitudes = fire_events[LATITUDE_VAR].values
-						longitudes = fire_events[LONGITUDE_VAR].values
-						frp_values = fire_events[FRP_VAR].values
+					# Máscara de valores FRP válidos
+					valid_mask = ~np.isnan(frp_values)
 
-						del fire_events
-
-						# Almacenar las coordenadas y el valor de FRP
-						for lat, lon, frp in zip(latitudes, longitudes, frp_values):
+					if np.any(valid_mask):
+						for lat, lon, frp in zip(
+							latitudes[valid_mask],
+							longitudes[valid_mask],
+							frp_values[valid_mask]
+						):
 							fire_coordinates.append((lat, lon, frp))
 
+						del valid_mask
 						del latitudes
 						del longitudes
 						del frp_values
