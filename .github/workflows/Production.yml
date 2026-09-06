@@ -36,6 +36,7 @@ jobs:
           - monitor-heartbeat-control
           - monitor-heartbeat-request
           - monitor-http-request
+          - monitor-oscillations
           - notification-message
           - notification-voice
           - task-scheduler
