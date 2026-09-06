@@ -22,8 +22,8 @@ SERVICE = "water-inflow-" + ENV
 SLEEP_TIME = 10
 WATER_INTERVAL = 86400
 
-last_water_timestamp = 0
-last_water_payload = {}
+last_volume_timestamp = 0
+last_volume_payload = {}
 
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
@@ -32,21 +32,21 @@ mqtt_client = mqtt.Client(
 )
 
 
-def publishWater(force=False):
-  global last_water_payload
+def publishVolume(force=False):
+  global last_volume_payload
   water_payload = getWater()
   if not water_payload:
     return
 
-  if force or water_payload != last_water_payload:
-    mqtt_client.publish("water", json.dumps(water_payload))
-    last_water_payload = water_payload
+  if force or water_payload != last_volume_payload:
+    mqtt_client.publish("water/volume", json.dumps(water_payload))
+    last_volume_payload = water_payload
 
 
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("water/request", qos=1)
-  logging.info("Subscribed to MQTT topic %s", "water/request")
+  client.subscribe("water/volume/request", qos=1)
+  logging.info("Subscribed to MQTT topic %s", "water/volume/request")
 
 
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -63,12 +63,12 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 
 def on_message(client, userdata, msg):
-  if msg.topic == "water/request":
-    publishWater(force=True)
+  if msg.topic == "water/volume/request":
+    publishVolume(force=True)
 
 
 def main():
-  global last_water_timestamp
+  global last_volume_timestamp
 
   logging.basicConfig(
     level=logging.INFO,
@@ -96,9 +96,9 @@ def main():
   logging.info("Starting " + SERVICE)
 
   while True:
-    if time.time() - last_water_timestamp > WATER_INTERVAL:
-      publishWater()
-      last_water_timestamp = time.time()
+    if time.time() - last_volume_timestamp > WATER_INTERVAL:
+      publishVolume()
+      last_volume_timestamp = time.time()
 
     mqtt_client.publish("heartbeats", SERVICE)
 

@@ -21,7 +21,7 @@ MQTT_PORT = 1883
 SERVICE = "internet-inflow-" + ENV
 SLEEP_TIME = 10
 
-last_internet_status = {}
+last_status = {}
 
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
@@ -30,18 +30,18 @@ mqtt_client = mqtt.Client(
 )
 
 
-def publishInternetStatus(force=False):
-  global last_internet_status
+def publishStatus(force=False):
+  global last_status
   internet_status = getInternetStatus()
 
-  if force or internet_status != last_internet_status:
-    mqtt_client.publish("internet", json.dumps(internet_status))
-    last_internet_status = internet_status
+  if force or internet_status != last_status:
+    mqtt_client.publish("internet/status", json.dumps(internet_status))
+    last_status = internet_status
 
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("internet/request", qos=1)
-  logging.info("Subscribed to MQTT topic %s", "internet/request")
+  client.subscribe("internet/status/request", qos=1)
+  logging.info("Subscribed to MQTT topic %s", "internet/status/request")
 
 
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -58,8 +58,8 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 
 def on_message(client, userdata, msg):
-  if msg.topic == "internet/request":
-    publishInternetStatus(force=True)
+  if msg.topic == "internet/status/request":
+    publishStatus(force=True)
 
 
 def main():
@@ -89,7 +89,7 @@ def main():
   logging.info("Starting " + SERVICE)
 
   while True:
-    publishInternetStatus()
+    publishStatus()
 
     mqtt_client.publish("heartbeats", SERVICE)
 

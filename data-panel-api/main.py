@@ -39,7 +39,7 @@ DEVICE_IDS = [
   "thermostat_dormitorio",
   "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
   "temperature_001",
-  "switch_at_home"
+  # "switch_at_home"
 ]
 
 # Instantiate objects
@@ -81,10 +81,11 @@ mqtt_client = mqtt.Client(
 # Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("water", qos=1)
+  client.subscribe("water/volume", qos=1)
   client.subscribe("meteo/warnings", qos=1)
   client.subscribe("meteo/weather", qos=1)
   client.subscribe("electricity/grid", qos=1)
+  client.subscribe("internet/status", qos=1)
   client.subscribe("fire/nearest", qos=1)
   for topic in DEVICE_IDS:
     client.subscribe(f"device/{topic}", qos=1)
@@ -107,9 +108,9 @@ def on_message(client, userdata, msg):
   except json.JSONDecodeError:
     logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
     return
-  if msg.topic == "water":
+  if msg.topic == "water/volume":
     event = {
-      "type": "water",
+      "type": "water-volume",
       "data": data
     }
     mqtt_events.put(event)
@@ -125,9 +126,9 @@ def on_message(client, userdata, msg):
       "data": data
     }
     mqtt_events.put(event)
-  elif msg.topic == "internet":
+  elif msg.topic == "internet/status":
       event = {
-        "type": "internet",
+        "type": "internet-status",
         "data": data
       }
       mqtt_events.put(event)
@@ -208,10 +209,10 @@ async def streamEvents(queue):
 async def stream():
   queue = asyncio.Queue()
   sse_queues.add(queue)
-  mqtt_client.publish("water/request", "")
+  mqtt_client.publish("water/volume/request", "")
   mqtt_client.publish("meteo/warnings/request", "")
   mqtt_client.publish("meteo/weather/request", "")
-  mqtt_client.publish("internet/request", "")
+  mqtt_client.publish("internet/status/request", "")
   mqtt_client.publish("electricity/grid/request", "")
   mqtt_client.publish("fire/nearest/request", "")
   for device_id in DEVICE_IDS:

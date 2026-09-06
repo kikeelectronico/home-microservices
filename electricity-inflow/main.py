@@ -23,8 +23,8 @@ SERVICE = "electricity-inflow-" + ENV
 SLEEP_TIME = 10
 ESIOS_INTERVAL = 300
 
-last_esios_timestamp = 0
-last_electricity_grid_payload = {}
+last_grid_timestamp = 0
+last_grid_payload = {}
 
 mqtt_client = mqtt.Client(
   mqtt.CallbackAPIVersion.VERSION2,
@@ -32,15 +32,15 @@ mqtt_client = mqtt.Client(
   protocol=mqtt.MQTTv5
 )
 
-def publishElectricityGrid(force=False):
-  global last_electricity_grid_payload
+def publishGrid(force=False):
+  global last_grid_payload
   free_co2_generation_percentage_payload = getEsiosIndicator(ESIOS_API_KEY, 10033)
   if not free_co2_generation_percentage_payload:
     return
 
-  if force or free_co2_generation_percentage_payload != last_electricity_grid_payload:
+  if force or free_co2_generation_percentage_payload != last_grid_payload:
     mqtt_client.publish("electricity/grid", json.dumps(free_co2_generation_percentage_payload))
-    last_electricity_grid_payload = free_co2_generation_percentage_payload
+    last_grid_payload = free_co2_generation_percentage_payload
 
 
 def on_connect(client, userdata, flags, rc, properties):
@@ -64,11 +64,11 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 def on_message(client, userdata, msg):
   if msg.topic == "electricity/grid/request":
-    publishElectricityGrid(force=True)
+    publishGrid(force=True)
 
 
 def main():
-  global last_esios_timestamp
+  global last_grid_timestamp
 
   logging.basicConfig(
     level=logging.INFO,
@@ -98,9 +98,9 @@ def main():
   logging.info("Starting " + SERVICE)
 
   while True:
-    if time.time() - last_esios_timestamp > ESIOS_INTERVAL:
-      publishElectricityGrid()
-      last_esios_timestamp = time.time()
+    if time.time() - last_grid_timestamp > ESIOS_INTERVAL:
+      publishGrid()
+      last_grid_timestamp = time.time()
 
     mqtt_client.publish("heartbeats", SERVICE)
 

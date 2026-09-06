@@ -91,4 +91,4 @@ def getWarnings(rss_url, area, timeout=10):
       if warning:
         warnings.append(warning)
 
-  return warnings, build_date
+  return warnings
