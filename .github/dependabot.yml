@@ -7,12 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     target-branch: "dev"
-    directory: "/monitor-http-request"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-  - package-ecosystem: "pip"
-    target-branch: "dev"
     directory: "/ble-inbound"
     schedule:
       interval: "weekly"
@@ -74,6 +68,18 @@ updates:
   - package-ecosystem: "pip"
     target-branch: "dev"
     directory: "/monitor-heartbeat-request"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-http-request"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-oscillations"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -172,6 +178,12 @@ updates:
   - package-ecosystem: "docker"
     target-branch: "dev"
     directory: "/monitor-http-request"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/monitor-oscillations"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
