@@ -50,10 +50,7 @@ def extractFireDataFromProduct(product_obj):
 	try:
 		# Leer el contenido del producto en memoria
 		with product_obj.open() as f:
-			content = f.read()
-
-		# Abrir el archivo ZIP desde la memoria
-		zip_buffer = io.BytesIO(content)
+			zip_buffer = io.BytesIO(f.read())
 
 		with zipfile.ZipFile(zip_buffer) as z:
 			mwir_standard_nc_file_path = None
@@ -80,9 +77,19 @@ def extractFireDataFromProduct(product_obj):
 						longitudes = fire_events[LONGITUDE_VAR].values
 						frp_values = fire_events[FRP_VAR].values
 
+						del fire_events
+
 						# Almacenar las coordenadas y el valor de FRP
 						for lat, lon, frp in zip(latitudes, longitudes, frp_values):
 							fire_coordinates.append((lat, lon, frp))
+
+						del latitudes
+						del longitudes
+						del frp_values
+						ds_mwir_standard.close()
+						del ds_mwir_standard
+						nc_bytes.close()
+						del nc_bytes
 					else:
 						logging.warning(f"No se encontraron eventos de incendio válidos en '{FRP_NETCDF_FILENAME}' para el producto: {product_identifier}")
 				else:
@@ -91,6 +98,10 @@ def extractFireDataFromProduct(product_obj):
 				logging.warning(f"No se encontró el archivo '{FRP_NETCDF_FILENAME}' dentro del producto: {product_identifier}")
 	except Exception as e:
 		logging.warning(f"Error procesando el producto {product_identifier}: {e}")
+	finally:
+		if 'zip_buffer' in locals():
+			zip_buffer.close()
+			del zip_buffer
 
 	return fire_coordinates
 
@@ -154,16 +165,15 @@ def getNearestFire(consumer_key, consumer_secret, ref_lat, ref_lon, bbox):
 			logging.info("Not EUMETSAT products found")
 			return None
     
-    # Process products to get fires data
+    	# Process products to get fires data
 		fires_data = []
 		for product in products:
-			products_fire_data = extractFireDataFromProduct(product)
-			fires_data.extend(products_fire_data)
+			fires_data.extend(extractFireDataFromProduct(product))
 		if not fires_data:
 			logging.info("Not data fires found on products.")
 			return None
 
-    # Find nearearest fire
+    	# Find nearearest fire
 		nearest_fire_data = findNearestFireEvent(ref_lat, ref_lon, fires_data)
 		if not nearest_fire_data:
 			logging.info("Unable to find nearest fire")
