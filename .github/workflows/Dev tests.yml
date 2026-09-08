@@ -33,6 +33,7 @@ jobs:
           - monitor-heartbeat-request
           - monitor-http-request
           - monitor-oscillations
+          - monitor-response
           - notification-message
           - notification-voice
           - task-scheduler
