@@ -78,7 +78,7 @@ def on_message(client, userdata, msg):
         query_job = bigquery_client.query(
             """
                 INSERT INTO {}
-                (time, trigger, response, durantion)
+                (time, trigger, response, duration)
                 VALUES ({},"{}","{}",{});
             """.format(RESPONSE_DDBB, ts, TRIGGER_TOPIC, RESPONSE_TOPIC, elapsed_ms)
         )
