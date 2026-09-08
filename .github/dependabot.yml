@@ -85,6 +85,12 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "pip"
     target-branch: "dev"
+    directory: "/monitor-response"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
     directory: "/hue-inbound"
     schedule:
       interval: "weekly"
@@ -184,6 +190,12 @@ updates:
   - package-ecosystem: "docker"
     target-branch: "dev"
     directory: "/monitor-oscillations"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/monitor-response"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
