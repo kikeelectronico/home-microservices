@@ -79,7 +79,7 @@ def on_message(client, userdata, msg):
             """
                 INSERT INTO {}
                 (time, trigger, response, durantion)
-                VALUES ({},"{}","{}","{}", "{}");
+                VALUES ({},"{}","{}","{}");
             """.format(RESPONSE_DDBB, ts, TRIGGER_TOPIC, RESPONSE_TOPIC, elapsed_ms)
         )
         query_job.result()
