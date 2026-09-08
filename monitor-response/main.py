@@ -72,14 +72,14 @@ def on_message(client, userdata, msg):
             return
 
         elapsed = now - pending_measurement
-        elapsed_ms = elapsed * 1000
+        elapsed_ms = int(elapsed * 1000)
         pending_measurement = None
         ts = int(time.time())
         query_job = bigquery_client.query(
             """
                 INSERT INTO {}
                 (time, trigger, response, durantion)
-                VALUES ({},"{}","{}","{}");
+                VALUES ({},"{}","{}",{});
             """.format(RESPONSE_DDBB, ts, TRIGGER_TOPIC, RESPONSE_TOPIC, elapsed_ms)
         )
         query_job.result()
