@@ -28,6 +28,7 @@ from domains.notification.message.battery import BatteryNotificationMessageHandl
 from domains.notification.message.power_alert import PowerAlertNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
+from domains.notification.voice.oscillation import OscillationNotificationVoiceHandler
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
 from domains.notification.voice.shower import ShowerVoiceNotificationHandler
 from domains.outlet.bathroom_radiator import BathroomRadiatorOutlethHandler
@@ -83,6 +84,7 @@ def build_handlers() -> List[Handler]:
         PowerAlertNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
+        OscillationNotificationVoiceHandler(),
         PowerAlertNotificationVoiceHandler(),
         ShowerVoiceNotificationHandler(),
         BathroomRadiatorOutlethHandler(),
