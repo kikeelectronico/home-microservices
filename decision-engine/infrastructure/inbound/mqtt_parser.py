@@ -25,5 +25,16 @@ def mqtt_to_event(topic: str, payload: str) -> Dict[str, Any]:
                 "param": param,
                 "value": value
             }
+    elif topic.startswith("oscillation/"):
+            _, device_id, param = topic.split("/")
+            value = payload_parser(payload)
+    
+            if value is not None:
+                return {
+                    "type": "oscillation",
+                    "device_id": device_id,
+                    "param": param,
+                    "value": value
+                }
 
     return None
