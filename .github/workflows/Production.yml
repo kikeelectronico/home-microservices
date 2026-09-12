@@ -33,6 +33,7 @@ jobs:
           - ikea-outbound
           - internet-inflow
           - meteo-inflow
+          - monitor-cause-effect
           - monitor-heartbeat-control
           - monitor-heartbeat-request
           - monitor-http-request
