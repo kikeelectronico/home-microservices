@@ -34,4 +34,5 @@ TOPICS = [
     "device/scene_power_alert/enable",
     "device/scene_ducha/enable",
     "device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1/isRunning",
+    "oscillation/+/+"
 ]
