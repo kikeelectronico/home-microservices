@@ -1,6 +1,6 @@
 import logging
 
-from constants import SLEEP_TIME, RULES
+from constants import SLEEP_TIME, HEARTBEAT_TOPIC, RULES
 from homeware import Homeware
 from mqtt import set_mqtt_client
 from rules import evaluateRules
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     evaluateRules(homeware, mqtt_client, RULES)
 
     # Send heartbeat
-    mqtt_client.publish("heartbeats", settings.service_id)
+    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
     # Wait until next iteration
     wait_for_stop(SLEEP_TIME)

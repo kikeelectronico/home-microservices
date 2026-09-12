@@ -9,6 +9,7 @@ ENV_VARS = [
 
 SLEEP_TIME = 10
 SERVICE_NAME = "monitor-cause-effect"
+HEARTBEAT_TOPIC = "heartbeats"
 
 RULES = [
 	{
