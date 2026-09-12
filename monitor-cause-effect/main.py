@@ -5,7 +5,7 @@ import sys
 
 from config import RULES
 from homeware import Homeware
-from mqtt_handlers import on_disconnect
+from mqtt import set_mqtt_client
 from rules import evaluateRules
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
@@ -37,6 +37,8 @@ if __name__ == "__main__":
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
 
+  logging.info(f"Starting {SERVICE}.")
+
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -55,18 +57,8 @@ if __name__ == "__main__":
   if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set.")
 
   # Create mqtt client
-  mqtt_client = mqtt.Client(
-    mqtt.CallbackAPIVersion.VERSION2,
-    client_id=SERVICE,
-    protocol=mqtt.MQTTv5
-  ) 
-  # Connect to the mqtt broker
-  mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
-  logging.info(f"Starting {SERVICE}.")
-
+  mqtt_client = set_mqtt_client(MQTT_HOST, MQTT_PORT, MQTT_USER, MQTT_PASS, SERVICE)
+  
   # Create homeware object
   homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 
