@@ -3,7 +3,7 @@ import os
 import logging
 import sys
 
-from config import RULES
+from constants import RULES
 from homeware import Homeware
 from mqtt import set_mqtt_client
 from rules import evaluateRules
