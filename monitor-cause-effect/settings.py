@@ -11,13 +11,13 @@ class Settings():
 
 	def load_settings(self):
 
-		# Load env file
-		if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-			from dotenv import load_dotenv
-			load_dotenv(dotenv_path="../.env")
-
 		# Load enviroment
 		self._settings["env"] = os.environ.get("ENV", "dev")
+
+		# Load env file on dev enviroment
+		if self._settings["env"] == "dev":
+			from dotenv import load_dotenv
+			load_dotenv(dotenv_path="../.env")
 
 		# Set service
 		self._settings["service_id"] = f"{SERVICE_NAME}-{self._settings["env"]}"
