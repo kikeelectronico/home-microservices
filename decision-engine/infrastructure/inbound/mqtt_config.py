@@ -35,5 +35,5 @@ TOPICS = [
     "device/scene_ducha/enable",
     "device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1/isRunning",
     "oscillation/+/+",
-    "device/d813e594-bcd9-4128-8750-b5c207232ad9_1/currentSensorStateData",
+    "device/+/currentSensorStateData",
 ]
