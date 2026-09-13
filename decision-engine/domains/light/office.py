@@ -34,18 +34,19 @@ class OfficeLightHandler:
         elif event.get("device_id") == "0b97c3c8-cb02-4f6d-9e60-d5755b25b968_1":
             if occupied:
                 if context.get("pressure001", "occupancy") == "UNOCCUPIED":
-                    actions.append({
-                        "type": "device_param_update",
-                        "device_id": "hue_9",
-                        "param": "on",
-                        "value": True
-                    })
-                    actions.append({
-                        "type": "device_param_update",
-                        "device_id": "hue_10",
-                        "param": "on",
-                        "value": True
-                    })
+                    if context.get("scene_awake", "enable"):
+                        actions.append({
+                            "type": "device_param_update",
+                            "device_id": "hue_9",
+                            "param": "on",
+                            "value": True
+                        })
+                        actions.append({
+                            "type": "device_param_update",
+                            "device_id": "hue_10",
+                            "param": "on",
+                            "value": True
+                        })
         elif event.get("device_id") == "switch_at_home":
             if not event.get("value"):
                 actions.append({
