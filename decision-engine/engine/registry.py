@@ -26,11 +26,13 @@ from domains.light.office import OfficeLightHandler
 from domains.light.workbench import WorkbenchLightHandler
 from domains.notification.message.battery import BatteryNotificationMessageHandler
 from domains.notification.message.power_alert import PowerAlertNotificationMessageHandler
+from domains.notification.message.water_leak import WaterLeakNotificationMessageHandler
 from domains.notification.voice.battery import BatteryNotificationVoiceHandler
 from domains.notification.voice.night_time import NightTimeVoiceNotificationHandler
 from domains.notification.voice.oscillation import OscillationNotificationVoiceHandler
 from domains.notification.voice.power_alert import PowerAlertNotificationVoiceHandler
 from domains.notification.voice.shower import ShowerVoiceNotificationHandler
+from domains.notification.voice.water_leak import WaterLeakVoiceNotificationHandler
 from domains.outlet.bathroom_radiator import BathroomRadiatorOutlethHandler
 from domains.outlet.bedroom_fan import BedroomFanHandler
 from domains.outlet.bedroom_radiator import BedroomRadiatorOutlethHandler
@@ -82,11 +84,13 @@ def build_handlers() -> List[Handler]:
         WorkbenchLightHandler(),
         BatteryNotificationMessageHandler(),
         PowerAlertNotificationMessageHandler(),
+        WaterLeakNotificationMessageHandler(),
         BatteryNotificationVoiceHandler(),
         NightTimeVoiceNotificationHandler(),
         OscillationNotificationVoiceHandler(),
         PowerAlertNotificationVoiceHandler(),
         ShowerVoiceNotificationHandler(),
+        WaterLeakVoiceNotificationHandler(),
         BathroomRadiatorOutlethHandler(),
         BedroomFanHandler(),
         BedroomRadiatorOutlethHandler(),
