@@ -158,3 +158,29 @@ def environmentSensor(data, homeware):
         break
     if updated:
       homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)
+
+def waterLeakSensor(data, homeware):
+  attributes = data.get("attributes")
+  if "isReachable" in data:
+    homeware.execute(data["id"], "online", data["isReachable"])
+  if "batteryPercentage" in data:
+    battery_level = data["batteryPercentage"]
+    if battery_level == 100: descriptiveCapacityRemaining = "FULL"
+    elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
+    elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
+    elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
+    else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
+    homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
+    homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+  if "waterLeakDetected" in attributes:
+    homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
+    updated = False
+    for sensor in homeware_current_sensors_state_data:
+      if sensor.get("name") == "WaterLeak":
+        new_sensor_state = "leak" if attributes.get("waterLeakDetected") else "no leak"
+        if sensor.get("currentSensorState") != new_sensor_state:
+          sensor["currentSensorState"] = new_sensor_state
+          updated = True
+        break
+    if updated:
+      homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
