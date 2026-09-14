@@ -37,7 +37,7 @@ def motionSensor(data, homeware):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
-  if "batteryPercentage" in data:
+  if "batteryPercentage" in attributes:
     battery_level = data["batteryPercentage"]
     if battery_level == 100: descriptiveCapacityRemaining = "FULL"
     elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
@@ -126,6 +126,8 @@ def environmentSensor(data, homeware):
   if not data["id"] in IDS_MAP:
     return
   homeware_id = IDS_MAP[data["id"]]
+  if "isReachable" in data:
+    homeware.execute(homeware_id, "online", data["isReachable"])
   if "isOn" in attributes:
     homeware.execute(homeware_id, "online", attributes["isOn"])
   if "currentTemperature" in attributes:
@@ -163,7 +165,7 @@ def waterLeakSensor(data, homeware):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
-  if "batteryPercentage" in data:
+  if "batteryPercentage" in attributes:
     battery_level = data["batteryPercentage"]
     if battery_level == 100: descriptiveCapacityRemaining = "FULL"
     elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
