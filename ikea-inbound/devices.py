@@ -126,6 +126,8 @@ def environmentSensor(data, homeware):
   if not data["id"] in IDS_MAP:
     return
   homeware_id = IDS_MAP[data["id"]]
+  if "isReachable" in data:
+    homeware.execute(homeware_id, "online", data["isReachable"])
   if "isOn" in attributes:
     homeware.execute(homeware_id, "online", attributes["isOn"])
   if "currentTemperature" in attributes:
