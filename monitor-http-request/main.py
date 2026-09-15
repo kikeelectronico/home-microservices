@@ -1,8 +1,9 @@
 import paho.mqtt.client as mqtt
 import os
-import time
 import functions
 import logging
+
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -37,14 +38,14 @@ mqtt_client = mqtt.Client(
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 # Main entry point
 if __name__ == "__main__":
@@ -52,6 +53,8 @@ if __name__ == "__main__":
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
+
   # Check env vars
   def report(message):
     print(message)
@@ -75,28 +78,38 @@ if __name__ == "__main__":
   logging.info("Starting " + SERVICE)
 
   # Main loop
-  while True:
+  while not stop_requested():
     # Verify Homeware connectivity
     if not functions.homewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY):
       logging.warning("Homeware no responde")
       mqtt_client.publish("notificacion/voice/alert", "Homeware no responde")
       mqtt_client.publish("notificacion/text/alert", "Homeware no responde")
-      time.sleep(BLOCK_TIME)
+      wait_for_stop(BLOCK_TIME)
+    if stop_requested():
+      break
     # Verify Hue Bridge connectivity
     if not functions.hueTest(HUE_HOST, HUE_TOKEN):
       logging.warning("Hue bridge no responde")
       mqtt_client.publish("notificacion/voice/alert", "Hue bridge no responde")
       mqtt_client.publish("notificacion/text/alert", "Hue bridge no responde")
-      time.sleep(BLOCK_TIME)
+      wait_for_stop(BLOCK_TIME)
+    if stop_requested():
+      break
     # Verify Ikea Bridge connectivity
     if not functions.ikeaTest(IKEA_HOST, IKEA_TOKEN):
       logging.warning("Ikea bridge no responde")
       mqtt_client.publish("notificacion/voice/alert", "Ikea bridge no responde")
       mqtt_client.publish("notificacion/text/alert", "Ikea bridge no responde")
-      time.sleep(BLOCK_TIME)
+      wait_for_stop(BLOCK_TIME)
+    if stop_requested():
+      break
     # Send heartbeat
     mqtt_client.publish("heartbeats", SERVICE)
     # Wait until next iteration
-    time.sleep(SLEEP_TIME)
+    wait_for_stop(SLEEP_TIME)
 
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
     
