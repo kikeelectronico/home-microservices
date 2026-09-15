@@ -2,9 +2,9 @@ import paho.mqtt.client as mqtt
 import json
 import os
 import logging
-import time
 
 from hue import Hue
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -43,14 +43,14 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 	if rc != 0:
 		logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-		while True:
+		while not stop_requested():
 			try:
 				client.reconnect()
 				logging.info("Reconnected to MQTT broker")
 				break
 			except Exception as exc:
 				logging.warning("Reconnect failed: %s", exc)
-				time.sleep(5)
+				wait_for_stop(5)
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
@@ -175,6 +175,8 @@ if __name__ == "__main__":
 		level=logging.INFO,
 		format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
 	)
+	register_shutdown_handlers()
+
 	# Check env vars
 	def report(message):
 		print(message)
@@ -210,5 +212,13 @@ if __name__ == "__main__":
 	logging.info("Starting " + SERVICE)
 	
 	# Main loop
-	mqtt_client.loop_forever()
+	mqtt_client.loop_start()
+	while not stop_requested():
+		wait_for_stop(1)
+
+	# Clean shutdown
+	logging.info("Disconnecting from the MQTT broker.")
+	mqtt_client.loop_stop()
+	mqtt_client.disconnect()
+	logging.info("Shutdown completed.")
  

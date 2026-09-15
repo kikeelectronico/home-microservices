@@ -2,12 +2,12 @@ import paho.mqtt.client as mqtt
 import os
 import json
 import logging
-import time
 
 from hue import Hue
 from homeware import Homeware
 import init
 import services
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -43,14 +43,14 @@ hue = Hue(HUE_HOST, HUE_TOKEN)
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 # Main entry point
 if __name__ == "__main__":
@@ -58,6 +58,8 @@ if __name__ == "__main__":
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
+
   # Check env vars
   def report(message):
     print(message)
@@ -91,13 +93,17 @@ if __name__ == "__main__":
   init.power(hue, homeware, device_id_service_id)
   init.lightlevel(hue, homeware, device_id_service_id)
 
-  while True:
+  while not stop_requested():
     try:
       # Connect to Hue bridge
       client = hue.getEventStreamClient()
+      if client is None:
+        break
       
       # Handle events
       for message in client.events():
+        if stop_requested():
+          break
         try:
           events = json.loads(message.data)
         except ValueError:
@@ -125,9 +131,18 @@ if __name__ == "__main__":
             elif service["type"] == "light":
               services.light(service, homeware, device_id_service_id)
 
+      if stop_requested():
+        break
       logging.warning("Hue SSE stream closed. Reconnecting in 5s...")
-      time.sleep(5)
+      wait_for_stop(5)
     
     except Exception:
-        logging.exception("Hue SSE stream failed. Reconnecting in 5s...")
-        time.sleep(5)
+      if stop_requested():
+        break
+      logging.exception("Hue SSE stream failed. Reconnecting in 5s...")
+      wait_for_stop(5)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
