@@ -2,6 +2,7 @@ import logging
 import os
 import time
 import paho.mqtt.client as mqtt
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -38,14 +39,14 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 
 def on_message(client, userdata, msg):
@@ -86,6 +87,7 @@ def main():
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
 
   def report(message):
     print(message)
@@ -106,10 +108,15 @@ def main():
   mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
-  while True:
+  while not stop_requested():
       # Send the heartbeat request and wait
       mqtt_client.publish("heartbeats/system", "are-you-there")
-      time.sleep(SLEEP_TIME)
+      wait_for_stop(SLEEP_TIME)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

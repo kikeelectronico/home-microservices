@@ -4,6 +4,7 @@ from google.cloud import bigquery
 import logging
 
 import paho.mqtt.client as mqtt
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 
 # Load env vars
@@ -49,14 +50,14 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
     if reason_code != 0:
         logging.warning(f"Unexpected MQTT disconnection (reason={reason_code}). Reconnecting...")
-        while True:
+        while not stop_requested():
             try:
                 client.reconnect()
                 logging.info("Reconnected to MQTT broker")
                 break
             except Exception as exc:
                 logging.warning(f"Reconnect failed: {exc}")
-                time.sleep(5)
+                wait_for_stop(5)
 
 # Do tasks when a message is received
 def on_message(client, userdata, msg):
@@ -90,6 +91,8 @@ def main() -> None:
         level=logging.INFO,
         format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
     )
+    register_shutdown_handlers()
+
     # Check env vars
     def report(message):
         print(message)
@@ -109,10 +112,15 @@ def main() -> None:
     mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
     mqtt_client.loop_start()
     logging.info("Starting " + SERVICE)
-    while True:
+    while not stop_requested():
         # Send the heartbeat request and wait
         mqtt_client.publish("heartbeats/system", "are-you-there")
-        time.sleep(SLEEP_TIME)
+        wait_for_stop(SLEEP_TIME)
+
+    logging.info("Disconnecting from the MQTT broker.")
+    mqtt_client.loop_stop()
+    mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
     main()
