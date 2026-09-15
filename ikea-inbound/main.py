@@ -10,6 +10,7 @@ import logging
 
 from homeware import Homeware
 import devices
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 import urllib3
 urllib3.disable_warnings()
@@ -49,14 +50,14 @@ homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 def on_message(ws, message):
   try:
@@ -108,7 +109,7 @@ def on_open(ws):
   logging.info("IKEA WebSocket opened")
 
   def run():
-    while True:
+    while not stop_requested():
       ping_msg = {
         "id": str(uuid.uuid4()),
         "specversion": "1.1.0",
@@ -122,7 +123,9 @@ def on_open(ws):
       except Exception as exc:
         logging.warning("Fail to send IKEA WebSocket ping: %s", exc)
         break
-      time.sleep(30)
+      wait_for_stop(30)
+    if stop_requested():
+      ws.close()
 
   thread = threading.Thread(target=run)
   thread.daemon = True
@@ -134,6 +137,8 @@ if __name__ == "__main__":
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
+
   # Check env vars
   def report(message):
     print(message)
@@ -162,7 +167,7 @@ if __name__ == "__main__":
   }
   # Contexto SSL para certificado autofirmado
   sslopt = {"cert_reqs": ssl.CERT_NONE}
-  while True:
+  while not stop_requested():
     ws_app = WebSocketApp(
       url,
       header=[key + ": " + value for key, value in headers.items()],
@@ -175,5 +180,12 @@ if __name__ == "__main__":
       ws_app.run_forever(sslopt=sslopt)
     except Exception as exc:
       logging.warning("IKEA WebSocket stopped with error: %s", exc)
+    if stop_requested():
+      break
     logging.warning("IKEA WebSocket disconnected. Reconnecting in %ss", WEBSOCKET_RECONNECT_DELAY)
-    time.sleep(WEBSOCKET_RECONNECT_DELAY)
+    wait_for_stop(WEBSOCKET_RECONNECT_DELAY)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")

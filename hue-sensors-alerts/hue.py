@@ -1,7 +1,7 @@
 import requests
 import logging
 from sseclient import SSEClient
-import time
+from shutdown import stop_requested, wait_for_stop
 
 import urllib3
 urllib3.disable_warnings()
@@ -45,7 +45,7 @@ class Hue:
         return []
 
   def getEventStreamClient(self):
-    while True:
+    while not stop_requested():
       try:
         url = "https://" + self.__url + "/eventstream/clip/v2"
         headers = {
@@ -55,14 +55,15 @@ class Hue:
         stream_response = requests.get(url, headers=headers, stream=True, verify=False)
         if stream_response.status_code != 200:
           logging.warning("Fail to connect to Hue Bridge SSE. Status code: %s. Retrying in 5s", stream_response.status_code)
-          time.sleep(5)
+          wait_for_stop(5)
           continue
         content_type = stream_response.headers.get("Content-Type", "")
         if "text/event-stream" not in content_type:
           logging.warning("Fail to connect to Hue Bridge SSE. Invalid content type: %s. Retrying in 5s", content_type)
-          time.sleep(5)
+          wait_for_stop(5)
           continue
         return SSEClient(stream_response)
       except (requests.ConnectionError, requests.Timeout):
         logging.warning("Fail to connect to Hue Bridge SSE. Connection error. Retrying in 5s")
-        time.sleep(5)
+        wait_for_stop(5)
+    return None
