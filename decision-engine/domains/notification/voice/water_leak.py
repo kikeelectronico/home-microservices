@@ -6,7 +6,9 @@ class WaterLeakVoiceNotificationHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
             event.get("param") == "currentSensorStateData" and \
-            event.get("value")[0]["name"] == "WaterLeak"
+            isinstance(event.get("value"), list) and \
+            len(event.get("value")) > 0 and \
+            event.get("value")[0].get("name", None) == "WaterLeak"   
 
     def handle(self, event: dict, context: Context) -> List[dict]:
 
