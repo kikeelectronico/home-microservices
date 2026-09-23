@@ -40,10 +40,10 @@ class Context:
             if response.status_code == 200:
                 return response.json()
             logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
-            return {}
+            return None
         except (requests.ConnectionError, requests.Timeout) as exception:
             logging.warning("Fail to get Homeware status. Conection error.")
-            return {}
+            return None
 
     def getDevice(self, id: str) -> Any:
         try:
