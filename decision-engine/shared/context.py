@@ -69,4 +69,7 @@ class Context:
         else:
             lower_priority_device_id = self.__power_priority[device_index+1]
             lower_priority_device_power = self.get(lower_priority_device_id, "power")
+            if lower_priority_device_power is None:
+                logging.warning(f"Fail to get lower_priority_device_power from lower_priority_device_id {lower_priority_device_id} for device {id} ")
+                return False
             return lower_priority_device_power > POWER_THRESHOLD
