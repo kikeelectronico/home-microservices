@@ -40,10 +40,10 @@ class Context:
             if response.status_code == 200:
                 return response.json()
             logging.warning("Fail to get Homeware status. Status code: %s", response.status_code)
-            return {}
+            return None
         except (requests.ConnectionError, requests.Timeout) as exception:
             logging.warning("Fail to get Homeware status. Conection error.")
-            return {}
+            return None
 
     def getDevice(self, id: str) -> Any:
         try:
@@ -69,4 +69,7 @@ class Context:
         else:
             lower_priority_device_id = self.__power_priority[device_index+1]
             lower_priority_device_power = self.get(lower_priority_device_id, "power")
+            if lower_priority_device_power is None:
+                logging.warning(f"Fail to get lower_priority_device_power from lower_priority_device_id {lower_priority_device_id} for device {id} ")
+                return False
             return lower_priority_device_power > POWER_THRESHOLD
