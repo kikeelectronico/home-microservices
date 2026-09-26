@@ -38,7 +38,7 @@ def motionSensor(data, homeware):
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
   if "batteryPercentage" in attributes:
-    battery_level = data["batteryPercentage"]
+    battery_level = attributes["batteryPercentage"]
     if battery_level == 100: descriptiveCapacityRemaining = "FULL"
     elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
     elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
