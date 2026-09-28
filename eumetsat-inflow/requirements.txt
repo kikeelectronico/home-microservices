@@ -6,5 +6,5 @@ pandas
 numpy
 python-dotenv==1.2.2
 netCDF4
-requests==2.33.1
+requests==2.34.2
 h5py
