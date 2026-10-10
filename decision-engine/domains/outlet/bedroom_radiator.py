@@ -1,6 +1,8 @@
 from typing import List
 from shared.context import Context
+from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn
 
+BEDROOM_RADIATOR_POWER = 1200
 
 class BedroomRadiatorOutlethHandler:
     def can_handle(self, event: dict) -> bool:
@@ -36,8 +38,7 @@ class BedroomRadiatorOutlethHandler:
 
         if event.get("device_id") == "scene_power_alert":
             if event.get("value"):
-                current_lower_priority_decice_power_status = context.getLowerPriorityDevicePowerStatus("9339195d-75c3-4fc1-aeac-03f8af899e40_1")
-                if not current_lower_priority_decice_power_status:
+                if not isLowerPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                     if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on"):
                         actions.append({
                             "type": "device_param_update",
@@ -49,12 +50,22 @@ class BedroomRadiatorOutlethHandler:
                 rule_14 = not context.get("switch_at_home", "on")
                 desired_on = shouldHeat(context, "thermostat_dormitorio", "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)
                 if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on") != desired_on:
-                    actions.append({
-                        "type": "device_param_update",
-                        "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
-                        "param": "on",
-                        "value": desired_on
-                    })
+                    if desired_on:
+                        if isHigherPriorityDeviceOn("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"):
+                            if canAddPowerLoad(context, BEDROOM_RADIATOR_POWER):
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
+                                    "param": "on",
+                                    "value": True
+                                })
+                    else:
+                        actions.append({
+                            "type": "device_param_update",
+                            "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
+                            "param": "on",
+                            "value": False
+                        })
         else:
             rule_14 = not context.get("switch_at_home", "on")
             desired_on = shouldHeat(context, "thermostat_dormitorio", "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)

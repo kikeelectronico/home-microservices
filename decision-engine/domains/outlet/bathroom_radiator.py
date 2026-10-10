@@ -1,6 +1,8 @@
 from typing import List
 from shared.context import Context
+from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn
 
+BATHROOM_RADIATOR_POWER = 2000
 
 class BathroomRadiatorOutlethHandler:
     def can_handle(self, event: dict) -> bool:
@@ -36,8 +38,7 @@ class BathroomRadiatorOutlethHandler:
 
         if event.get("device_id") == "scene_power_alert":
             if event.get("value"):
-                current_lower_priority_decice_power_status = context.getLowerPriorityDevicePowerStatus("9339195d-75c3-4fc1-aeac-03f8af899e40_1")
-                if not current_lower_priority_decice_power_status:
+                if not isLowerPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                     if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on"):
                         actions.append({
                             "type": "device_param_update",
@@ -48,12 +49,22 @@ class BathroomRadiatorOutlethHandler:
             else:
                 desired_on = shouldHeat(context, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1")
                 if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on") != desired_on:
-                    actions.append({
-                        "type": "device_param_update",
-                        "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
-                        "param": "on",
-                        "value": desired_on
-                    })
+                    if desired_on:
+                        if isHigherPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
+                            if canAddPowerLoad(context, BATHROOM_RADIATOR_POWER):
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+                                    "param": "on",
+                                    "value": True
+                                })
+                    else:
+                        actions.append({
+                            "type": "device_param_update",
+                            "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+                            "param": "on",
+                            "value": False
+                        })
         else:
             desired_on = shouldHeat(context, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1")
             if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on") != desired_on:
