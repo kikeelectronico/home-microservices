@@ -1,5 +1,6 @@
 from typing import List
 from shared.context import Context
+from shared.power import isLowerPriorityDeviceOn
 
 
 class BedroomRadiatorOutlethHandler:
@@ -36,8 +37,7 @@ class BedroomRadiatorOutlethHandler:
 
         if event.get("device_id") == "scene_power_alert":
             if event.get("value"):
-                current_lower_priority_decice_power_status = context.getLowerPriorityDevicePowerStatus("9339195d-75c3-4fc1-aeac-03f8af899e40_1")
-                if not current_lower_priority_decice_power_status:
+                if not isLowerPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                     if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on"):
                         actions.append({
                             "type": "device_param_update",
