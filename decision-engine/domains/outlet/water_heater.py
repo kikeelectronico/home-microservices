@@ -1,7 +1,7 @@
 from typing import List
 from shared.context import Context
 import logging
-from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHighestPriorityDeviceOn
+from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn
 
 
 WATER_HEATER_POWER = 1400
@@ -38,7 +38,7 @@ class WaterHeaterOutlethHandler:
                 desired_on = not context.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning")
                 if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                     if desired_on:
-                        if isHighestPriorityDeviceOn("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
+                        if isHigherPriorityDeviceOn("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
                             if canAddPowerLoad(context, WATER_HEATER_POWER):
                                 logging.info(f"Water heater handler: change status to {"on" if desired_on else "off"}")
                                 actions.append({

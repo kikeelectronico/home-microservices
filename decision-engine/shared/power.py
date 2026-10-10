@@ -22,7 +22,7 @@ def isLowerPriorityDeviceOn(context: Context, id: str) -> bool:
             return False
         return lower_priority_device_power > ON_POWER_THRESHOLD
 
-def isHighestPriorityDeviceOn(context: Context, id: str) -> bool:
+def isHigherPriorityDeviceOn(context: Context, id: str) -> bool:
     if not id in POWER_PRIORITY:
         return False
 
