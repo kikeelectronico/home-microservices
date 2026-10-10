@@ -73,3 +73,19 @@ class Context:
                 logging.warning(f"Fail to get lower_priority_device_power from lower_priority_device_id {lower_priority_device_id} for device {id} ")
                 return False
             return lower_priority_device_power > POWER_THRESHOLD
+
+    def getHighestPriorityDevicePowerStatus(self, id: str) -> bool:
+        if not id in self.__power_priority:
+            return False
+
+        device_index = self.__power_priority.index(id)
+
+        if device_index - 1 < 0:
+            return False
+        else:
+            highest_priority_device_id = self.__power_priority[device_index-1]
+            highest_priority_device_power = self.get(highest_priority_device_id, "power")
+            if highest_priority_device_power is None:
+                logging.warning(f"Fail to get highest_priority_device_power from lower_priority_device_id {highest_priority_device_id} for device {id} ")
+                return False
+            return highest_priority_device_power > POWER_THRESHOLD
