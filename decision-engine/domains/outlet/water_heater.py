@@ -1,7 +1,7 @@
 from typing import List
 from shared.context import Context
 import logging
-from shared.constants import HOME_POWER_LIMIT, HOME_POWER_MULTIPLIER
+from shared.power import canAddPowerLoad
 
 WATER_HEATER_POWER = 1400
 
@@ -40,8 +40,7 @@ class WaterHeaterOutlethHandler:
                     if desired_on:
                         current_highest_priority_decice_power_status = context.getHighestPriorityDevicePowerStatus("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1")
                         if current_highest_priority_decice_power_status:
-                            current_home_power = context.get("current001", "brightness") * HOME_POWER_MULTIPLIER
-                            if (HOME_POWER_LIMIT - current_home_power) > WATER_HEATER_POWER:
+                            if canAddPowerLoad(context, WATER_HEATER_POWER):
                                 logging.info(f"Water heater handler: change status to {"on" if desired_on else "off"}")
                                 actions.append({
                                     "type": "device_param_update",
