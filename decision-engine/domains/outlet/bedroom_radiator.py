@@ -7,7 +7,7 @@ BEDROOM_RADIATOR_POWER = 1200
 class BedroomRadiatorOutlethHandler:
     def can_handle(self, event: dict) -> bool:
         return event.get("type") == "device_param_update" and \
-            ((event.get("device_id") == "scene_power_alert" and \
+            ((event.get("device_id") == "scene_power_prealert" and \
             event.get("param") == "enable") or \
             (event.get("device_id") == "thermostat_dormitorio" and \
             event.get("param") == "thermostatMode") or \
@@ -36,7 +36,7 @@ class BedroomRadiatorOutlethHandler:
             else:
                 return False
 
-        if event.get("device_id") == "scene_power_alert":
+        if event.get("device_id") == "scene_power_prealert":
             if event.get("value"):
                 if not isLowerPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                     if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on"):
