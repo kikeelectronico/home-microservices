@@ -1,7 +1,7 @@
 import time
 import logging
 
-OUTLET_CURRENT_THRESHOLD = 0.2
+OUTLET_CURRENT_THRESHOLD = 0.15
 IDS_MAP = {
   "109bf470-f27b-4a3d-bfb7-6ac284bb4ed9_1": "thermostat_livingroom"
 }
