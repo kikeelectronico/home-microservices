@@ -38,7 +38,7 @@ class BathroomRadiatorOutlethHandler:
 
         if event.get("device_id") == "scene_power_prealert":
             if event.get("value"):
-                if not isLowerPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
+                if not isLowerPriorityDeviceOn(context, "9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                     if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on"):
                         actions.append({
                             "type": "device_param_update",
@@ -50,7 +50,7 @@ class BathroomRadiatorOutlethHandler:
                 desired_on = shouldHeat(context, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1")
                 if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on") != desired_on:
                     if desired_on:
-                        if isHigherPriorityDeviceOn("9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
+                        if isHigherPriorityDeviceOn(context, "9339195d-75c3-4fc1-aeac-03f8af899e40_1"):
                             if canAddPowerLoad(context, BATHROOM_RADIATOR_POWER):
                                 actions.append({
                                     "type": "device_param_update",
