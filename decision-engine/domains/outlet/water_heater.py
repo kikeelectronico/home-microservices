@@ -19,7 +19,7 @@ class WaterHeaterOutlethHandler:
 
         if event.get("device_id") == "scene_power_prealert":
             if event.get("value"):
-                if not isLowerPriorityDeviceOn("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
+                if not isLowerPriorityDeviceOn(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
                     if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on"):
                         actions.append({
                             "type": "device_param_update",
@@ -31,7 +31,7 @@ class WaterHeaterOutlethHandler:
                 desired_on = not context.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning")
                 if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                     if desired_on:
-                        if isHigherPriorityDeviceOn("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
+                        if isHigherPriorityDeviceOn(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
                             if canAddPowerLoad(context, WATER_HEATER_POWER):
                                 actions.append({
                                     "type": "device_param_update",
