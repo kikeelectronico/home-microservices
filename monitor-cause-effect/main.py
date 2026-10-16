@@ -40,6 +40,7 @@ if __name__ == "__main__":
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
 
   # Main loop
+  mqtt_client.loop_start()
   while not stop_requested():
     # Evaluate rules
     evaluateRules(homeware, mqtt_client, RULES)
@@ -52,6 +53,7 @@ if __name__ == "__main__":
 
   # Clean shutdown
   logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
