@@ -97,6 +97,7 @@ def on_open(ws):
 
 # Main entry point
 if __name__ == "__main__":
+  # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings

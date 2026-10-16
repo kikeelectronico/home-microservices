@@ -46,6 +46,7 @@ def main() -> None:
     global settings
     global mqtt_client
     global bigquery_client
+    # Register shutdown handlers
     register_shutdown_handlers()
 
     # Load settings

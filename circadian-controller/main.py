@@ -60,7 +60,9 @@ def main():
   global settings
   global mqtt_client
   global homeware
+  # Register shutdown handlers
   register_shutdown_handlers()
+
   # Load settings
   settings = Settings()
   settings.load_settings()

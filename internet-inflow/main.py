@@ -32,6 +32,7 @@ def handle_message(topic, payload):
 def main():
   global settings
   global mqtt_client
+  # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings

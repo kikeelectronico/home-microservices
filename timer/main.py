@@ -51,6 +51,7 @@ def main():
   global mqtt_client
   global homeware
   global alert
+  # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings

@@ -10,6 +10,7 @@ mqtt_client = None
 
 # Main entry point
 if __name__ == "__main__":
+  # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings

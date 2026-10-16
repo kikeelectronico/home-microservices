@@ -13,10 +13,13 @@ settings = None
 mqtt_client = None
 
 def main():
-  register_shutdown_handlers()
   global last_ip
   global settings
   global mqtt_client
+
+  # Register shutdown handlers
+  register_shutdown_handlers()
+
   # Load settings
   settings = Settings()
   settings.load_settings()
