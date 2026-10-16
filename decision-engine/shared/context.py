@@ -16,16 +16,6 @@ class Context:
         self.__url = host
         self.__token = token
 
-        fail = False
-        if self.__url == "no_set":
-            logging.error("HOMEWARE_API_URL env var isn't set")
-            fail = True
-        if self.__token == "no_set":
-            logging.error("HOMEWARE_API_KEY env var isn't set")
-            fail = True
-        if fail:
-            exit()
-
     def get(self, id: str, param: str) -> Any:
         try:
             url = self.__url + "/api/devices/" + id + "/states/" + param

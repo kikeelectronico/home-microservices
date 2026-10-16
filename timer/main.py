@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import datetime
-import os
 import time
 import requests
 import json
@@ -8,43 +7,21 @@ import logging
 
 from homeware import Homeware
 from Alert import Alert
+from constants import HEARTBEAT_TOPIC, MQTT_PORT
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-WHEATHER_API_KEY = os.environ.get("WHEATHER_API_KEY", "no_set")
-WHEATHER_QUERY = os.environ.get("WHEATHER_QUERY", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "timer-" + ENV
 
 # Declare variables
 last_heartbeat_timestamp = 0
 just_executed = ""
+settings = None
+mqtt_client = None
+homeware = None
+alert = None
 astro_data = {
   "sunset": 0,
   "sunrise": 0
 }
-
-# Instantiate objects
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-alert = Alert(mqtt_client)
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -61,7 +38,7 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 def updateAstroData():
   try:
-    url = "https://api.weatherapi.com/v1/astronomy.json?key=" + WHEATHER_API_KEY   + "&q=" + WHEATHER_QUERY
+    url = "https://api.weatherapi.com/v1/astronomy.json?key=" + settings.wheather_api_key + "&q=" + settings.wheather_query
     response = requests.get(url, timeout=5)
     if response.status_code == 200:
       global astro_data
@@ -83,32 +60,38 @@ def updateAstroData():
 def main():
   global last_heartbeat_timestamp
   global just_executed
+  global settings
+  global mqtt_client
+  global homeware
+  global alert
   logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
   register_shutdown_handlers()
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-  if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if WHEATHER_QUERY == "no_set": report("HOMEWARE_API_KEY env vars no set")
+
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
+
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
+  homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
+  alert = Alert(mqtt_client)
 
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
   today = datetime.datetime.now()
   hour = today.strftime("%H:%M:%S")
-  logging.info("Starting " + SERVICE)
   logging.info("Hora local " + str(hour))
   # Get astro data
   updateAstroData()
@@ -233,7 +216,7 @@ def main():
 
     # Send the heartbeat
     if time.time() - last_heartbeat_timestamp > 10:
-      mqtt_client.publish("heartbeats", SERVICE)
+      mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
       last_heartbeat_timestamp = time.time()
     
     wait_for_stop(0.1)

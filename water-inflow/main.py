@@ -1,36 +1,18 @@
 import json
 import logging
-import os
 import time
 
 import paho.mqtt.client as mqtt
 
 from water import getWater
+from constants import HEARTBEAT_TOPIC, MQTT_PORT, SLEEP_TIME, WATER_INTERVAL
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-MQTT_PORT = 1883
-SERVICE = "water-inflow-" + ENV
-SLEEP_TIME = 10
-WATER_INTERVAL = 86400
-
+settings = None
+mqtt_client = None
 last_volume_timestamp = 0
 last_volume_payload = {}
-
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
 
 
 def publishVolume(force=False):
@@ -70,6 +52,8 @@ def on_message(client, userdata, msg):
 
 def main():
   global last_volume_timestamp
+  global settings
+  global mqtt_client
 
   logging.basicConfig(
     level=logging.INFO,
@@ -77,32 +61,32 @@ def main():
   )
   register_shutdown_handlers()
 
-  def report(message):
-    print(message)
-    exit()
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
 
-  if MQTT_USER == "no_set":
-    report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set":
-    report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set":
-    report("MQTT_HOST env vars no set")
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
 
   mqtt_client.on_message = on_message
   mqtt_client.on_connect = on_connect
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
 
   while not stop_requested():
     if time.time() - last_volume_timestamp > WATER_INTERVAL:
       publishVolume()
       last_volume_timestamp = time.time()
 
-    mqtt_client.publish("heartbeats", SERVICE)
+    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
     wait_for_stop(SLEEP_TIME)
 

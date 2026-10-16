@@ -1,0 +1,16 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"RESPONSE_DDBB"
+]
+
+OPTIONAL_ENV_VARS = {
+	"RESPONSE_TEST_TRIGGER_TOPIC": "device/ee2fcd12-9b2e-478f-826f-a4a5447d3a27/occupancy",
+	"RESPONSE_TEST_RESPONSE_TOPIC": "device/hue_7/on"
+}
+
+MQTT_PORT = 1883
+SERVICE_NAME = "monitor-response"
+SLEEP_TIME = 10
+HEARTBEAT_TOPIC = "heartbeats/system"

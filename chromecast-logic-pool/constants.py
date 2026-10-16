@@ -1,0 +1,11 @@
+ENV_VARS = [
+	"MQTT_HOST_NETWORK",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"HOMEWARE_API_URL_NETWORK",
+	"HOMEWARE_API_KEY"
+]
+
+MQTT_PORT = 1883
+SERVICE_NAME = "chromecast-logic-pool"
+HEARTBEAT_TOPIC = "heartbeats"

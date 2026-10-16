@@ -1,40 +1,16 @@
 import requests
 from requests.exceptions import ConnectTimeout, ConnectionError
-import os
 import time
 import paho.mqtt.client as mqtt
 import logging
+from constants import HEARTBEAT_TOPIC, MQTT_PORT, REQUEST_TIMEOUT, SLEEP_TIME
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-# Load env vars
-if os.environ.get("GET_IP_ENDPOINT", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-GET_IP_ENDPOINT = os.environ.get("GET_IP_ENDPOINT", "no_set")
-CLOUDFLARE_ZONE = os.environ.get("CLOUDFLARE_ZONE", "no_set")
-CLOUDFLARE_DNS_ID = os.environ.get("CLOUDFLARE_DNS_ID", "no_set")
-CLOUDFLARE_TOKEN = os.environ.get("CLOUDFLARE_TOKEN", "no_set")
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SLEEP_TIME = 10
-REQUEST_TIMEOUT = 10
-SERVICE = "dns-updater-" + ENV
 
 # Declare variables
 last_ip = "unknown"
-
-# Instantiate objects
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
+settings = None
+mqtt_client = None
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -56,38 +32,39 @@ def main():
   )
   register_shutdown_handlers()
   global last_ip
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if GET_IP_ENDPOINT == "no_set": report("GET_IP_ENDPOINT env vars no set")
-  if CLOUDFLARE_ZONE == "no_set": report("CLOUDFLARE_ZONE env vars no set")
-  if CLOUDFLARE_DNS_ID == "no_set": report("CLOUDFLARE_DNS_ID env vars no set")
-  if CLOUDFLARE_TOKEN == "no_set": report("CLOUDFLARE_TOKEN env vars no set")
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
+  global settings
+  global mqtt_client
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
+
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
 
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
   # Main loop
   while not stop_requested():
     # Get current public IP
     try:
-      ip = requests.get(GET_IP_ENDPOINT, timeout=REQUEST_TIMEOUT).text
+      ip = requests.get(settings.get_ip_endpoint, timeout=REQUEST_TIMEOUT).text
       # Verify if the API has changed
       if not ip == last_ip and len(ip.split(".")) == 4:
         # Homeware
         # Make an update request to the Cloudflare API
-        url = "https://api.cloudflare.com/client/v4/zones/" + CLOUDFLARE_ZONE + "/dns_records/" + CLOUDFLARE_DNS_ID
+        url = "https://api.cloudflare.com/client/v4/zones/" + settings.cloudflare_zone + "/dns_records/" + settings.cloudflare_dns_id
         payload="{\"content\": \"" + ip + "\"}"
         headers = {
-          'Authorization': 'Bearer ' + CLOUDFLARE_TOKEN,
+          'Authorization': 'Bearer ' + settings.cloudflare_token,
           'Content-Type': 'application/json'
         }
         response = requests.request("PATCH", url, headers=headers, data=payload, timeout=REQUEST_TIMEOUT).json()
@@ -99,7 +76,7 @@ def main():
           mqtt_client.publish("notificacion/text/alert", "Problemas al actualizar la IP de Homeware")
         last_ip = ip
       # Send heartbeat
-      mqtt_client.publish("heartbeats", SERVICE)
+      mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
     except ConnectTimeout as e:
       logging.info("Connection timeout")
     except ConnectionError as e:

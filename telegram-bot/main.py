@@ -1,30 +1,17 @@
 import telebot
-import os
 import logging
 import threading
 from google.cloud import storage
 
 import functions
+from settings import Settings
 from shutdown import register_shutdown_handlers, wait_for_stop
 
-# Load env vars
-if os.environ.get("BOT_TOKEN", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "no_set")
-ENRIQUE_CHAT_ID = os.environ.get("ENRIQUE_CHAT_ID", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
-GET_IP_ENDPOINT = os.environ.get("GET_IP_ENDPOINT", "no_set")
-BUCKET_NAME = os.environ.get("BUCKET_NAME", "no_set")
-
-# Instantiate objects
-bot = telebot.TeleBot(BOT_TOKEN)
-storage_client = storage.Client()
+settings = None
+bot = None
+storage_client = None
 
 # Commands handler
-@bot.message_handler(commands=['start', 'help','test','home','directions'])
 def send_welcome(message):
   command = message.text.split()[0]
 
@@ -33,34 +20,37 @@ def send_welcome(message):
   elif command == '/help':
     bot.reply_to(message, "I am sorry but I don't know you.")
   else:
-    if str(message.from_user.id) == ENRIQUE_CHAT_ID:
+    if str(message.from_user.id) == settings.enrique_chat_id:
         if command == '/test':
             # Test an authenticated command
             response = functions.test()
-            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
+            bot.send_message(settings.enrique_chat_id, response, parse_mode='Markdown')
         elif command == '/home':
             # Test Homeware API and db
-            response = functions.getHomewareTest(HOMEWARE_API_URL, HOMEWARE_API_KEY)
-            bot.send_message(ENRIQUE_CHAT_ID, "Corriendo" if response else "Caido", parse_mode='Markdown')
+            response = functions.getHomewareTest(settings.homeware_api_url, settings.homeware_api_key)
+            bot.send_message(settings.enrique_chat_id, "Corriendo" if response else "Caido", parse_mode='Markdown')
         elif command == '/directions':
             # Get the public IP
-            response = functions.getPublicIP(GET_IP_ENDPOINT)
-            bot.send_message(ENRIQUE_CHAT_ID, response, parse_mode='Markdown')
+            response = functions.getPublicIP(settings.get_ip_endpoint)
+            bot.send_message(settings.enrique_chat_id, response, parse_mode='Markdown')
     else:
         bot.reply_to(message, "I am sorry but I don't know you.")
 
 # Global handler
-@bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    if str(message.from_user.id) == ENRIQUE_CHAT_ID:
+    if str(message.from_user.id) == settings.enrique_chat_id:
         # Download the YouTube video once the URL is given
         if "youtube.com" in message.text or "youtu.be" in message.text:
-            bot.send_message(ENRIQUE_CHAT_ID, "Descargando...", parse_mode='Markdown')
+            bot.send_message(settings.enrique_chat_id, "Descargando...", parse_mode='Markdown')
             url = message.text
-            urls = functions.downloadYouTubeVideo(url, storage_client, BUCKET_NAME)
-            bot.send_message(ENRIQUE_CHAT_ID, "Lo tenemos", parse_mode='Markdown')
+            urls = functions.downloadYouTubeVideo(url, storage_client, settings.bucket_name)
+            bot.send_message(settings.enrique_chat_id, "Lo tenemos", parse_mode='Markdown')
             for url in urls:
-                bot.send_message(ENRIQUE_CHAT_ID, url, parse_mode='Markdown')
+                bot.send_message(settings.enrique_chat_id, url, parse_mode='Markdown')
+
+def register_handlers():
+    bot.message_handler(commands=['start', 'help','test','home','directions'])(send_welcome)
+    bot.message_handler(func=lambda message: True)(echo_message)
 
 # Main entry point
 if __name__ == "__main__":
@@ -70,16 +60,16 @@ if __name__ == "__main__":
     )
     register_shutdown_handlers()
 
-    # Check env vars
-    def report(message):
-        print(message)
-        exit()
-    if BOT_TOKEN == "no_set": report("BOT_TOKEN env vars no set")
-    if ENRIQUE_CHAT_ID == "no_set": report("ENRIQUE_CHAT_ID env vars no set")
-    if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-    if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-    if GET_IP_ENDPOINT == "no_set": report("GET_IP_ENDPOINT env vars no set")
-    if BUCKET_NAME == "no_set": report("BUCKET_NAME env vars no set")
+    # Load settings
+    settings = Settings()
+    settings.load_settings()
+    logging.info("Starting %s", settings.service_id)
+
+    # Instantiate objects
+    bot = telebot.TeleBot(settings.bot_token)
+    storage_client = storage.Client()
+    register_handlers()
+
     # Main loop
     polling_thread = threading.Thread(target=bot.infinity_polling)
     polling_thread.start()

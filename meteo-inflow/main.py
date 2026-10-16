@@ -1,52 +1,25 @@
 import paho.mqtt.client as mqtt
-import os
 import time
 import logging
 import json
 
+from constants import HEARTBEAT_TOPIC, MQTT_PORT, REQUEST_TIMEOUT, SLEEP_TIME, WARNINGS_INTERVAL, WEATHER_INTERVAL
 from weather import getWeather
 from weather_warnings import getWarnings
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-WHEATHER_API_KEY = os.environ.get("WHEATHER_API_KEY", "no_set")
-WHEATHER_QUERY = os.environ.get("WHEATHER_QUERY", "no_set")
-AEMET_RSS = os.environ.get("AEMET_RSS", "no_set")
-AEMET_AREA = os.environ.get("AEMET_AREA", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "meteo-inflow-" + ENV
-REQUEST_TIMEOUT = 10
-SLEEP_TIME = 10
-WARNINGS_INTERVAL = 1800
-WEATHER_INTERVAL = 1800
 
 # Declare variables
 last_warnings_timestamp = 0
 last_weather_timestamp = 0
 last_warnings_payload = {}
 last_weather_payload = {}
-
-# Instantiate objects
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
+settings = None
+mqtt_client = None
 
 def publishWarnings(force=False):
   global last_warnings_payload
-  warnings_payload = getWarnings(AEMET_RSS, AEMET_AREA, REQUEST_TIMEOUT)
+  warnings_payload = getWarnings(settings.aemet_rss, settings.aemet_area, REQUEST_TIMEOUT)
   if not warnings_payload:
     return
 
@@ -56,7 +29,7 @@ def publishWarnings(force=False):
 
 def publishWeather(force=False):
     global last_weather_payload
-    weather_payload = getWeather(WHEATHER_API_KEY, WHEATHER_QUERY)
+    weather_payload = getWeather(settings.wheather_api_key, settings.wheather_query)
     if not weather_payload:
         return
     if force or weather_payload != last_weather_payload:
@@ -94,31 +67,37 @@ def on_message(client, userdata, msg):
 def main():
   global last_warnings_timestamp
   global last_weather_timestamp
+  global settings
+  global mqtt_client
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+  )
 
   register_shutdown_handlers()
 
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if WHEATHER_API_KEY == "no_set": report("WHEATHER_API_KEY env vars no set")
-  if WHEATHER_QUERY == "no_set": report("WHEATHER_QUERY env vars no set")
-  if AEMET_RSS == "no_set": report("AEMET_RSS env vars no set")
-  if AEMET_AREA == "no_set": report("AEMET_AREA env vars no set")
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
+
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
 
   # Declare the callback functions
   mqtt_client.on_message = on_message
   mqtt_client.on_connect = on_connect
   mqtt_client.on_disconnect = on_disconnect
   # Connect to the MQTT broker
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
 
   # Main loop
   while not stop_requested():
@@ -131,7 +110,7 @@ def main():
       publishWeather()
       last_weather_timestamp = now
 
-    mqtt_client.publish("heartbeats", SERVICE)
+    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
     wait_for_stop(SLEEP_TIME)
 
