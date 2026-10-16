@@ -4,7 +4,7 @@ import time
 
 
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_TOPIC, MQTT_PORT, NEAREST_FIRE_INTERVAL, SLEEP_TIME
+from constants import HEARTBEAT_TOPIC, NEAREST_FIRE_INTERVAL, SLEEP_TIME
 from eumetsat import getNearestFire
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
@@ -56,7 +56,7 @@ def main():
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
-    MQTT_PORT,
+    settings.mqtt_port,
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,

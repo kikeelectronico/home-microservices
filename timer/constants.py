@@ -1,5 +1,6 @@
 ENV_VARS = [
 	"MQTT_HOST",
+	"MQTT_PORT",
 	"MQTT_USER",
 	"MQTT_PASS",
 	"HOMEWARE_API_URL",
@@ -8,6 +9,5 @@ ENV_VARS = [
 	"WHEATHER_QUERY"
 ]
 
-MQTT_PORT = 1883
 SERVICE_NAME = "timer"
 HEARTBEAT_TOPIC = "heartbeats"

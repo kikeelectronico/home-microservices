@@ -1,12 +1,12 @@
 ENV_VARS = [
 	"MQTT_HOST",
+	"MQTT_PORT",
 	"MQTT_USER",
 	"MQTT_PASS",
 	"IKEA_HOST",
 	"IKEA_TOKEN"
 ]
 
-MQTT_PORT = 1883
 SERVICE_NAME = "ikea-outbound"
 
 TOPICS = [

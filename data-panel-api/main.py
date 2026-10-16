@@ -8,7 +8,7 @@ import asyncio
 from asyncio import sleep
 import logging
 from mqtt import set_mqtt_client
-from constants import DEVICE_IDS, MQTT_PORT
+from constants import DEVICE_IDS
 from settings import Settings
 from shutdown import request_stop, stop_requested, wait_for_stop
 
@@ -38,7 +38,7 @@ async def lifespan(app):
   ]
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
-    MQTT_PORT,
+    settings.mqtt_port,
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,

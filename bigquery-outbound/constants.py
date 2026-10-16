@@ -1,11 +1,11 @@
 ENV_VARS = [
 	"MQTT_HOST",
+	"MQTT_PORT",
 	"MQTT_USER",
 	"MQTT_PASS",
 	"DEVICE_DDBB"
 ]
 
-MQTT_PORT = 1883
 POWER_CONSTANT = 35
 SERVICE_NAME = "bigquery-outbound"
 

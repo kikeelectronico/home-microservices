@@ -2,7 +2,6 @@ import json
 import logging
 
 from mqtt import set_mqtt_client
-from constants import MQTT_PORT
 from homeware import Homeware
 from hue import Hue
 import buttons
@@ -34,7 +33,7 @@ if __name__ == "__main__":
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
-    MQTT_PORT,
+    settings.mqtt_port,
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id
