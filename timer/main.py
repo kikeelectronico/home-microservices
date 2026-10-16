@@ -8,6 +8,7 @@ import logging
 
 from homeware import Homeware
 from Alert import Alert
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Load env vars
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
@@ -49,14 +50,14 @@ alert = Alert(mqtt_client)
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 def updateAstroData():
   try:
@@ -86,6 +87,7 @@ def main():
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
   # Check env vars
   def report(message):
     print(message)
@@ -111,7 +113,7 @@ def main():
   # Get astro data
   updateAstroData()
   # Main loop
-  while True:
+  while not stop_requested():
     # Get current time
     today = datetime.datetime.now()
     minute = today.strftime("%M")
@@ -234,7 +236,12 @@ def main():
       mqtt_client.publish("heartbeats", SERVICE)
       last_heartbeat_timestamp = time.time()
     
-    time.sleep(0.1)
+    wait_for_stop(0.1)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
 
 # Main entry point
 if __name__ == "__main__":

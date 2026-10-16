@@ -4,6 +4,7 @@ import os
 import time
 import paho.mqtt.client as mqtt
 import logging
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Load env vars
 if os.environ.get("GET_IP_ENDPOINT", "no_set") == "no_set":
@@ -39,20 +40,21 @@ mqtt_client = mqtt.Client(
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 def main():
   logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
   global last_ip
   # Check env vars
   def report(message):
@@ -74,7 +76,7 @@ def main():
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
   # Main loop
-  while True:
+  while not stop_requested():
     # Get current public IP
     try:
       ip = requests.get(GET_IP_ENDPOINT, timeout=REQUEST_TIMEOUT).text
@@ -104,7 +106,12 @@ def main():
       logging.info("Connection error")
     finally:
       # Wait until next iteration
-      time.sleep(SLEEP_TIME)
+      wait_for_stop(SLEEP_TIME)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

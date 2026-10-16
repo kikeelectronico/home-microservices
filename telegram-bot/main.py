@@ -1,9 +1,11 @@
 import telebot
 import os
 import logging
+import threading
 from google.cloud import storage
 
 import functions
+from shutdown import register_shutdown_handlers, wait_for_stop
 
 # Load env vars
 if os.environ.get("BOT_TOKEN", "no_set") == "no_set":
@@ -66,6 +68,7 @@ if __name__ == "__main__":
       level=logging.INFO,
       format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
     )
+    register_shutdown_handlers()
 
     # Check env vars
     def report(message):
@@ -78,4 +81,12 @@ if __name__ == "__main__":
     if GET_IP_ENDPOINT == "no_set": report("GET_IP_ENDPOINT env vars no set")
     if BUCKET_NAME == "no_set": report("BUCKET_NAME env vars no set")
     # Main loop
-    bot.infinity_polling()
+    polling_thread = threading.Thread(target=bot.infinity_polling)
+    polling_thread.start()
+    while not wait_for_stop(1):
+        pass
+
+    bot.stop_polling()
+    polling_thread.join()
+    storage_client.close()
+    logging.info("Shutdown completed.")
