@@ -1,8 +1,8 @@
-import paho.mqtt.client as mqtt
 import time
 import logging
 import json
 
+from mqtt import set_mqtt_client
 from constants import HEARTBEAT_TOPIC, MQTT_PORT, REQUEST_TIMEOUT, SLEEP_TIME, WARNINGS_INTERVAL, WEATHER_INTERVAL
 from weather import getWeather
 from weather_warnings import getWarnings
@@ -36,32 +36,11 @@ def publishWeather(force=False):
         mqtt_client.publish("meteo/weather", json.dumps(weather_payload))
         last_weather_payload = weather_payload
 
-# Subscribe to topics on connect
-def on_connect(client, userdata, flags, rc, properties):
-  logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("meteo/warnings/request", qos=1)
-  logging.info("Subscribed to MQTT topic %s", "meteo/warnings/request")
-  client.subscribe("meteo/weather/request", qos=1)
-  logging.info("Subscribed to MQTT topic %s", "meteo/weather/request")
 
-# Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, disconnect_flags, rc, properties):
-  if rc != 0:
-    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while not stop_requested():
-      try:
-        client.reconnect()
-        logging.info("Reconnected to MQTT broker")
-        break
-      except Exception as exc:
-        logging.warning("Reconnect failed: %s", exc)
-        wait_for_stop(5)
-
-# Do tasks when a message is received
-def on_message(client, userdata, msg):
-  if msg.topic == "meteo/warnings/request":
+def handle_message(topic, payload):
+  if topic == "meteo/warnings/request":
     publishWarnings(force=True)
-  elif msg.topic == "meteo/weather/request":
+  elif topic == "meteo/weather/request":
     publishWeather(force=True)
 
 def main():
@@ -83,20 +62,15 @@ def main():
   logging.info("Starting %s", settings.service_id)
 
   # Instantiate objects
-  mqtt_client = mqtt.Client(
-    mqtt.CallbackAPIVersion.VERSION2,
-    client_id=settings.service_id,
-    protocol=mqtt.MQTTv5
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    MQTT_PORT,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id,
+    subscriptions=["meteo/warnings/request", "meteo/weather/request"],
+    message_handler=handle_message
   )
-
-  # Declare the callback functions
-  mqtt_client.on_message = on_message
-  mqtt_client.on_connect = on_connect
-  mqtt_client.on_disconnect = on_disconnect
-  # Connect to the MQTT broker
-  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
-  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
 
   # Main loop
