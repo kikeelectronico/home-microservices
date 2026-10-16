@@ -13,10 +13,6 @@ settings = None
 mqtt_client = None
 
 def main():
-  logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-  )
   register_shutdown_handlers()
   global last_ip
   global settings
@@ -24,6 +20,15 @@ def main():
   # Load settings
   settings = Settings()
   settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
   logging.info("Starting %s", settings.service_id)
 
   # Instantiate objects

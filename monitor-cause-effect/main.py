@@ -14,17 +14,21 @@ settings = None
 
 # Main entry point
 if __name__ == "__main__":
-  logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-  )
-
   # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings
   settings = Settings()
   settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
   logging.info(f"Starting {settings.service_id}.")
 
   # Create mqtt client

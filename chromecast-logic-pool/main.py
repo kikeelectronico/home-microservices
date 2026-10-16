@@ -15,11 +15,6 @@ settings = None
 mqtt_client = None
 homeware = None
 
-# Configure logging
-logging.basicConfig(
-  level=logging.INFO,
-  format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-)
 
 # Main entry point
 if __name__ == "__main__":
@@ -28,6 +23,16 @@ if __name__ == "__main__":
   # Load settings
   settings = Settings()
   settings.load_settings()
+
+  # Configure logging
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
   logging.info("Starting " + settings.service_id)
 
   # Instantiate objects
