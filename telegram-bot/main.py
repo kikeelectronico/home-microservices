@@ -52,17 +52,27 @@ def register_handlers():
     bot.message_handler(commands=['start', 'help','test','home','directions'])(send_welcome)
     bot.message_handler(func=lambda message: True)(echo_message)
 
+
 # Main entry point
-if __name__ == "__main__":
-    logging.basicConfig(
-      level=logging.INFO,
-      format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-    )
+def main():
+    global settings
+    global bot
+    global storage_client
+    # Register shutdown handlers
     register_shutdown_handlers()
 
     # Load settings
     settings = Settings()
     settings.load_settings()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=(
+            "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+            if settings.env == "dev"
+            else "%(message)s"
+        )
+    )
     logging.info("Starting %s", settings.service_id)
 
     # Instantiate objects
@@ -80,3 +90,6 @@ if __name__ == "__main__":
     polling_thread.join()
     storage_client.close()
     logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+    main()

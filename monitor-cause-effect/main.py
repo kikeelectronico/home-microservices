@@ -13,18 +13,25 @@ homeware = None
 settings = None
 
 # Main entry point
-if __name__ == "__main__":
-  logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-  )
-
+def main():
+  global settings
+  global mqtt_client
+  global homeware
   # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings
   settings = Settings()
   settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
   logging.info(f"Starting {settings.service_id}.")
 
   # Create mqtt client
@@ -40,6 +47,7 @@ if __name__ == "__main__":
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
 
   # Main loop
+  mqtt_client.loop_start()
   while not stop_requested():
     # Evaluate rules
     evaluateRules(homeware, mqtt_client, RULES)
@@ -52,7 +60,9 @@ if __name__ == "__main__":
 
   # Clean shutdown
   logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-    
+if __name__ == "__main__":
+  main()

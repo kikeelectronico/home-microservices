@@ -42,19 +42,26 @@ def handle_message(topic, payload):
         query_job.result()
 
 
-def main() -> None:
+# Main entry point
+def main():
     global settings
     global mqtt_client
     global bigquery_client
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-    )
+    # Register shutdown handlers
     register_shutdown_handlers()
 
     # Load settings
     settings = Settings()
     settings.load_settings()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=(
+            "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+            if settings.env == "dev"
+            else "%(message)s"
+        )
+    )
     logging.info("Starting %s", settings.service_id)
 
     # Instantiate objects

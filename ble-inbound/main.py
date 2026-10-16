@@ -118,17 +118,29 @@ def verifyPresence():
       if not homeware.get(device["id"], "enable") == (device["name"] in names):
         homeware.execute(device["id"],"enable", device["name"] in names)
 
+
 # Main entry point
-if __name__ == "__main__":
-  logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-  )
+def main():
+  global settings
+  global BLE_SENSORS
+  global BLE_PRESENCE
+  global mqtt_client
+  global homeware
+  # Register shutdown handlers
   register_shutdown_handlers()
 
   # Load settings
   settings = Settings()
   settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
   BLE_SENSORS = json.loads(settings.ble_sensors)
   BLE_PRESENCE = json.loads(settings.ble_presence)
 
@@ -156,3 +168,6 @@ if __name__ == "__main__":
   mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+  main()

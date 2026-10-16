@@ -23,20 +23,27 @@ def handle_message(topic, payload):
         actions = engine.handle(event, context)
 
         publish_actions(actions, mqtt_client)
-		
 
-def main() -> None:
+
+# Main entry point
+def main():
     global settings
     global mqtt_client
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-    )
+    # Register shutdown handlers
     register_shutdown_handlers()
 
     # Load settings
     settings = Settings()
     settings.load_settings()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=(
+            "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+            if settings.env == "dev"
+            else "%(message)s"
+        )
+    )
     logging.info("Starting %s", settings.service_id)
 
     # Instantiate objects
@@ -58,7 +65,6 @@ def main() -> None:
     mqtt_client.loop_stop()
     mqtt_client.disconnect()
     logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
     main()
