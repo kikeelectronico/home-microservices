@@ -29,6 +29,7 @@ def handle_message(topic, payload):
     publishStatus(force=True)
 
 
+# Main entry point
 def main():
   global settings
   global mqtt_client
@@ -72,7 +73,6 @@ def main():
   mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

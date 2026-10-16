@@ -23,9 +23,10 @@ def handle_message(topic, payload):
         actions = engine.handle(event, context)
 
         publish_actions(actions, mqtt_client)
-		
 
-def main() -> None:
+
+# Main entry point
+def main():
     global settings
     global mqtt_client
     # Register shutdown handlers
@@ -64,7 +65,6 @@ def main() -> None:
     mqtt_client.loop_stop()
     mqtt_client.disconnect()
     logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
     main()

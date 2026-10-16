@@ -43,13 +43,13 @@ def handle_message(topic, payload):
   elif topic == "meteo/weather/request":
     publishWeather(force=True)
 
+
+# Main entry point
 def main():
   global last_warnings_timestamp
   global last_weather_timestamp
   global settings
   global mqtt_client
-
-
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -100,6 +100,5 @@ def main():
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-# Main entry point
 if __name__ == "__main__":
   main()

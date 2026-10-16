@@ -17,7 +17,11 @@ homeware = None
 hue = None
 
 # Main entry point
-if __name__ == "__main__":
+def main():
+  global settings
+  global mqtt_client
+  global homeware
+  global hue
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -114,3 +118,6 @@ if __name__ == "__main__":
   mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+  main()

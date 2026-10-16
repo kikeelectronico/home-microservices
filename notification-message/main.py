@@ -15,9 +15,13 @@ def handle_message(topic, payload):
   # Send the message to the Telegram API
   payload = payload.decode('utf-8')
   bot.send_message(settings.enrique_chat_id, payload)
-	
+
+
 # Main entry point
-if __name__ == "__main__":
+def main():
+  global settings
+  global mqtt_client
+  global bot
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -58,4 +62,5 @@ if __name__ == "__main__":
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-    
+if __name__ == "__main__":
+  main()

@@ -37,11 +37,11 @@ def handle_message(topic, payload):
     publishNearestFire(force=True)
 
 
+# Main entry point
 def main():
   global last_nearest_fire_timestamp
   global settings
   global mqtt_client
-  
   # Register shutdown handlers
   register_shutdown_handlers()
 

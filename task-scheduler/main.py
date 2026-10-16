@@ -42,6 +42,8 @@ def handle_message(topic, payload):
             del tasks[index]
             mqtt_client.publish("tasks/ack", json.dumps(new_task))
 
+
+# Main entry point
 def main():
   global settings
   global mqtt_client
@@ -85,7 +87,6 @@ def main():
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-# Main entry point
 if __name__ == "__main__":
   main()
       

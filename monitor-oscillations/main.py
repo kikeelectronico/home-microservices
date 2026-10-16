@@ -42,10 +42,11 @@ def handle_message(topic, payload):
         "oscillating": False
       }
 
+
+# Main entry point
 def main():
   global settings
   global mqtt_client
-
   # Register shutdown handlers
   register_shutdown_handlers()
 

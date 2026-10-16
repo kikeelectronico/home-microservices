@@ -52,8 +52,12 @@ def register_handlers():
     bot.message_handler(commands=['start', 'help','test','home','directions'])(send_welcome)
     bot.message_handler(func=lambda message: True)(echo_message)
 
+
 # Main entry point
-if __name__ == "__main__":
+def main():
+    global settings
+    global bot
+    global storage_client
     # Register shutdown handlers
     register_shutdown_handlers()
 
@@ -86,3 +90,6 @@ if __name__ == "__main__":
     polling_thread.join()
     storage_client.close()
     logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+    main()

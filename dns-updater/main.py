@@ -12,11 +12,11 @@ last_ip = "unknown"
 settings = None
 mqtt_client = None
 
+# Main entry point
 def main():
   global last_ip
   global settings
   global mqtt_client
-
   # Register shutdown handlers
   register_shutdown_handlers()
 

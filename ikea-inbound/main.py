@@ -95,8 +95,12 @@ def on_open(ws):
   thread.daemon = True
   thread.start()
 
+
 # Main entry point
-if __name__ == "__main__":
+def main():
+  global settings
+  global mqtt_client
+  global homeware
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -155,3 +159,6 @@ if __name__ == "__main__":
   mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+  main()

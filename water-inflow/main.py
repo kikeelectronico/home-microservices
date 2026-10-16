@@ -33,11 +33,11 @@ def handle_message(topic, payload):
     publishVolume(force=True)
 
 
+# Main entry point
 def main():
   global last_volume_timestamp
   global settings
   global mqtt_client
-
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -80,7 +80,6 @@ def main():
   mqtt_client.loop_stop()
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

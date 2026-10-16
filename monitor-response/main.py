@@ -42,7 +42,8 @@ def handle_message(topic, payload):
         query_job.result()
 
 
-def main() -> None:
+# Main entry point
+def main():
     global settings
     global mqtt_client
     global bigquery_client

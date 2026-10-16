@@ -44,6 +44,7 @@ def updateAstroData():
     logging.warning("Fail to update weather data. Conection error.")
 
 
+# Main entry point
 def main():
   global last_heartbeat_timestamp
   global just_executed
@@ -216,7 +217,6 @@ def main():
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-# Main entry point
 if __name__ == "__main__":
   main()
       

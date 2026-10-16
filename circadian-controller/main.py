@@ -54,6 +54,8 @@ def colorTemperature(hour, sunrise, sunset, Tmin=2200, Tmax=6500):
     else:
         return Tmin
 
+
+# Main entry point
 def main():
   global last_heartbeat_timestamp
   global just_executed
@@ -133,7 +135,6 @@ def main():
   mqtt_client.disconnect()
   logging.info("Shutdown completed.")
 
-# Main entry point
 if __name__ == "__main__":
   main()
       
