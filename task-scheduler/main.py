@@ -1,8 +1,8 @@
-import paho.mqtt.client as mqtt
 import time
 import json
 import logging
 
+from mqtt import set_mqtt_client
 from constants import MQTT_PORT, TOPICS
 from homeware import Homeware
 from settings import Settings
@@ -15,28 +15,10 @@ settings = None
 mqtt_client = None
 homeware = None
 
-# Suscribe to topics on connect
-def on_connect(client, userdata, flags, rc, properties):
-	for topic in TOPICS:
-		client.subscribe(topic, qos=1)
 
-# Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, disconnect_flags, rc, properties):
-  if rc != 0:
-    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while not stop_requested():
-      try:
-        client.reconnect()
-        logging.info("Reconnected to MQTT broker")
-        break
-      except Exception as exc:
-        logging.warning("Reconnect failed: %s", exc)
-        wait_for_stop(5)
-
-# Do tasks when a message is received
-def on_message(client, userdata, msg):
+def handle_message(topic, payload):
   global tasks
-  if msg.topic == "heartbeats/system":
+  if topic == "heartbeats/system":
     for index, task in enumerate(tasks):
       if task["time"] < time.time():
         assert_pass = True
@@ -48,7 +30,7 @@ def on_message(client, userdata, msg):
           homeware.execute(task["target"]["device_id"], task["target"]["param"], task["target"]["value"])
         del tasks[index]
   else:
-    new_task = json.loads(msg.payload)
+    new_task = json.loads(payload)
     if new_task["action"] == "set":
       if "delta" in new_task:
         new_task["time"] = time.time() + new_task["delta"]      
@@ -76,21 +58,17 @@ def main():
   logging.info("Starting %s", settings.service_id)
 
   # Instantiate objects
-  mqtt_client = mqtt.Client(
-    mqtt.CallbackAPIVersion.VERSION2,
-    client_id=settings.service_id,
-    protocol=mqtt.MQTTv5
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    MQTT_PORT,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id,
+    subscriptions=TOPICS,
+    message_handler=handle_message
   )
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
 
-  # Declare the callback functions
-  mqtt_client.on_message = on_message
-  mqtt_client.on_connect = on_connect
-  mqtt_client.on_disconnect = on_disconnect
-  # Connect to the mqtt broker
-  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
-  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   # Main loop
   mqtt_client.loop_start()
   while not stop_requested():

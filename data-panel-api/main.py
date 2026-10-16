@@ -1,4 +1,3 @@
-import paho.mqtt.client as mqtt
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +7,7 @@ import json
 import asyncio
 from asyncio import sleep
 import logging
+from mqtt import set_mqtt_client
 from constants import DEVICE_IDS, MQTT_PORT
 from settings import Settings
 from shutdown import request_stop, stop_requested, wait_for_stop
@@ -26,19 +26,27 @@ async def lifespan(app):
   global mqtt_events_task, settings, mqtt_client
   settings = Settings()
   settings.load_settings()
-  mqtt_client = mqtt.Client(
-    mqtt.CallbackAPIVersion.VERSION2,
-    client_id=settings.service_id,
-    protocol=mqtt.MQTTv5
+  subscriptions = [
+    "water/volume",
+    "meteo/warnings",
+    "meteo/weather",
+    "electricity/grid",
+    "internet/status",
+    "fire/nearest",
+    *[f"device/{device_id}" for device_id in DEVICE_IDS],
+    "device/scene_ducha"
+  ]
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    MQTT_PORT,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id,
+    subscriptions=subscriptions,
+    message_handler=handle_message
   )
   mqtt_events_task = asyncio.create_task(dispatch_mqtt_events())
   try:
-    mqtt_client.on_message = on_message
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_disconnect = on_disconnect
-    mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
-    mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-    mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
     mqtt_client.loop_start()
     logging.info("Starting " + settings.service_id)
     yield
@@ -55,18 +63,6 @@ async def lifespan(app):
 
 app = FastAPI(lifespan=lifespan)
 
-# Subscribe to topics on connect
-def on_connect(client, userdata, flags, rc, properties):
-  logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("water/volume", qos=1)
-  client.subscribe("meteo/warnings", qos=1)
-  client.subscribe("meteo/weather", qos=1)
-  client.subscribe("electricity/grid", qos=1)
-  client.subscribe("internet/status", qos=1)
-  client.subscribe("fire/nearest", qos=1)
-  for topic in DEVICE_IDS:
-    client.subscribe(f"device/{topic}", qos=1)
-  client.subscribe("device/scene_ducha", qos=1)
 
 async def dispatch_mqtt_events():
   while not stop_requested():
@@ -79,50 +75,50 @@ async def dispatch_mqtt_events():
       queue.put_nowait(event)
 
 # Do tasks when a message is received
-def on_message(client, userdata, msg):
+def handle_message(topic, payload):
   try:
-    data = json.loads(msg.payload)
+    data = json.loads(payload)
   except json.JSONDecodeError:
-    logging.warning("Invalid JSON payload on %s: %r", msg.topic, msg.payload)
+    logging.warning("Invalid JSON payload on %s: %r", topic, payload)
     return
-  if msg.topic == "water/volume":
+  if topic == "water/volume":
     event = {
       "type": "water-volume",
       "data": data
     }
     mqtt_events.put(event)
-  elif msg.topic == "meteo/warnings":
+  elif topic == "meteo/warnings":
     event = {
       "type": "meteo-warnings",
       "data": data
     }
     mqtt_events.put(event)
-  elif msg.topic == "meteo/weather":
+  elif topic == "meteo/weather":
     event = {
       "type": "meteo-weather",
       "data": data
     }
     mqtt_events.put(event)
-  elif msg.topic == "internet/status":
+  elif topic == "internet/status":
       event = {
         "type": "internet-status",
         "data": data
       }
       mqtt_events.put(event)
-  elif msg.topic == "electricity/grid":
+  elif topic == "electricity/grid":
       event = {
         "type": "electricity-grid",
         "data": data
       }
       mqtt_events.put(event)
-  elif msg.topic == "fire/nearest":
+  elif topic == "fire/nearest":
       event = {
         "type": "fire-nearest",
         "data": data
       }
       mqtt_events.put(event)
-  elif msg.topic.startswith("device"):
-    device_id = msg.topic.split("/")[1]
+  elif topic.startswith("device"):
+    device_id = topic.split("/")[1]
     home = {}
     home[device_id] = data
     event = {
@@ -130,19 +126,6 @@ def on_message(client, userdata, msg):
       "data": home
     }
     mqtt_events.put(event)
-
-# Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, disconnect_flags, rc, properties):
-  if rc != 0:
-    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while not stop_requested():
-      try:
-        client.reconnect()
-        logging.info("Reconnected to MQTT broker")
-        break
-      except Exception as exc:
-        logging.warning("Reconnect failed: %s", exc)
-      wait_for_stop(5)
 
 app.add_middleware(
     CORSMiddleware,

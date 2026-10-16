@@ -1,7 +1,7 @@
-import paho.mqtt.client as mqtt
 import json
 import logging
 
+from mqtt import set_mqtt_client
 from constants import MQTT_PORT
 from hue import Hue
 from settings import Settings
@@ -14,27 +14,9 @@ settings = None
 mqtt_client = None
 hue = None
 
-# Suscribe to topics on connect
-def on_connect(client, userdata, flags, rc, properties):
-	for topic in topics:
-		client.subscribe(topic, qos=1)
 
-# Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, disconnect_flags, rc, properties):
-	if rc != 0:
-		logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-		while not stop_requested():
-			try:
-				client.reconnect()
-				logging.info("Reconnected to MQTT broker")
-				break
-			except Exception as exc:
-				logging.warning("Reconnect failed: %s", exc)
-				wait_for_stop(5)
-
-# Do tasks when a message is received
-def on_message(client, userdata, msg):
-	topic = msg.topic
+def handle_message(topic, payload):
+	topic = topic
 	# Get service id
 	hue_v1_device_id_key = topic.split("hue_")[1]
 	hue_service_id = service_id_device_id.get(hue_v1_device_id_key)
@@ -43,9 +25,9 @@ def on_message(client, userdata, msg):
 		return
 	# Validate payload
 	try:
-		payload = json.loads(msg.payload)
+		payload = json.loads(payload)
 	except json.JSONDecodeError:
-		logging.warning("Invalid JSON payload on %s: %r", topic, msg.payload)
+		logging.warning("Invalid JSON payload on %s: %r", topic, payload)
 		return
 	if not isinstance(payload, dict):
 		logging.warning("Invalid payload type on %s: %r", topic, payload)
@@ -163,10 +145,14 @@ if __name__ == "__main__":
 	logging.info("Starting %s", settings.service_id)
 
 	# Instantiate objects
-	mqtt_client = mqtt.Client(
-		mqtt.CallbackAPIVersion.VERSION2,
-		client_id=settings.service_id,
-		protocol=mqtt.MQTTv5
+	mqtt_client = set_mqtt_client(
+		settings.mqtt_host,
+		MQTT_PORT,
+		settings.mqtt_user,
+		settings.mqtt_pass,
+		settings.service_id,
+		subscriptions=topics,
+		message_handler=handle_message
 	)
 	hue = Hue(settings.hue_host, settings.hue_token)
 
@@ -184,14 +170,6 @@ if __name__ == "__main__":
 				service_id_device_id[hue_v1_device_id] = service["rid"]
 				topics.append("device/hue_" + hue_v1_device_id)
 
-	# Declare the callback functions
-	mqtt_client.on_message = on_message
-	mqtt_client.on_connect = on_connect
-	mqtt_client.on_disconnect = on_disconnect
-	# Connect to the mqtt broker
-	mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
-	mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-	mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
 	
 	# Main loop
 	mqtt_client.loop_start()

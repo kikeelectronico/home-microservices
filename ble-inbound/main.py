@@ -1,9 +1,9 @@
 from bluepy import btle
-import paho.mqtt.client as mqtt
 import time
 import json
 import logging
 
+from mqtt import set_mqtt_client
 from constants import (
   API_RX_CHARACTERISTIC_UUID,
   API_SERVICE_UUID,
@@ -24,19 +24,6 @@ mqtt_client = None
 homeware = None
 BLE_SENSORS = None
 BLE_PRESENCE = None
-
-# Reconnect if MQTT disconnects unexpectedly
-def on_disconnect(client, userdata, disconnect_flags, rc, properties):
-  if rc != 0:
-    logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while not stop_requested():
-      try:
-        client.reconnect()
-        logging.info("Reconnected to MQTT broker")
-        break
-      except Exception as exc:
-        logging.warning("Reconnect failed: %s", exc)
-        wait_for_stop(5)
 
 # Callback for BLE sensors
 class MyDelegate(btle.DefaultDelegate):
@@ -147,18 +134,15 @@ if __name__ == "__main__":
   BLE_PRESENCE = json.loads(settings.ble_presence)
 
   # Instantiate objects
-  mqtt_client = mqtt.Client(
-    mqtt.CallbackAPIVersion.VERSION2,
-    client_id=settings.service_id,
-    protocol=mqtt.MQTTv5
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host_network,
+    MQTT_PORT,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id
   )
   homeware = Homeware(mqtt_client, settings.homeware_api_url_network, settings.homeware_api_key)
   
-  # Connect to the mqtt broker
-  mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
-  mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(settings.mqtt_host_network, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
   logging.info("Starting " + settings.service_id)
 
