@@ -6,6 +6,7 @@ import logging
 
 from homeware import Homeware
 import logic
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 
 # Load env vars
@@ -44,17 +45,19 @@ homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 # Main entry point
 if __name__ == "__main__":
+  register_shutdown_handlers()
+
   # Check env vars
   def report(message):
     print(message)
@@ -73,7 +76,9 @@ if __name__ == "__main__":
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
-  while True:
+  device = None
+  browser = None
+  while not stop_requested():
     try:
       # Connect to the tv
       chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=["Tele"])
@@ -83,7 +88,7 @@ if __name__ == "__main__":
       device.wait()
       device_controller = device.media_controller
       # device_controller.block_until_active(5)
-      while device.socket_client.is_connected:
+      while device.socket_client.is_connected and not stop_requested():
         # if device.app_display_name is not None:
         if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
           logic.notPlayingLights(homeware)
@@ -95,7 +100,7 @@ if __name__ == "__main__":
             mqtt_client.publish("heartbeats", SERVICE)
             last_heartbeat_timestamp = time.time()
           
-        time.sleep(5)
+        wait_for_stop(5)
     except Exception:
         try:
             device.disconnect()
@@ -107,4 +112,20 @@ if __name__ == "__main__":
             logging.info("Fail to stop discovery.")
 
         logging.info("Chromecast connection lost. Reconnecting in 10s.")
-        time.sleep(10)
+        wait_for_stop(10)
+
+  try:
+    if device is not None:
+      device.disconnect()
+  except Exception:
+    logging.info("Fail to force disconnect.")
+  try:
+    if browser is not None:
+      browser.stop_discovery()
+  except Exception:
+    logging.info("Fail to stop discovery.")
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")

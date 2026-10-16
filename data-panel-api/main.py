@@ -8,8 +8,8 @@ import os
 import json
 import asyncio
 from asyncio import sleep
-import time
 import logging
+from shutdown import request_stop, stop_requested, wait_for_stop
 
 # from spotify import Spotify
 
@@ -62,6 +62,7 @@ async def lifespan(app):
     logging.info("Starting " + SERVICE)
     yield
   finally:
+    request_stop()
     mqtt_client.disconnect()
     mqtt_client.loop_stop()
     mqtt_events_task.cancel()
@@ -92,7 +93,7 @@ def on_connect(client, userdata, flags, rc, properties):
   client.subscribe("device/scene_ducha", qos=1)
 
 async def dispatch_mqtt_events():
-  while True:
+  while not stop_requested():
     try:
       event = mqtt_events.get_nowait()
     except Empty:
@@ -158,14 +159,14 @@ def on_message(client, userdata, msg):
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+      wait_for_stop(5)
 
 # Check env vars
 def report(message):
@@ -194,7 +195,7 @@ async def root():
 
 async def streamEvents(queue):
   last = {}
-  while True:
+  while not stop_requested():
     try:
       event = queue.get_nowait()
       yield f"data: {json.dumps(event)}\n\n"

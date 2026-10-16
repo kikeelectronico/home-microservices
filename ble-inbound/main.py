@@ -6,6 +6,7 @@ import json
 import logging
 
 from homeware import Homeware
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 if os.environ.get("MQTT_PASS", "no_set") == "no_set":
   from dotenv import load_dotenv
@@ -46,14 +47,14 @@ homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
   if rc != 0:
     logging.warning("Unexpected MQTT disconnection (rc=%s). Reconnecting...", rc)
-    while True:
+    while not stop_requested():
       try:
         client.reconnect()
         logging.info("Reconnected to MQTT broker")
         break
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
-        time.sleep(5)
+        wait_for_stop(5)
 
 # Callback for BLE sensors
 class MyDelegate(btle.DefaultDelegate):
@@ -155,6 +156,7 @@ if __name__ == "__main__":
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
+  register_shutdown_handlers()
 
   # Check env vars
   def report(message):
@@ -178,7 +180,14 @@ if __name__ == "__main__":
   mqtt_client.loop_start()
   logging.info("Starting " + SERVICE)
 
-  while True:
+  while not stop_requested():
     getSensors()
+    if stop_requested():
+      break
     verifyPresence()
-    time.sleep(1)
+    wait_for_stop(1)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
