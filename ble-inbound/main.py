@@ -8,7 +8,6 @@ from constants import (
   API_RX_CHARACTERISTIC_UUID,
   API_SERVICE_UUID,
   API_TX_CHARACTERISTIC_UUID,
-  MQTT_PORT,
   ONLINE_TIMEOUT
 )
 from homeware import Homeware
@@ -136,7 +135,7 @@ if __name__ == "__main__":
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host_network,
-    MQTT_PORT,
+    settings.mqtt_port,
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id

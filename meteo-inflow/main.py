@@ -3,7 +3,7 @@ import logging
 import json
 
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_TOPIC, MQTT_PORT, REQUEST_TIMEOUT, SLEEP_TIME, WARNINGS_INTERVAL, WEATHER_INTERVAL
+from constants import HEARTBEAT_TOPIC, REQUEST_TIMEOUT, SLEEP_TIME, WARNINGS_INTERVAL, WEATHER_INTERVAL
 from weather import getWeather
 from weather_warnings import getWarnings
 from settings import Settings
@@ -64,7 +64,7 @@ def main():
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
-    MQTT_PORT,
+    settings.mqtt_port,
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,

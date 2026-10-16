@@ -1,5 +1,6 @@
 ENV_VARS = [
 	"MQTT_HOST",
+	"MQTT_PORT",
 	"MQTT_USER",
 	"MQTT_PASS",
 	"HOMEWARE_API_URL",
@@ -10,7 +11,6 @@ ENV_VARS = [
 	"IKEA_TOKEN"
 ]
 
-MQTT_PORT = 1883
 SERVICE_NAME = "monitor-http-request"
 SLEEP_TIME = 10
 BLOCK_TIME = 300

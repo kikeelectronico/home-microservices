@@ -3,7 +3,7 @@ from google.cloud import bigquery
 import logging
 import json
 from mqtt import set_mqtt_client
-from constants import MQTT_PORT, POWER_CONSTANT, TOPICS
+from constants import POWER_CONSTANT, TOPICS
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
 	mqtt_client = set_mqtt_client(
 		settings.mqtt_host,
-		MQTT_PORT,
+		settings.mqtt_port,
 		settings.mqtt_user,
 		settings.mqtt_pass,
 		settings.service_id,
