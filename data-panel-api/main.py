@@ -4,62 +4,43 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from queue import Queue, Empty
-import os
 import json
 import asyncio
 from asyncio import sleep
 import logging
+from constants import DEVICE_IDS, MQTT_PORT
+from settings import Settings
 from shutdown import request_stop, stop_requested, wait_for_stop
 
 # from spotify import Spotify
-
-# Load env vars
-if os.environ.get("ENV", "dev") == "dev":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-MQTT_PORT = 1883
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-SERVICE = "data-panel-api-" + ENV
-DEVICE_IDS = [
-  "current001",
-  "thermostat_livingroom",
-  "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
-  "ac_001",
-  "e5e5dd62-a2d8-40e1-b8f6-a82db6ed84f4",
-  "temperature_001",
-  "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
-  "thermostat_bathroom",
-  "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
-  "thermostat_dormitorio",
-  "e6c2e2bd-5057-49bc-821f-a4b10e415ac6",
-  "temperature_001",
-  # "switch_at_home"
-]
 
 # Instantiate objects
 sse_queues = set()
 mqtt_events = Queue()
 mqtt_events_task = None
+settings = None
+mqtt_client = None
 
 @asynccontextmanager
 async def lifespan(app):
-  global mqtt_events_task
+  global mqtt_events_task, settings, mqtt_client
+  settings = Settings()
+  settings.load_settings()
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
   mqtt_events_task = asyncio.create_task(dispatch_mqtt_events())
   try:
     mqtt_client.on_message = on_message
     mqtt_client.on_connect = on_connect
     mqtt_client.on_disconnect = on_disconnect
-    mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+    mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
     mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-    mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+    mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
     mqtt_client.loop_start()
-    logging.info("Starting " + SERVICE)
+    logging.info("Starting " + settings.service_id)
     yield
   finally:
     request_stop()
@@ -73,11 +54,6 @@ async def lifespan(app):
     mqtt_events_task = None
 
 app = FastAPI(lifespan=lifespan)
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-) 
 
 # Subscribe to topics on connect
 def on_connect(client, userdata, flags, rc, properties):
@@ -167,17 +143,6 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
       except Exception as exc:
         logging.warning("Reconnect failed: %s", exc)
       wait_for_stop(5)
-
-# Check env vars
-def report(message):
-  print(message)
-  exit()
-if MQTT_USER == "no_set":
-  report("MQTT_USER env vars no set")
-if MQTT_PASS == "no_set":
-  report("MQTT_PASS env vars no set")
-if MQTT_HOST == "no_set":
-  report("MQTT_HOST env vars no set")
 
 app.add_middleware(
     CORSMiddleware,

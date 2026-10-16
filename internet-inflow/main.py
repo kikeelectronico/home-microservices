@@ -1,34 +1,17 @@
 import json
 import logging
-import os
 import time
 
 import paho.mqtt.client as mqtt
 
+from constants import HEARTBEAT_TOPIC, MQTT_PORT, SLEEP_TIME, STATUS_REQUEST_TOPIC, STATUS_TOPIC
 from Internet import getInternetStatus
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-MQTT_PORT = 1883
-SERVICE = "internet-inflow-" + ENV
-SLEEP_TIME = 10
-
+settings = None
+mqtt_client = None
 last_status = {}
-
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
 
 
 def publishStatus(force=False):
@@ -36,13 +19,13 @@ def publishStatus(force=False):
   internet_status = getInternetStatus()
 
   if force or internet_status != last_status:
-    mqtt_client.publish("internet/status", json.dumps(internet_status))
+    mqtt_client.publish(STATUS_TOPIC, json.dumps(internet_status))
     last_status = internet_status
 
 def on_connect(client, userdata, flags, rc, properties):
   logging.info("Connected to MQTT broker (rc=%s)", rc)
-  client.subscribe("internet/status/request", qos=1)
-  logging.info("Subscribed to MQTT topic %s", "internet/status/request")
+  client.subscribe(STATUS_REQUEST_TOPIC, qos=1)
+  logging.info("Subscribed to MQTT topic %s", STATUS_REQUEST_TOPIC)
 
 
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -59,41 +42,43 @@ def on_disconnect(client, userdata, disconnect_flags, rc, properties):
 
 
 def on_message(client, userdata, msg):
-  if msg.topic == "internet/status/request":
+  if msg.topic == STATUS_REQUEST_TOPIC:
     publishStatus(force=True)
 
 
 def main():
+  global settings
+  global mqtt_client
   logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
   )
   register_shutdown_handlers()
 
-  def report(message):
-    print(message)
-    exit()
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
 
-  if MQTT_USER == "no_set":
-    report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set":
-    report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set":
-    report("MQTT_HOST env vars no set")
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
 
   mqtt_client.on_message = on_message
   mqtt_client.on_connect = on_connect
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
 
   while not stop_requested():
     publishStatus()
 
-    mqtt_client.publish("heartbeats", SERVICE)
+    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
     wait_for_stop(SLEEP_TIME)
 

@@ -15,16 +15,6 @@ class Hue:
     self.__url = url
     self.__token = token
 
-    fail = False
-    if self.__url == "no_set":
-      logging.error("HUE_HOST env var isn't set")
-      fail = True
-    if self.__token == "no_set":
-      logging.error("HUE_TOKEN env var isn't set")
-      fail = True
-    if fail:
-      exit()
-
   def getEventStreamClient(self):
     while not stop_requested():
       try:

@@ -1,5 +1,4 @@
 import paho.mqtt.client as mqtt
-import os
 import time
 import json
 import ssl
@@ -10,41 +9,19 @@ import logging
 
 from homeware import Homeware
 import devices
+from constants import MQTT_PORT, WEBSOCKET_RECONNECT_DELAY
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 import urllib3
 urllib3.disable_warnings()
 
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-IKEA_HOST = os.environ.get("IKEA_HOST", "no_set")
-IKEA_TOKEN = os.environ.get("IKEA_TOKEN", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "ikea-inbound-" + ENV
-WEBSOCKET_RECONNECT_DELAY = 5
-
 # Variables
 tasks = {}
 voltages_map = {}
-
-# Instantiate objects
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+settings = None
+mqtt_client = None
+homeware = None
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -139,31 +116,30 @@ if __name__ == "__main__":
   )
   register_shutdown_handlers()
 
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
 
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-  if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if IKEA_HOST == "no_set": report("IKEA_HOST env vars no set")
-  if IKEA_TOKEN == "no_set": report("IKEA_TOKEN env vars no set")
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
+  homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
   
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
   
   # Open WebSocket
-  url = f"wss://{IKEA_HOST}:8443/v1"
+  url = f"wss://{settings.ikea_host}:8443/v1"
   headers = {
-    "Authorization": "Bearer " + IKEA_TOKEN
+    "Authorization": "Bearer " + settings.ikea_token
   }
   # Contexto SSL para certificado autofirmado
   sslopt = {"cert_reqs": ssl.CERT_NONE}

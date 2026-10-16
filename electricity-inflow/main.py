@@ -1,41 +1,22 @@
 import json
 import logging
-import os
 import time
 
 import paho.mqtt.client as mqtt
 
+from constants import ESIOS_INTERVAL, HEARTBEAT_TOPIC, MQTT_PORT, SLEEP_TIME
 from esios import getEsiosIndicator
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-ESIOS_API_KEY = os.environ.get("ESIOS_API_KEY", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-MQTT_PORT = 1883
-SERVICE = "electricity-inflow-" + ENV
-SLEEP_TIME = 10
-ESIOS_INTERVAL = 300
-
+settings = None
+mqtt_client = None
 last_grid_timestamp = 0
 last_grid_payload = {}
 
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
-
 def publishGrid(force=False):
   global last_grid_payload
-  free_co2_generation_percentage_payload = getEsiosIndicator(ESIOS_API_KEY, 10033)
+  free_co2_generation_percentage_payload = getEsiosIndicator(settings.esios_api_key, 10033)
   if not free_co2_generation_percentage_payload:
     return
 
@@ -70,6 +51,8 @@ def on_message(client, userdata, msg):
 
 def main():
   global last_grid_timestamp
+  global settings
+  global mqtt_client
 
   logging.basicConfig(
     level=logging.INFO,
@@ -77,34 +60,32 @@ def main():
   )
   register_shutdown_handlers()
 
-  def report(message):
-    print(message)
-    exit()
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  logging.info("Starting %s", settings.service_id)
 
-  if MQTT_USER == "no_set":
-    report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set":
-    report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set":
-    report("MQTT_HOST env vars no set")
-  if ESIOS_API_KEY == "no_set":
-    report("ESIOS_API_KEY env vars no set")
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
 
   mqtt_client.on_message = on_message
   mqtt_client.on_connect = on_connect
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
 
   while not stop_requested():
     if time.time() - last_grid_timestamp > ESIOS_INTERVAL:
       publishGrid()
       last_grid_timestamp = time.time()
 
-    mqtt_client.publish("heartbeats", SERVICE)
+    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
     wait_for_stop(SLEEP_TIME)
 

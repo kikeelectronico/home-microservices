@@ -1,47 +1,29 @@
 from bluepy import btle
 import paho.mqtt.client as mqtt
-import os
 import time
 import json
 import logging
 
+from constants import (
+  API_RX_CHARACTERISTIC_UUID,
+  API_SERVICE_UUID,
+  API_TX_CHARACTERISTIC_UUID,
+  MQTT_PORT,
+  ONLINE_TIMEOUT
+)
 from homeware import Homeware
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST_NETWORK", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL_NETWORK", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-BLE_SENSORS = os.environ.get("BLE_SENSORS", "no_set")
-BLE_PRESENCE = os.environ.get("BLE_PRESENCE", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "ble-inbound-" + ENV
-ONLINE_TIMEOUT = 1800
-# API UUIDs
-API_SERVICE_UUID ="cba20d00-224d-11e6-9fb8-0002a5d5c51b"
-API_TX_CHARACTERISTIC_UUID= "cba20003-224d-11e6-9fb8-0002a5d5c51b"
-API_RX_CHARACTERISTIC_UUID= "cba20002-224d-11e6-9fb8-0002a5d5c51b"
 
 # Declare vars
 ble_link = None
 rx_char = None
 last_update = {}
-
-# Instantiate objects
-mqtt_client = mqtt.Client(
-  mqtt.CallbackAPIVersion.VERSION2,
-  client_id=SERVICE,
-  protocol=mqtt.MQTTv5
-)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
+settings = None
+mqtt_client = None
+homeware = None
+BLE_SENSORS = None
+BLE_PRESENCE = None
 
 # Reconnect if MQTT disconnects unexpectedly
 def on_disconnect(client, userdata, disconnect_flags, rc, properties):
@@ -158,27 +140,27 @@ if __name__ == "__main__":
   )
   register_shutdown_handlers()
 
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-  if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if BLE_SENSORS == "no_set": report("BLE_SENSORS env vars no set")
-  else: BLE_SENSORS = json.loads(BLE_SENSORS)
-  if BLE_PRESENCE == "no_set": report("BLE_PRESENCE env vars no set")
-  else: BLE_PRESENCE = json.loads(BLE_PRESENCE)
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+  BLE_SENSORS = json.loads(settings.ble_sensors)
+  BLE_PRESENCE = json.loads(settings.ble_presence)
+
+  # Instantiate objects
+  mqtt_client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION2,
+    client_id=settings.service_id,
+    protocol=mqtt.MQTTv5
+  )
+  homeware = Homeware(mqtt_client, settings.homeware_api_url_network, settings.homeware_api_key)
   
   # Connect to the mqtt broker
   mqtt_client.on_disconnect = on_disconnect
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
+  mqtt_client.username_pw_set(settings.mqtt_user, settings.mqtt_pass)
   mqtt_client.reconnect_delay_set(min_delay=1, max_delay=60)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60, clean_start=False)
+  mqtt_client.connect(settings.mqtt_host_network, MQTT_PORT, 60, clean_start=False)
   mqtt_client.loop_start()
-  logging.info("Starting " + SERVICE)
+  logging.info("Starting " + settings.service_id)
 
   while not stop_requested():
     getSensors()
