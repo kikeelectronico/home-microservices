@@ -1,0 +1,10 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"HUE_HOST",
+	"HUE_TOKEN"
+]
+
+SERVICE_NAME = "hue-outbound"

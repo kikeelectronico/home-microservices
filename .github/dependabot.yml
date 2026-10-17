@@ -7,12 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     target-branch: "dev"
-    directory: "/monitor-http-request"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-  - package-ecosystem: "pip"
-    target-branch: "dev"
     directory: "/ble-inbound"
     schedule:
       interval: "weekly"
@@ -49,13 +43,25 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "pip"
     target-branch: "dev"
-    directory: "/device-controller"
+    directory: "/dns-updater"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
   - package-ecosystem: "pip"
     target-branch: "dev"
-    directory: "/dns-updater"
+    directory: "/electricity-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/eumetsat-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-cause-effect"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -68,6 +74,24 @@ updates:
   - package-ecosystem: "pip"
     target-branch: "dev"
     directory: "/monitor-heartbeat-request"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-http-request"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-oscillations"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/monitor-response"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -101,9 +125,22 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    open-pull-requests-limit: 10
   - package-ecosystem: "pip"
     target-branch: "dev"
-    directory: "/logic-pool"
+    directory: "/internet-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/meteo-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "pip"
+    target-branch: "dev"
+    directory: "/water-inflow"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -158,6 +195,18 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
     target-branch: "dev"
+    directory: "/monitor-oscillations"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/monitor-response"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
     directory: "/ble-inbound"
     schedule:
       interval: "weekly"
@@ -194,13 +243,25 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
     target-branch: "dev"
-    directory: "/device-controller"
+    directory: "/dns-updater"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
     target-branch: "dev"
-    directory: "/dns-updater"
+    directory: "/electricity-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/eumetsat-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/monitor-cause-effect"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -246,7 +307,19 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
     target-branch: "dev"
-    directory: "/logic-pool"
+    directory: "/internet-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/meteo-inflow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    target-branch: "dev"
+    directory: "/water-inflow"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -292,4 +365,3 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-

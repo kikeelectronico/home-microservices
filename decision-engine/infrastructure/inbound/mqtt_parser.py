@@ -3,21 +3,18 @@ import json
 import logging
 
 def payload_parser(payload: str):
+    payload = payload.strip()
     try:
-        if "true" == payload.lower():
-            return True
-        elif "false" == payload.lower():
-            return False
-        elif "{" in payload:
-            return json.loads(payload)
-        else:
-            return payload
+       return json.loads(payload)
     except:
-        logging.warning("Invalid MQTT payload: %r", payload)
-        return None
+        if payload.lower() == "true":
+            return True
+        elif payload.lower() == "false":
+            return False
+        return payload
 
 def mqtt_to_event(topic: str, payload: str) -> Dict[str, Any]:
-    if "device" in topic:
+    if topic.startswith("device/"):
         _, device_id, param = topic.split("/")
         value = payload_parser(payload)
 
@@ -28,5 +25,16 @@ def mqtt_to_event(topic: str, payload: str) -> Dict[str, Any]:
                 "param": param,
                 "value": value
             }
+    elif topic.startswith("oscillation/"):
+            _, device_id, param = topic.split("/")
+            value = payload_parser(payload)
+    
+            if value is not None:
+                return {
+                    "type": "oscillation",
+                    "device_id": device_id,
+                    "param": param,
+                    "value": value
+                }
 
     return None
