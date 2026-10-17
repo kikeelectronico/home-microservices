@@ -49,24 +49,42 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-      - name: Run unit tests when present
+      - name: Check for unit tests
+        id: check-tests
         shell: bash
         working-directory: ${{ inputs.service }}
         run: |
-          if [ ! -d tests/unit_tests ]; then
-            echo "No unit test suite found for ${{ inputs.service }}; skipping."
-            exit 0
+          if [ -d tests/unit_tests ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
-
-          python3 -m venv "${RUNNER_TEMP}/service-test-venv"
+      - name: Set up test environment
+        if: steps.check-tests.outputs.exists == 'true'
+        run: python3 -m venv "${RUNNER_TEMP}/service-test-venv"
+        working-directory: ${{ inputs.service }}
+      - name: Install service dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
           if [ -f requirements.txt ]; then
             "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements.txt
           fi
+      - name: Install test dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
           if [ -f requirements-test.txt ]; then
             "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements-test.txt
           else
             "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install pytest
           fi
+      - name: Run unit tests
+        if: steps.check-tests.outputs.exists == 'true'
+        working-directory: ${{ inputs.service }}
+        run: |
           "${RUNNER_TEMP}/service-test-venv/bin/pytest" -v -s tests/unit_tests
 
   create-rollback:
