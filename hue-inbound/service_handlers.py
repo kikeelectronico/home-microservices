@@ -1,18 +1,18 @@
-def contact(service, homeware, device_id_service_id):
+def contact(homeware, service, device_id_service_id):
   if "contact_report" in service:
     device_id = device_id_service_id[service["id"]]
     hue_state = service["contact_report"]["state"]
     homeware.execute(device_id, "openPercent", 0 if hue_state == "contact" else 100)
 
 
-def motion(service, homeware, device_id_service_id):
+def motion(homeware, service, device_id_service_id):
   if "motion" in service:
     device_id = device_id_service_id[service["id"]]
     hue_motion = service["motion"]["motion"]
     homeware.execute(device_id, "occupancy", "OCCUPIED" if hue_motion else "UNOCCUPIED")
 
 
-def connectivity(service, homeware, device_id_service_id):
+def connectivity(homeware, service, device_id_service_id):
   if "status" in service:
     hue_status = service["status"]
 
@@ -28,7 +28,7 @@ def connectivity(service, homeware, device_id_service_id):
     homeware.execute(device_id, "online", hue_status == "connected")
 
 
-def power(service, homeware, device_id_service_id):
+def power(homeware, service, device_id_service_id):
   if "power_state" in service:
     hue_battery_level = service["power_state"]["battery_level"]
 
@@ -72,13 +72,13 @@ def power(service, homeware, device_id_service_id):
     )
 
 
-def lightlevel(service, homeware, device_id_service_id):
+def lightlevel(homeware, service, device_id_service_id):
   if "light" in service:
     hue_brightness = round(service["light"]["light_level"] * 100 / 44000)
     homeware.execute(device_id_service_id[service["id"]], "brightness", hue_brightness)
 
 
-def light(service, homeware, device_id_service_id):
+def light(homeware, service, device_id_service_id):
   if "id_v1" in service:
     device_id = "hue_" + service["id_v1"].split("/")[2]
     if "on" in service:

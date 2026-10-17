@@ -27,9 +27,6 @@ class HueInboundService:
     self._load_device_id_service_id()
     self._load_initial_values()
 
-  def run(self):
-    self._listen_for_events()
-
   def _load_device_id_service_id(self):
     # Map service IDs to device IDs
     hue_devices = self.hue.getServices(type="device")
@@ -44,6 +41,9 @@ class HueInboundService:
     init.connectivity(self.hue, self.homeware, self.device_id_service_id)
     init.power(self.hue, self.homeware, self.device_id_service_id)
     init.lightlevel(self.hue, self.homeware, self.device_id_service_id)
+
+  def run(self):
+    self._listen_for_events()
 
   def _listen_for_events(self):
     while not stop_requested():
@@ -99,4 +99,4 @@ class HueInboundService:
     # Get service handler
     handler = SERVICE_HANDLERS.get(service.get("type"))
     if handler is not None:
-      handler(service, self.homeware, self.device_id_service_id)
+      handler(self.homeware, service, self.device_id_service_id)

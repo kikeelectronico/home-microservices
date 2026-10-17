@@ -51,19 +51,21 @@ class HueOutboundService:
     except json.JSONDecodeError:
       logging.warning("Invalid JSON payload on %s: %r", topic, payload)
       return
+
     if not isinstance(payload, dict):
       logging.warning("Invalid payload type on %s: %r", topic, payload)
       return
 
+    homeware_device_id = topic.split("/")[1]
     for param, value in payload.items():
-      self._handle_param(topic, param, value)
+      self._handle_param(homeware_device_id, param, value)
 
-  def _handle_param(self, topic, param, value):
+  def _handle_param(self, homeware_device_id, param, value):
     # Get service ID
-    hue_v1_device_id_key = topic.split("hue_")[1]
-    hue_service_id = self.service_id_device_id.get(hue_v1_device_id_key)
+    hue_v1_device_id = homeware_device_id.split("hue_")[1]
+    hue_service_id = self.service_id_device_id.get(hue_v1_device_id)
     if not hue_service_id:
-      logging.warning("No hue mapping for key %s on topic %s", hue_v1_device_id_key, topic)
+      logging.warning("No hue mapping for key %s on topic %s", hue_v1_device_id, homeware_device_id)
       return
 
     # Get param handler
