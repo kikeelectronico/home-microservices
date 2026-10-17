@@ -38,7 +38,7 @@ def air_purifier(ikea, ikea_id, state):
       ikea.updateDeviceAttribute(ikea_id, "fanMode", "on")
 
 
-def switch(ikea, ikea_id, state):
+def on(ikea, ikea_id, state):
   is_on = state.get("on")
   if not isinstance(is_on, bool):
     logging.warning("Invalid 'on' value for IKEA device %s: %r", ikea_id, is_on)
