@@ -15,6 +15,8 @@ class ChromecastLogicPoolService:
     self.mqtt_client = None
     self.homeware = None
     self.last_heartbeat_timestamp = 0
+    self.is_playing = False
+    self.previous_status = {}
 
   def initialize(self, settings, mqtt_client, homeware):
     self.settings = settings
@@ -39,9 +41,17 @@ class ChromecastLogicPoolService:
           while device.socket_client.is_connected and not stop_requested():
             # if device.app_display_name is not None:
             if device_controller.status.player_state in ["IDLE", "UNKNOWN", "PAUSED"]:
-              logic.notPlayingLights(self.homeware)
+              self.is_playing = logic.not_playing_lights(
+                self.homeware,
+                self.is_playing,
+                self.previous_status
+              )
             if device_controller.status.player_state == "PLAYING":
-              logic.playingLights(self.homeware)
+              self.is_playing = logic.playing_lights(
+                self.homeware,
+                self.is_playing,
+                self.previous_status
+              )
 
               # Send the heartbeat
               if time.time() - self.last_heartbeat_timestamp > 10:
