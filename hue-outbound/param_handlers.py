@@ -27,12 +27,11 @@ def color(hue, hue_service_id, value):
 
 
 def emergency(hue, hue_service_id, value):
-  enabled = value.get("emergencia") if isinstance(value, dict) else None
-  if not isinstance(enabled, bool):
-    logging.warning("Invalid emergency setting: %r", enabled)
+  if not isinstance(value, bool):
+    logging.warning("Invalid emergency setting: %r", value)
     return
 
-  if enabled:
+  if value:
     hue_service_properties = {
       "on": {"on": True},
       "dimming": {"brightness": 100},
