@@ -8,7 +8,7 @@ def motion(service, homeware, device_id_service_id):
   if "motion" in service:
     device_id = device_id_service_id[service["id"]]
     hue_motion = service["motion"]["motion"]
-  homeware.execute(device_id, "occupancy", "OCCUPIED" if hue_motion else "UNOCCUPIED")
+    homeware.execute(device_id, "occupancy", "OCCUPIED" if hue_motion else "UNOCCUPIED")
 
 def connectivity(service, homeware, device_id_service_id):
   if "status" in service:
