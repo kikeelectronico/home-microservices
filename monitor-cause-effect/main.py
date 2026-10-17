@@ -40,22 +40,25 @@ def main():
   service = MonitorCauseEffectService(homeware, mqtt_client, RULES)
 
   # Main loop
-  mqtt_client.loop_start()
-  while not stop_requested():
-    # Evaluate rules
-    service.evaluate_rules()
+  try:
+    mqtt_client.loop_start()
+    while not stop_requested():
+      # Evaluate rules
+      service.evaluate_rules()
 
-    # Send heartbeat
-    mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
+      # Send heartbeat
+      mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
-    # Wait until next iteration
-    wait_for_stop(SLEEP_TIME)
-
-  # Clean shutdown
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+      # Wait until next iteration
+      wait_for_stop(SLEEP_TIME)
+  finally:
+    # Clean shutdown
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

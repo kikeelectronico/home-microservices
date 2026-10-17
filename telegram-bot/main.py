@@ -31,20 +31,27 @@ def main():
   # Instantiate objects
   bot = telebot.TeleBot(settings.bot_token)
   storage_client = storage.Client()
-  service = TelegramBotService()
-  service.initialize(settings, bot, storage_client)
-  service.register_handlers()
+  polling_thread = None
+  try:
+    service = TelegramBotService()
+    service.initialize(settings, bot, storage_client)
+    service.register_handlers()
 
-  # Main loop
-  polling_thread = threading.Thread(target=bot.infinity_polling)
-  polling_thread.start()
-  while not wait_for_stop(1):
-    pass
-
-  bot.stop_polling()
-  polling_thread.join()
-  storage_client.close()
-  logging.info("Shutdown completed.")
+    # Main loop
+    polling_thread = threading.Thread(target=bot.infinity_polling)
+    polling_thread.start()
+    while not wait_for_stop(1):
+      pass
+  finally:
+    try:
+      bot.stop_polling()
+    finally:
+      try:
+        if polling_thread is not None and polling_thread.is_alive():
+          polling_thread.join()
+      finally:
+        storage_client.close()
+        logging.info("Shutdown completed.")
 
 
 if __name__ == "__main__":

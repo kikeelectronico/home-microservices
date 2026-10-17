@@ -35,17 +35,20 @@ def main():
   )
   service = MonitorHeartbeatRequestService()
   service.initialize(mqtt_client)
-  mqtt_client.loop_start()
-  # Wake up alert
-  while not stop_requested():
-    # Send the heartbeat request and wait
-    service.publish_heartbeat_request()
-    wait_for_stop(SLEEP_TIME)
-
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+  try:
+    mqtt_client.loop_start()
+    # Wake up alert
+    while not stop_requested():
+      # Send the heartbeat request and wait
+      service.publish_heartbeat_request()
+      wait_for_stop(SLEEP_TIME)
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

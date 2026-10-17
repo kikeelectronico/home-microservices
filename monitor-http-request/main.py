@@ -33,16 +33,19 @@ def main():
     settings.service_id
   )
   service = MonitorHttpRequestService(settings, mqtt_client)
-  mqtt_client.loop_start()
+  try:
+    mqtt_client.loop_start()
 
-  # Main loop
-  while not stop_requested():
-    wait_for_stop(service.check_connections())
-
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+    # Main loop
+    while not stop_requested():
+      wait_for_stop(service.check_connections())
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

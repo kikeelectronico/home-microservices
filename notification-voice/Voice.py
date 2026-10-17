@@ -75,3 +75,6 @@ class Voice:
     file_path = self.getFile(text)
     self.playFile(file_path)
     self.speakers = ""
+
+  def close(self):
+    self.text_to_speech_client.close()

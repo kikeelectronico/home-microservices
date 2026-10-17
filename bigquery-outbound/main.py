@@ -29,27 +29,36 @@ def main():
   logging.info("Starting %s", settings.service_id)
 
   # Instantiate objects
+  bigquery_client = bigquery.Client()
   service = BigQueryOutboundService()
-  service.initialize(settings, bigquery.Client())
-  mqtt_client = set_mqtt_client(
-    settings.mqtt_host,
-    settings.mqtt_port,
-    settings.mqtt_user,
-    settings.mqtt_pass,
-    settings.service_id,
-    subscriptions=TOPICS,
-    message_handler=service._handle_message
-  )
+  mqtt_client = None
+  try:
+    service.initialize(settings, bigquery_client)
+    mqtt_client = set_mqtt_client(
+      settings.mqtt_host,
+      settings.mqtt_port,
+      settings.mqtt_user,
+      settings.mqtt_pass,
+      settings.service_id,
+      subscriptions=TOPICS,
+      message_handler=service._handle_message
+    )
 
-  # Main loop
-  mqtt_client.loop_start()
-  while not stop_requested():
-    wait_for_stop(1)
-
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+    # Main loop
+    mqtt_client.loop_start()
+    while not stop_requested():
+      wait_for_stop(1)
+  finally:
+    try:
+      if mqtt_client is not None:
+        logging.info("Disconnecting from the MQTT broker.")
+        try:
+          mqtt_client.loop_stop()
+        finally:
+          mqtt_client.disconnect()
+    finally:
+      bigquery_client.close()
+      logging.info("Shutdown completed.")
 
 
 if __name__ == "__main__":
