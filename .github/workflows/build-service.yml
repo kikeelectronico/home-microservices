@@ -72,6 +72,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+      - name: Run unit tests when present
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ ! -d tests/unit_tests ]; then
+            echo "No unit test suite found for ${{ inputs.service }}; skipping."
+            exit 0
+          fi
+
+          python3 -m venv "${RUNNER_TEMP}/service-test-venv"
+          if [ -f requirements.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements.txt
+          fi
+          if [ -f requirements-test.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements-test.txt
+          else
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install pytest
+          fi
+          "${RUNNER_TEMP}/service-test-venv/bin/pytest" -v -s tests/unit_tests
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
