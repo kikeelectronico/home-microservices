@@ -1,42 +1,14 @@
-import json
 import logging
-import time
 
 
 from mqtt import set_mqtt_client
-from constants import ESIOS_INTERVAL, HEARTBEAT_TOPIC, SLEEP_TIME
-from esios import getEsiosIndicator
+from constants import GRID_REQUEST_TOPIC, HEARTBEAT_TOPIC, SLEEP_TIME
 from settings import Settings
+from service import ElectricityInflowService
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-settings = None
-mqtt_client = None
-last_grid_timestamp = 0
-last_grid_payload = {}
-
-def publishGrid(force=False):
-  global last_grid_payload
-  free_co2_generation_percentage_payload = getEsiosIndicator(settings.esios_api_key, 10033)
-  if not free_co2_generation_percentage_payload:
-    return
-
-  if force or free_co2_generation_percentage_payload != last_grid_payload:
-    mqtt_client.publish("electricity/grid", json.dumps(free_co2_generation_percentage_payload))
-    last_grid_payload = free_co2_generation_percentage_payload
-
-
-
-
-def handle_message(topic, payload):
-  if topic == "electricity/grid/request":
-    publishGrid(force=True)
-
 
 # Main entry point
 def main():
-  global last_grid_timestamp
-  global settings
-  global mqtt_client
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -54,6 +26,8 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  service = ElectricityInflowService(settings)
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
@@ -61,15 +35,14 @@ def main():
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,
-    subscriptions=["electricity/grid/request"],
-    message_handler=handle_message
+    subscriptions=[GRID_REQUEST_TOPIC],
+    message_handler=service._handle_message
   )
+  service.initialize(mqtt_client)
   mqtt_client.loop_start()
 
   while not stop_requested():
-    if time.time() - last_grid_timestamp > ESIOS_INTERVAL:
-      publishGrid()
-      last_grid_timestamp = time.time()
+    service.update_if_due()
 
     mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 

@@ -1,38 +1,15 @@
-import json
 import logging
 import time
 
 
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_TOPIC, SLEEP_TIME, STATUS_REQUEST_TOPIC, STATUS_TOPIC
-from Internet import getInternetStatus
+from constants import HEARTBEAT_TOPIC, SLEEP_TIME, STATUS_REQUEST_TOPIC
 from settings import Settings
+from service import InternetInflowService
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-settings = None
-mqtt_client = None
-last_status = {}
-
-
-def publishStatus(force=False):
-  global last_status
-  internet_status = getInternetStatus()
-
-  if force or internet_status != last_status:
-    mqtt_client.publish(STATUS_TOPIC, json.dumps(internet_status))
-    last_status = internet_status
-
-
-
-def handle_message(topic, payload):
-  if topic == STATUS_REQUEST_TOPIC:
-    publishStatus(force=True)
-
 
 # Main entry point
 def main():
-  global settings
-  global mqtt_client
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -50,6 +27,8 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  service = InternetInflowService()
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
@@ -58,12 +37,13 @@ def main():
     settings.mqtt_pass,
     settings.service_id,
     subscriptions=[STATUS_REQUEST_TOPIC],
-    message_handler=handle_message
+    message_handler=service._handle_message
   )
+  service.initialize(mqtt_client)
   mqtt_client.loop_start()
 
   while not stop_requested():
-    publishStatus()
+    service.update_if_due()
 
     mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 
