@@ -1,150 +1,56 @@
-import time
-from google.cloud import bigquery
 import logging
-import json
+
+from google.cloud import bigquery
+
+from constants import TOPICS
 from mqtt import set_mqtt_client
-from constants import POWER_CONSTANT, TOPICS
+from service import BigQueryOutboundService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-# Declare variables
-last_value = {}
-
-# Create vars for objects
-settings = None
-mqtt_client = None
-
-# Instantiate objects
-bigquery_client = bigquery.Client()
-
-# Change the type of the payload
-def typifyPayload(topic, payload):
-	if "heartbeats" in topic:
-		return payload
-	elif "Temperature" in topic:
-		return float(payload)
-	elif "temperature" in topic:
-		return float(payload)
-	elif "currentSensorStateData" in topic:
-		return json.loads(payload.replace("'", '"'))
-	else:
-		return int(payload)
-
-
-# Do a tasks when a message is received
-def handle_message(topic, payload):
-	global last_value
-	# Rename variables
-	topic = topic
-	try:
-		payload = typifyPayload(topic, payload.decode("utf-8"))
-	except (ValueError, TypeError, json.JSONDecodeError) as exc:
-		logging.warning("Invalid payload on %s: %r (%s)", topic, payload, exc)
-		return
-	# The request depends on the device
-	if payload != last_value.setdefault(topic, 0):
-		try:
-			# Prepare the data
-			ts = int(time.time())
-			device_id = topic.split("/")[1]
-			states = []
-			if "current001" in topic:
-				states.append(
-					{
-						"param": "current",
-						"value": payload * POWER_CONSTANT
-					}
-				)
-			elif "currentSensorStateData" in topic:
-				if not isinstance(payload, list):
-					logging.warning("Invalid currentSensorStateData payload type on %s: %r", topic, payload)
-					return
-				for sensor in payload:
-					if not isinstance(sensor, dict):
-						logging.warning("Invalid sensor payload on %s: %r", topic, sensor)
-						return
-					if "name" not in sensor or "rawValue" not in sensor:
-						logging.warning("Missing sensor fields on %s: %r", topic, sensor)
-						return
-					states.append(
-						{
-							"param": sensor["name"],
-							"value": sensor["rawValue"]
-						}
-					)
-			else:
-				states.append(
-					{
-						"param": topic.split("/")[2],
-						"value": payload
-					}
-				)
-		except (IndexError, KeyError, TypeError) as exc:
-			logging.warning("Invalid message structure on %s: %s", topic, exc)
-			return
-		try:
-			for state in states:
-				# Insert the data
-				query_job = bigquery_client.query(
-					"""
-						INSERT INTO {}
-						(time, device_id, param, value, type)
-						VALUES ({},"{}","{}","{}", "{}");
-					""".format(settings.device_ddbb, ts, device_id, state["param"], str(state["value"]), state["value"].__class__.__name__)
-				)
-				query_job.result()
-			# Update last_value
-			last_value[topic] = payload
-		except Exception as exc:
-			logging.warning(
-				"Fail to insert state into BigQuery on %s: device_id=%s param=%s value=%r error=%s",
-				topic,
-				device_id,
-				state.get("param"),
-				state.get("value"),
-				exc
-			)
 
 
 # Main entry point
 def main():
-	global settings
-	global mqtt_client
-	# Register shutdown handlers
-	register_shutdown_handlers()
+  # Register shutdown handlers
+  register_shutdown_handlers()
 
-	# Load settings
-	settings = Settings()
-	settings.load_settings()
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
 
-	logging.basicConfig(
-		level=logging.INFO,
-		format=(
-			"%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
-			if settings.env == "dev"
-			else "%(message)s"
-		)
-	)
-	logging.info("Starting %s", settings.service_id)
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
+  logging.info("Starting %s", settings.service_id)
 
-	mqtt_client = set_mqtt_client(
-		settings.mqtt_host,
-		settings.mqtt_port,
-		settings.mqtt_user,
-		settings.mqtt_pass,
-		settings.service_id,
-		subscriptions=TOPICS,
-		message_handler=handle_message
-	)
-	# Main loop
-	mqtt_client.loop_start()
-	while not stop_requested():
-		wait_for_stop(1)
+  # Instantiate objects
+  service = BigQueryOutboundService()
+  service.initialize(settings, bigquery.Client())
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    settings.mqtt_port,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id,
+    subscriptions=TOPICS,
+    message_handler=service._handle_message
+  )
 
-	logging.info("Disconnecting from the MQTT broker.")
-	mqtt_client.loop_stop()
-	mqtt_client.disconnect()
-	logging.info("Shutdown completed.")
+  # Main loop
+  mqtt_client.loop_start()
+  while not stop_requested():
+    wait_for_stop(1)
+
+  logging.info("Disconnecting from the MQTT broker.")
+  mqtt_client.loop_stop()
+  mqtt_client.disconnect()
+  logging.info("Shutdown completed.")
+
 
 if __name__ == "__main__":
-	main()
+  main()
