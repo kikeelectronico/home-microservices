@@ -2,17 +2,17 @@ import json
 import logging
 
 import init
-import services
+import service_handlers
 from shutdown import stop_requested, wait_for_stop
 
 
 SERVICE_HANDLERS = {
-  "contact": services.contact,
-  "motion": services.motion,
-  "zigbee_connectivity": services.connectivity,
-  "device_power": services.power,
-  "light_level": services.lightlevel,
-  "light": services.light
+  "contact": service_handlers.contact,
+  "motion": service_handlers.motion,
+  "zigbee_connectivity": service_handlers.connectivity,
+  "device_power": service_handlers.power,
+  "light_level": service_handlers.lightlevel,
+  "light": service_handlers.light
 }
 
 
@@ -27,11 +27,8 @@ class HueInboundService:
     self._load_device_id_service_id()
     self._load_initial_values()
 
-  def run(self):
-    self._listen_for_events()
-
   def _load_device_id_service_id(self):
-    # Get devices ids relation
+    # Map service IDs to device IDs
     hue_devices = self.hue.getServices(type="device")
     for hue_device in hue_devices:
       for service in hue_device.get("services", []):
@@ -44,6 +41,9 @@ class HueInboundService:
     init.connectivity(self.hue, self.homeware, self.device_id_service_id)
     init.power(self.hue, self.homeware, self.device_id_service_id)
     init.lightlevel(self.hue, self.homeware, self.device_id_service_id)
+
+  def run(self):
+    self._listen_for_events()
 
   def _listen_for_events(self):
     while not stop_requested():
@@ -71,9 +71,10 @@ class HueInboundService:
         wait_for_stop(5)
 
   def _handle_message(self, message_data):
+    # Validate payload
     try:
       events = json.loads(message_data)
-    except ValueError:
+    except json.JSONDecodeError:
       logging.warning("Invalid SSE JSON payload: %r", message_data)
       return
 
@@ -95,6 +96,7 @@ class HueInboundService:
       logging.warning("Invalid Hue service payload: %r", service)
       return
 
+    # Get service handler
     handler = SERVICE_HANDLERS.get(service.get("type"))
     if handler is not None:
-      handler(service, self.homeware, self.device_id_service_id)
+      handler(self.homeware, service, self.device_id_service_id)
