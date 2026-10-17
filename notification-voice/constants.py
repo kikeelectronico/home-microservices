@@ -8,4 +8,4 @@ ENV_VARS = [
 ]
 
 SERVICE_NAME = "notification-voice"
-TOPICS = ["notificacion/voice/alert"]
+TOPICS = ["notificacion/voice/alert","voice-alert/text"]

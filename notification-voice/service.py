@@ -29,6 +29,6 @@ class NotificationVoiceService:
       if self.homeware.get("scene_awake", "enable"):
         message = payload.decode("utf-8")
         self.voice.getAndPlay(message)
-    elif topic == TOPICS[0]:
+    elif topic == TOPICS[1]:
       message = payload.decode("utf-8")
       self.voice.getAndPlay(message)
