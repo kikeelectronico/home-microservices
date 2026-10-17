@@ -1,12 +1,13 @@
 import time
-import logging
+
 
 OUTLET_CURRENT_THRESHOLD = 0.15
 IDS_MAP = {
   "109bf470-f27b-4a3d-bfb7-6ac284bb4ed9_1": "thermostat_livingroom"
 }
 
-def outlet(data, homeware, tasks, voltages_map):
+
+def outlet(homeware, data, tasks, voltages_map):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
@@ -14,9 +15,9 @@ def outlet(data, homeware, tasks, voltages_map):
     homeware.execute(data["id"], "on", attributes["isOn"])
   if "currentVoltage" in attributes:
     voltages_map[data["id"]] = attributes["currentVoltage"]
-    homeware.execute(data["id"], "voltage", round(attributes["currentVoltage"],1))
+    homeware.execute(data["id"], "voltage", round(attributes["currentVoltage"], 1))
   if "currentAmps" in attributes:
-    homeware.execute(data["id"], "current", round(attributes["currentAmps"],1))
+    homeware.execute(data["id"], "current", round(attributes["currentAmps"], 1))
     if voltages_map.get(data["id"]):
       active_power = round(attributes["currentAmps"] * voltages_map.get(data["id"]))
       homeware.execute(data["id"], "power", active_power)
@@ -34,23 +35,34 @@ def outlet(data, homeware, tasks, voltages_map):
         "value": False
       }
 
-def motionSensor(data, homeware):
+
+def motion_sensor(homeware, data):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
   if "batteryPercentage" in attributes:
     battery_level = attributes["batteryPercentage"]
-    if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-    elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-    elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-    elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
-    else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
-    homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-    homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+    if battery_level == 100:
+      descriptive_capacity_remaining = "FULL"
+    elif battery_level >= 70:
+      descriptive_capacity_remaining = "HIGH"
+    elif battery_level >= 40:
+      descriptive_capacity_remaining = "MEDIUM"
+    elif battery_level >= 10:
+      descriptive_capacity_remaining = "LOW"
+    else:
+      descriptive_capacity_remaining = "CRITICALLY_LOW"
+    homeware.execute(data["id"], "descriptiveCapacityRemaining", descriptive_capacity_remaining)
+    homeware.execute(
+      data["id"],
+      "capacityRemaining",
+      [{"rawValue": battery_level, "unit": "PERCENTAGE"}]
+    )
   if "isDetected" in attributes:
     homeware.execute(data["id"], "occupancy", "OCCUPIED" if attributes["isDetected"] else "UNOCCUPIED")
 
-def airPurifier(data, homeware):
+
+def air_purifier(homeware, data):
   attributes = data.get("attributes")
   if "isReachable" in data:
     if homeware.get(data["id"], "online") != data["isReachable"]:
@@ -75,23 +87,23 @@ def airPurifier(data, homeware):
         lifetime = attributes.get("FilterLifeTime")
         elapsed = attributes.get("filterElapsedTime")
         if lifetime and lifetime > 0:
-            new_raw_value = round((elapsed / lifetime) * 100)
+          new_raw_value = round((elapsed / lifetime) * 100)
         else:
-            new_raw_value = 0 
+          new_raw_value = 0
 
         if sensor.get("rawValue") != new_raw_value:
           sensor["rawValue"] = new_raw_value
           match new_raw_value:
-            case p if p < 25:
-                sensor["currentSensorState"] = "new"
-            case p if p < 90:
-                sensor["currentSensorState"] = "good"
-            case p if p < 100:
-                sensor["currentSensorState"] = "replace soon"
-            case p if p >= 100:
-                sensor["currentSensorState"] = "replace now"
+            case value if value < 25:
+              sensor["currentSensorState"] = "new"
+            case value if value < 90:
+              sensor["currentSensorState"] = "good"
+            case value if value < 100:
+              sensor["currentSensorState"] = "replace soon"
+            case value if value >= 100:
+              sensor["currentSensorState"] = "replace now"
             case _:
-                sensor["currentSensorState"] = "unknown"
+              sensor["currentSensorState"] = "unknown"
           updated = True
         break
     if updated:
@@ -114,17 +126,21 @@ def airPurifier(data, homeware):
         case "low" | "medium" | "high":
           if "motorState" in attributes:
             new_homeware_fan_speed = "Baja"
-            motorState = attributes["motorState"]
-            if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
-            elif motorState == 30: new_homeware_fan_speed = "Media"
-            elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
+            motor_state = attributes["motorState"]
+            if motor_state == 10 or motor_state == 20:
+              new_homeware_fan_speed = "Baja"
+            elif motor_state == 30:
+              new_homeware_fan_speed = "Media"
+            elif motor_state == 40 or motor_state == 50:
+              new_homeware_fan_speed = "Alta"
             homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
             if new_homeware_fan_speed != homeware_fan_speed:
               homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
 
-def environmentSensor(data, homeware):
+
+def environment_sensor(homeware, data):
   attributes = data.get("attributes")
-  if not data["id"] in IDS_MAP:
+  if data["id"] not in IDS_MAP:
     return
   homeware_id = IDS_MAP[data["id"]]
   if "isReachable" in data:
@@ -132,11 +148,11 @@ def environmentSensor(data, homeware):
   if "isOn" in attributes:
     homeware.execute(homeware_id, "online", attributes["isOn"])
   if "currentTemperature" in attributes:
-    thermostatTemperatureAmbient = round(attributes["currentTemperature"], 1)
-    homeware.execute(homeware_id, "thermostatTemperatureAmbient", thermostatTemperatureAmbient)
+    thermostat_temperature_ambient = round(attributes["currentTemperature"], 1)
+    homeware.execute(homeware_id, "thermostatTemperatureAmbient", thermostat_temperature_ambient)
   if "currentRH" in attributes:
-    thermostatHumidityAmbient = round(attributes["currentRH"], 0)
-    homeware.execute(homeware_id, "thermostatHumidityAmbient", thermostatHumidityAmbient)
+    thermostat_humidity_ambient = round(attributes["currentRH"], 0)
+    homeware.execute(homeware_id, "thermostatHumidityAmbient", thermostat_humidity_ambient)
   if "currentCO2" in attributes:
     homeware_current_sensors_state_data = homeware.get(homeware_id, "currentSensorStateData")
     updated = False
@@ -162,19 +178,29 @@ def environmentSensor(data, homeware):
     if updated:
       homeware.execute(homeware_id, "currentSensorStateData", homeware_current_sensors_state_data)
 
-def waterLeakSensor(data, homeware):
+
+def water_leak_sensor(homeware, data):
   attributes = data.get("attributes")
   if "isReachable" in data:
     homeware.execute(data["id"], "online", data["isReachable"])
   if "batteryPercentage" in attributes:
     battery_level = attributes["batteryPercentage"]
-    if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-    elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-    elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-    elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
-    else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
-    homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-    homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
+    if battery_level == 100:
+      descriptive_capacity_remaining = "FULL"
+    elif battery_level >= 70:
+      descriptive_capacity_remaining = "HIGH"
+    elif battery_level >= 40:
+      descriptive_capacity_remaining = "MEDIUM"
+    elif battery_level >= 10:
+      descriptive_capacity_remaining = "LOW"
+    else:
+      descriptive_capacity_remaining = "CRITICALLY_LOW"
+    homeware.execute(data["id"], "descriptiveCapacityRemaining", descriptive_capacity_remaining)
+    homeware.execute(
+      data["id"],
+      "capacityRemaining",
+      [{"rawValue": battery_level, "unit": "PERCENTAGE"}]
+    )
   if "waterLeakDetected" in attributes:
     homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
     updated = False
