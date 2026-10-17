@@ -60,7 +60,6 @@ def main():
       try:
         mqtt_client.disconnect()
       finally:
-        voice.close()
         logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
