@@ -3,20 +3,12 @@ import logging
 from constants import SLEEP_TIME, HEARTBEAT_TOPIC, RULES
 from homeware import Homeware
 from mqtt import set_mqtt_client
-from rules import evaluateRules
+from service import MonitorCauseEffectService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-# Create vars for objects
-mqtt_client = None 
-homeware = None
-settings = None
-
 # Main entry point
 def main():
-  global settings
-  global mqtt_client
-  global homeware
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -45,12 +37,13 @@ def main():
   
   # Create homeware object
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
+  service = MonitorCauseEffectService(homeware, mqtt_client, RULES)
 
   # Main loop
   mqtt_client.loop_start()
   while not stop_requested():
     # Evaluate rules
-    evaluateRules(homeware, mqtt_client, RULES)
+    service.evaluate_rules()
 
     # Send heartbeat
     mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)

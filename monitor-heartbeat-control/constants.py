@@ -8,4 +8,5 @@ ENV_VARS = [
 ]
 
 SERVICE_NAME = "monitor-heartbeat-control"
-TOPICS = ["device/heartbeat"]
+HEARTBEAT_TOPIC = "device/heartbeat"
+TOPICS = [HEARTBEAT_TOPIC]
