@@ -6,8 +6,8 @@ from shutdown import stop_requested, wait_for_stop
 
 
 STATE_HANDLERS = {
-  "air_purifier": state_handlers.air_purifier,
-  "switch": state_handlers.switch
+  ("currentModeSettings", "currentFanSpeedSetting"): state_handlers.air_purifier,
+  ("on",): state_handlers.on
 }
 
 
@@ -36,12 +36,7 @@ class IkeaOutboundService:
     self._handle_state(ikea_id, payload)
 
   def _handle_state(self, ikea_id, state):
-    if "currentModeSettings" in state and "currentFanSpeedSetting" in state:
-      handler = STATE_HANDLERS.get("air_purifier")
-    elif "on" in state:
-      handler = STATE_HANDLERS.get("switch")
-    else:
-      return
-
-    if handler is not None:
-      handler(self.ikea, ikea_id, state)
+    for required_paths, handler in STATE_HANDLERS.items():
+      if all(path in state for path in required_paths):
+        handler(self.ikea, ikea_id, state)
+        return
