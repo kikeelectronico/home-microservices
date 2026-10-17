@@ -1,23 +1,20 @@
-dimmers_preloaded_data = {}
-
-
-def mirror_on_off(homeware, service):
+def mirror_on_off(homeware, service, preloaded_data):
   state = service["button"]["last_event"]
   if state == "initial_press":
-    dimmers_preloaded_data["hue_sensor_2/on"] = not homeware.get("hue_sensor_2", "on")
+    preloaded_data["hue_sensor_2/on"] = not homeware.get("hue_sensor_2", "on")
   elif state == "short_release":
-    homeware.execute("hue_sensor_2", "on", dimmers_preloaded_data["hue_sensor_2/on"])
+    homeware.execute("hue_sensor_2", "on", preloaded_data["hue_sensor_2/on"])
   elif state == "long_press":
     value = not homeware.get("switch_hood", "on")
     homeware.execute("switch_hood", "on", value)
 
 
-def mirror_brightness_up(homeware, service):
+def mirror_brightness_up(homeware, service, preloaded_data):
   state = service["button"]["last_event"]
   if state == "initial_press":
-    dimmers_preloaded_data["hue_2/brightness"] = homeware.get("hue_2", "brightness")
+    preloaded_data["hue_2/brightness"] = homeware.get("hue_2", "brightness")
   elif state == "short_release":
-    value = dimmers_preloaded_data["hue_2/brightness"]
+    value = preloaded_data["hue_2/brightness"]
     if value < 90:
       value += 10
     else:
@@ -29,12 +26,12 @@ def mirror_brightness_up(homeware, service):
     homeware.execute("scene_dim", "enable", value)
 
 
-def mirror_brightness_down(homeware, service):
+def mirror_brightness_down(homeware, service, preloaded_data):
   state = service["button"]["last_event"]
   if state == "initial_press":
-    dimmers_preloaded_data["hue_2/brightness"] = homeware.get("hue_2", "brightness")
+    preloaded_data["hue_2/brightness"] = homeware.get("hue_2", "brightness")
   elif state == "short_release":
-    value = dimmers_preloaded_data["hue_2/brightness"]
+    value = preloaded_data["hue_2/brightness"]
     if value > 10:
       value -= 10
     else:
@@ -43,12 +40,12 @@ def mirror_brightness_down(homeware, service):
     homeware.execute("hue_3", "brightness", value)
 
 
-def mirror_color_temperature(homeware, service):
+def mirror_color_temperature(homeware, service, preloaded_data):
   state = service["button"]["last_event"]
   if state == "initial_press":
-    dimmers_preloaded_data["hue_2/color"] = homeware.get("hue_2", "color")["temperatureK"]
+    preloaded_data["hue_2/color"] = homeware.get("hue_2", "color")["temperatureK"]
   elif state == "short_release":
-    current_temperature = dimmers_preloaded_data["hue_2/color"]
+    current_temperature = preloaded_data["hue_2/color"]
     temperature_loop = [2700, 5000]
     try:
       new_index = temperature_loop.index(current_temperature) + 1
