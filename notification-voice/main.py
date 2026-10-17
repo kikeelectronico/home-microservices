@@ -1,37 +1,15 @@
-import time
 import logging
 
 from mqtt import set_mqtt_client
 from constants import TOPICS
 from Homeware import Homeware
 from Voice import Voice
+from service import NotificationVoiceService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-settings = None
-mqtt_client = None
-homeware = None
-voice = None
-
-
-def handle_message(topic, payload):
-  if topic == TOPICS[0]:
-    # Send the message to the Smart Speakers
-    if homeware.get("scene_awake", "enable"):
-      payload = payload.decode('utf-8')
-      voice.getAndPlay(payload)
-  elif topic == TOPICS[0]:
-    # Send the message to the Smart Speakers
-    payload = payload.decode('utf-8')
-    voice.getAndPlay(payload)
-
-
 # Main entry point
 def main():
-  global settings
-  global mqtt_client
-  global homeware
-  global voice
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -49,6 +27,8 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  service = NotificationVoiceService()
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host_network,
@@ -57,21 +37,15 @@ def main():
     settings.mqtt_pass,
     settings.service_id,
     subscriptions=TOPICS,
-    message_handler=handle_message
+    message_handler=service._handle_message
   )
   homeware = Homeware(mqtt_client, settings.homeware_api_url_network, settings.homeware_api_key)
   voice = Voice(homeware)
-  
+  service.initialize(homeware, voice)
+
   # Wake up alert
-  hour = int(time.strftime("%H"))
-  message = ""
-  if hour >= 22 or (hour >= 0 and hour < 7):
-    message = "buenas noches. Ya estoy preparada."
-  elif hour >= 7 and hour < 15:
-    message = "buenos días. Ya estoy preparada."
-  elif hour >= 15 and hour < 22:
-    message = "buenas tardes. Ya estoy preparada."
-  voice.getAndPlay(message)
+  service.send_wakeup_message()
+
   # Main loop
   mqtt_client.loop_start()
   while not stop_requested():

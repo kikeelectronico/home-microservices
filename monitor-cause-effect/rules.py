@@ -1,20 +1,17 @@
-asserted_state = {}
-
-def evaluateEffect(homeware_value, operator, effect_value):
+def evaluate_effect(homeware_value, operator, effect_value):
   match operator:
     case "==":
       return homeware_value == effect_value
     case ">":
       return homeware_value > effect_value
 
-def evaluateRule(homeware, mqtt_client, rule):
-  global asserted_state
+def evaluate_rule(homeware, mqtt_client, rule, asserted_state):
   homeware_value = homeware.get(rule["device_id"], rule["param"])
   counter_id = f"{rule["device_id"]}/{rule["param"]}/{rule["value"]}"
   if rule["value"] == homeware_value:
     asserted = True
     for effect in rule["effects"]:
-      asserted = asserted and evaluateEffect(homeware.get(effect["device_id"], effect["param"]), effect["operator"], effect["value"])
+      asserted = asserted and evaluate_effect(homeware.get(effect["device_id"], effect["param"]), effect["operator"], effect["value"])
     state = asserted_state.get(counter_id, None)
     if not asserted:
       if state is None:
@@ -36,6 +33,6 @@ def evaluateRule(homeware, mqtt_client, rule):
       mqtt_client.publish(f"cause-effect/{counter_id}", "reset")
       asserted_state[counter_id] = 0
 
-def evaluateRules(homeware, mqtt_client, rules):
+def evaluate_rules(homeware, mqtt_client, rules, asserted_state):
   for rule in rules:
-    evaluateRule(homeware, mqtt_client, rule)
+    evaluate_rule(homeware, mqtt_client, rule, asserted_state)

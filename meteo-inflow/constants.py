@@ -15,3 +15,7 @@ SLEEP_TIME = 10
 WARNINGS_INTERVAL = 1800
 WEATHER_INTERVAL = 1800
 HEARTBEAT_TOPIC = "heartbeats"
+WARNINGS_TOPIC = "meteo/warnings"
+WARNINGS_REQUEST_TOPIC = "meteo/warnings/request"
+WEATHER_TOPIC = "meteo/weather"
+WEATHER_REQUEST_TOPIC = "meteo/weather/request"

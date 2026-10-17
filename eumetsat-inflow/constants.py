@@ -16,3 +16,5 @@ SERVICE_NAME = "eumetsat-inflow"
 SLEEP_TIME = 30
 NEAREST_FIRE_INTERVAL = 1800
 HEARTBEAT_TOPIC = "heartbeats"
+NEAREST_FIRE_TOPIC = "fire/nearest"
+NEAREST_FIRE_REQUEST_TOPIC = "fire/nearest/request"

@@ -1,47 +1,14 @@
-import json
 import logging
-import time
 
 
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_TOPIC, NEAREST_FIRE_INTERVAL, SLEEP_TIME
-from eumetsat import getNearestFire
+from constants import HEARTBEAT_TOPIC, NEAREST_FIRE_REQUEST_TOPIC, SLEEP_TIME
 from settings import Settings
+from service import EumetsatInflowService
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-settings = None
-mqtt_client = None
-last_nearest_fire_timestamp = 0
-last_nearest_fire_payload = {}
-
-def publishNearestFire(force=False):
-  global last_nearest_fire_payload    
-  nearest_fire = getNearestFire(
-    consumer_key=settings.eumetsat_consumer_key,
-    consumer_secret=settings.eumetsat_consumer_secret,
-    ref_lat=float(settings.reference_lat),
-    ref_lon=float(settings.reference_lon),
-    bbox=settings.bounding_box
-  )
-  if not nearest_fire:
-    return
-  
-  if force or nearest_fire != last_nearest_fire_payload:
-    mqtt_client.publish("fire/nearest", json.dumps(nearest_fire))
-    last_nearest_fire_payload = nearest_fire
-
-
-
-def handle_message(topic, payload):
-  if topic == "fire/nearest/request":
-    publishNearestFire(force=True)
-
 
 # Main entry point
 def main():
-  global last_nearest_fire_timestamp
-  global settings
-  global mqtt_client
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -59,6 +26,8 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  service = EumetsatInflowService(settings)
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
@@ -66,15 +35,14 @@ def main():
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,
-    subscriptions=["fire/nearest/request"],
-    message_handler=handle_message
+    subscriptions=[NEAREST_FIRE_REQUEST_TOPIC],
+    message_handler=service._handle_message
   )
+  service.initialize(mqtt_client)
   mqtt_client.loop_start()
-  
+
   while not stop_requested():
-    if time.time() - last_nearest_fire_timestamp > NEAREST_FIRE_INTERVAL:
-      publishNearestFire()
-      last_nearest_fire_timestamp = time.time()
+    service.update_if_due()
 
     mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 

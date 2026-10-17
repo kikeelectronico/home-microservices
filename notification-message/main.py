@@ -1,27 +1,14 @@
-import telebot
 import logging
+import telebot
 
 from mqtt import set_mqtt_client
 from constants import TOPICS
+from service import NotificationMessageService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-settings = None
-mqtt_client = None
-bot = None
-
-
-def handle_message(topic, payload):
-  # Send the message to the Telegram API
-  payload = payload.decode('utf-8')
-  bot.send_message(settings.enrique_chat_id, payload)
-
-
 # Main entry point
 def main():
-  global settings
-  global mqtt_client
-  global bot
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -39,6 +26,9 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  bot = telebot.TeleBot(token=settings.bot_token)
+  service = NotificationMessageService(bot, settings.enrique_chat_id)
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
@@ -47,9 +37,8 @@ def main():
     settings.mqtt_pass,
     settings.service_id,
     subscriptions=TOPICS,
-    message_handler=handle_message
+    message_handler=service._handle_message
   )
-  bot = telebot.TeleBot(token=settings.bot_token)
 
   # Main loop
   mqtt_client.loop_start()

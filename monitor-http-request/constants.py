@@ -15,3 +15,5 @@ SERVICE_NAME = "monitor-http-request"
 SLEEP_TIME = 10
 BLOCK_TIME = 300
 HEARTBEAT_TOPIC = "heartbeats"
+VOICE_ALERT_TOPIC = "notificacion/voice/alert"
+TEXT_ALERT_TOPIC = "notificacion/text/alert"

@@ -1,17 +1,13 @@
 import logging
 
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_REQUEST_TOPIC, SLEEP_TIME
+from constants import SLEEP_TIME
+from service import MonitorHeartbeatRequestService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-settings = None
-mqtt_client = None
-
 # Main entry point
 def main():
-  global settings
-  global mqtt_client
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -37,11 +33,13 @@ def main():
     settings.mqtt_pass,
     settings.service_id
   )
+  service = MonitorHeartbeatRequestService()
+  service.initialize(mqtt_client)
   mqtt_client.loop_start()
   # Wake up alert
   while not stop_requested():
     # Send the heartbeat request and wait
-    mqtt_client.publish(HEARTBEAT_REQUEST_TOPIC, "are-you-there")
+    service.publish_heartbeat_request()
     wait_for_stop(SLEEP_TIME)
 
   logging.info("Disconnecting from the MQTT broker.")

@@ -1,43 +1,14 @@
-import json
 import logging
-import time
 
 
-from water import getWater
 from mqtt import set_mqtt_client
-from constants import HEARTBEAT_TOPIC, SLEEP_TIME, WATER_INTERVAL
+from constants import HEARTBEAT_TOPIC, SLEEP_TIME, WATER_REQUEST_TOPIC
 from settings import Settings
+from service import WaterInflowService
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
-
-settings = None
-mqtt_client = None
-last_volume_timestamp = 0
-last_volume_payload = {}
-
-
-def publishVolume(force=False):
-  global last_volume_payload
-  water_payload = getWater()
-  if not water_payload:
-    return
-
-  if force or water_payload != last_volume_payload:
-    mqtt_client.publish("water/volume", json.dumps(water_payload))
-    last_volume_payload = water_payload
-
-
-
-
-def handle_message(topic, payload):
-  if topic == "water/volume/request":
-    publishVolume(force=True)
-
 
 # Main entry point
 def main():
-  global last_volume_timestamp
-  global settings
-  global mqtt_client
   # Register shutdown handlers
   register_shutdown_handlers()
 
@@ -55,6 +26,8 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  service = WaterInflowService()
+
   # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
@@ -62,15 +35,14 @@ def main():
     settings.mqtt_user,
     settings.mqtt_pass,
     settings.service_id,
-    subscriptions=["water/volume/request"],
-    message_handler=handle_message
+    subscriptions=[WATER_REQUEST_TOPIC],
+    message_handler=service._handle_message
   )
+  service.initialize(mqtt_client)
   mqtt_client.loop_start()
 
   while not stop_requested():
-    if time.time() - last_volume_timestamp > WATER_INTERVAL:
-      publishVolume()
-      last_volume_timestamp = time.time()
+    service.update_if_due()
 
     mqtt_client.publish(HEARTBEAT_TOPIC, settings.service_id)
 

@@ -22,3 +22,14 @@ DEVICE_IDS = [
 	"temperature_001",
 	# "switch_at_home"
 ]
+
+TOPICS = [
+	"water/volume",
+	"meteo/warnings",
+	"meteo/weather",
+	"electricity/grid",
+	"internet/status",
+	"fire/nearest",
+	*[f"device/{device_id}" for device_id in DEVICE_IDS],
+	"device/scene_ducha"
+]
