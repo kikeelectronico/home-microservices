@@ -41,33 +41,10 @@ jobs:
             changed:
             - "${{ inputs.service }}/**"
 
-  create-rollback:
-    name: Create rollback for ${{ inputs.service }}
+  unit-tests:
+    name: Test ${{ inputs.service }}
     runs-on: ubuntu-latest
     needs: path-filter
-    continue-on-error: true
-    permissions:
-      contents: read
-      packages: write
-    if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
-    steps:
-      - name: Login to registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ secrets.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: Tag rollback image
-        run: |
-          docker buildx imagetools create -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
-  
-  build_and_push:
-    name: Build and push ${{ inputs.service }}
-    runs-on: ubuntu-latest
-    needs: path-filter
-    permissions:
-      contents: read
-      packages: write
     if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
@@ -91,6 +68,38 @@ jobs:
             "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install pytest
           fi
           "${RUNNER_TEMP}/service-test-venv/bin/pytest" -v -s tests/unit_tests
+
+  create-rollback:
+    name: Create rollback for ${{ inputs.service }}
+    runs-on: ubuntu-latest
+    needs: [path-filter, unit-tests]
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: write
+    if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Tag rollback image
+        run: |
+          docker buildx imagetools create -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
+  
+  build_and_push:
+    name: Build and push ${{ inputs.service }}
+    runs-on: ubuntu-latest
+    needs: [path-filter, unit-tests]
+    permissions:
+      contents: read
+      packages: write
+    if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
