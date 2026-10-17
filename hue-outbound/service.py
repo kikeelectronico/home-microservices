@@ -9,7 +9,7 @@ PARAM_HANDLERS = {
   "on": param_handlers.on,
   "brightness": param_handlers.brightness,
   "color": param_handlers.color,
-  "currentToggleSettings": param_handlers.emergency
+  "currentToggleSettings.emergencia": param_handlers.emergency
 }
 
 
@@ -61,14 +61,23 @@ class HueOutboundService:
       self._handle_param(homeware_device_id, param, value)
 
   def _handle_param(self, homeware_device_id, param, value):
-    # Get service ID
-    hue_v1_device_id = homeware_device_id.split("hue_")[1]
-    hue_service_id = self.service_id_device_id.get(hue_v1_device_id)
-    if not hue_service_id:
-      logging.warning("No hue mapping for key %s on topic %s", hue_v1_device_id, homeware_device_id)
-      return
-
     # Get param handler
     handler = PARAM_HANDLERS.get(param)
     if handler is not None:
+      # Get service ID
+      hue_v1_device_id = homeware_device_id.split("hue_")[1]
+      hue_service_id = self.service_id_device_id.get(hue_v1_device_id)
+      if not hue_service_id:
+        logging.warning("No hue mapping for key %s on topic %s", hue_v1_device_id, homeware_device_id)
+        return
+
       handler(self.hue, hue_service_id, value)
+      return
+
+    if isinstance(value, dict):
+      for nested_param, nested_value in value.items():
+        self._handle_param(
+          homeware_device_id,
+          param + "." + nested_param,
+          nested_value
+        )
