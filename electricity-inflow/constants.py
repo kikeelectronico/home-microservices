@@ -1,0 +1,14 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"ESIOS_API_KEY"
+]
+
+SERVICE_NAME = "electricity-inflow"
+SLEEP_TIME = 10
+ESIOS_INTERVAL = 300
+HEARTBEAT_TOPIC = "heartbeats"
+GRID_TOPIC = "electricity/grid"
+GRID_REQUEST_TOPIC = "electricity/grid/request"

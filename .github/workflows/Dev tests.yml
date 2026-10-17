@@ -18,28 +18,37 @@ jobs:
           - data-panel-api
           - data-panel-front
           - decision-engine
-          - device-controller
           - dns-updater
+          - electricity-inflow
+          - eumetsat-inflow
           - hue-inbound
           - hue-logic-pool
           - hue-outbound
           - hue-sensors-alerts
           - ikea-inbound
           - ikea-outbound
-          - logic-pool
-          - timer
+          - internet-inflow
+          - meteo-inflow
+          - monitor-cause-effect
           - monitor-heartbeat-control
           - monitor-heartbeat-request
           - monitor-http-request
+          - monitor-oscillations
+          - monitor-response
           - notification-message
           - notification-voice
           - task-scheduler
           - telegram-bot
+          - timer
+          - water-inflow
     uses: ./.github/workflows/build-service.yml
     with:
       service: ${{ matrix.service }}
       tag: test
     secrets:
-      REGISTRY: ${{secrets.REGISTRY}}
-      REGISTRY_REPO: ${{secrets.REGISTRY_REPO}}
-      GOOGLE_APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+      REGISTRY_URL: ${{secrets.REGISTRY_URL}}
+      REGISTRY_REPOSITORY: ${{secrets.REGISTRY_REPOSITORY}}
+      REGISTRY_USERNAME: ${{secrets.REGISTRY_USERNAME}}
+      REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
+      COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}

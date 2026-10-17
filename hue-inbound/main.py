@@ -1,103 +1,54 @@
-import paho.mqtt.client as mqtt
-import os
-import json
 import logging
 
+from mqtt import set_mqtt_client
 from hue import Hue
 from homeware import Homeware
-import init
-import services
-
-import urllib3
-urllib3.disable_warnings()
-
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-HUE_HOST = os.environ.get("HUE_HOST", "no_set")
-HUE_TOKEN = os.environ.get("HUE_TOKEN", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "hue-inbound-" + ENV
-
-# Declare variables
-cache = {}
-device_id_service_id = {}
-
-# Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-hue = Hue(HUE_HOST, HUE_TOKEN)
+from service import HueInboundService
+from settings import Settings
+from shutdown import register_shutdown_handlers
 
 # Main entry point
-if __name__ == "__main__":
+def main():
+  # Register shutdown handlers
+  register_shutdown_handlers()
+
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+
   logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)-12s - %(message)s"
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
   )
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-  if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if HUE_HOST == "no_set": report("HUE_HOST env vars no set")
-  if HUE_TOKEN == "no_set": report("HUE_TOKEN env vars no set")
-  
-  # Connect to the mqtt broker
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logging.info("Starting " + SERVICE)
+  logging.info("Starting %s", settings.service_id)
 
-  # Get devices ids relation
-  hue_devices = hue.getResource(resource="device")
-  for hue_device in hue_devices:
-    for service in hue_device["services"]:
-      device_id_service_id[service["rid"]] = hue_device["id"]
+  # Instantiate objects
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    settings.mqtt_port,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id
+  )
+  homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
+  hue = Hue(settings.hue_host, settings.hue_token)
+  service = HueInboundService(hue, homeware)
 
-  # Get initial values
-  init.contact(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.motion(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.connectivity(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.power(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-  init.lightlevel(HUE_HOST, HUE_TOKEN, homeware, device_id_service_id)
-
-  # Connect to Hue bridge
-  client = hue.getEventStreamClient()
-  
-  # Handle events
-  for message in client.events():
+  try:
+    mqtt_client.loop_start()
+    service.initialize()
+    service.run()
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
     try:
-      events = json.loads(message.data)
-    except ValueError:
-      logging.warning("Invalid SSE JSON payload: %r", message.data)
-      continue
-    if not isinstance(events, list):
-      logging.warning("Invalid SSE payload type: %r", events)
-      continue
-    for event in events:
-      data = event.get("data") if isinstance(event, dict) else None
-      if not isinstance(data, list):
-        logging.warning("Invalid SSE event data type: %r", event)
-        continue
-      for service in data:
-        services.contact(service, homeware, device_id_service_id)
-        services.motion(service, homeware, device_id_service_id)
-        services.connectivity(service, homeware, device_id_service_id)
-        services.power(service, homeware, device_id_service_id)
-        services.lightlevel(service, homeware, device_id_service_id)
-        services.light(service, homeware, device_id_service_id)
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
-    
+if __name__ == "__main__":
+  main()

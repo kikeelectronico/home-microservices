@@ -1,7 +1,6 @@
 from google.cloud import texttospeech
 import threading
 import os
-import json
 
 DEVICES_IPS = {
   "livingroom": "192.168.10.15",
@@ -24,7 +23,7 @@ class Voice:
     )
     self.homeware = homeware
 
-  # Genereate mp3 file if needed
+  # Generate mp3 file if needed
   def getFile(self, text):
     # Create file name
     file_name = text
@@ -62,9 +61,6 @@ class Voice:
       device = self.getRoom()
       threads.append(runCommandThread("catt -d " + DEVICES_IPS[device] + " cast " + file_path))
       threads[-1].start()
-
-  def setSpeakers(self, speakers):
-    self.speakers = speakers
     
   def getRoom(self):
     if self.homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "currentToggleSettings")["last_seen"]:
@@ -79,3 +75,6 @@ class Voice:
     file_path = self.getFile(text)
     self.playFile(file_path)
     self.speakers = ""
+
+  def close(self):
+    self.text_to_speech_client.close()

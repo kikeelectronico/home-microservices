@@ -10,12 +10,21 @@ on:
                 required: true
                 type: string
         secrets:
-            REGISTRY_REPO:
+            REGISTRY_REPOSITORY:
               required: true
-            REGISTRY:
-                required: true
-            GOOGLE_APPLICATION_CREDENTIALS:
-                required: true
+            REGISTRY_URL:
+              required: true
+            REGISTRY_USERNAME:
+              required: true
+            REGISTRY_PASSWORD:
+              required: true
+            COSIGN_PRIVATE_KEY:
+              required: true
+            COSIGN_PASSWORD:
+              required: true
+
+env:
+  DOCKER_BUILD_RECORD_UPLOAD: false
   
 jobs:
   path-filter:
@@ -24,61 +33,121 @@ jobs:
     outputs:
         changed: ${{ steps.filter.outputs.changed }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v3
+    - uses: actions/checkout@v7
+    - uses: dorny/paths-filter@v4
       id: filter
       with:
         filters: |
             changed:
             - "${{ inputs.service }}/**"
 
+  unit-tests:
+    name: Test ${{ inputs.service }}
+    runs-on: ubuntu-latest
+    needs: path-filter
+    if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Check for unit tests
+        id: check-tests
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ -d tests/unit_tests ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Set up test environment
+        if: steps.check-tests.outputs.exists == 'true'
+        run: python3 -m venv "${RUNNER_TEMP}/service-test-venv"
+        working-directory: ${{ inputs.service }}
+      - name: Install service dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ -f requirements.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements.txt
+          fi
+      - name: Install test dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ -f requirements-test.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements-test.txt
+          else
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install pytest
+          fi
+      - name: Run unit tests
+        if: steps.check-tests.outputs.exists == 'true'
+        working-directory: ${{ inputs.service }}
+        run: |
+          "${RUNNER_TEMP}/service-test-venv/bin/pytest" -v -s tests/unit_tests
+
   create-rollback:
     name: Create rollback for ${{ inputs.service }}
     runs-on: ubuntu-latest
-    needs: path-filter
+    needs: [path-filter, unit-tests]
     continue-on-error: true
     permissions:
       contents: read
       packages: write
     if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
     steps:
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      - name: Login to registry
+        uses: docker/login-action@v4
         with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Tag rollback image
         run: |
-          gcloud container images add-tag ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }} ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }}-rollback
+          docker buildx imagetools create -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}-rollback ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}:${{ inputs.tag }}
   
   build_and_push:
     name: Build and push ${{ inputs.service }}
     runs-on: ubuntu-latest
-    needs: path-filter
+    needs: [path-filter, unit-tests]
     permissions:
       contents: read
       packages: write
     if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      - name: Login to registry
         if: inputs.tag != 'test'
+        uses: docker/login-action@v4
         with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Configure docker
-        if: inputs.tag != 'test'
-        run: |
-          gcloud auth configure-docker ${{ secrets.REGISTRY }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.service }}
           file: ${{ inputs.service }}/Dockerfile
           platforms: linux/amd64
           push: ${{ inputs.tag != 'test' }}
-          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY,secrets.REGISTRY_REPO, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}
+          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL,secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}
+      - name: Install Cosign
+        if: inputs.tag != 'test'
+        uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        if: inputs.tag != 'test'
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
+
+          cosign sign \
+            --key env://COSIGN_PRIVATE_KEY \
+            ${IMAGE}:${{ inputs.tag }}
