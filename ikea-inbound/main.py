@@ -43,8 +43,10 @@ def main():
     service.run()
   finally:
     logging.info("Disconnecting from the MQTT broker.")
-    mqtt_client.loop_stop()
-    mqtt_client.disconnect()
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
     logging.info("Shutdown completed.")
 
 if __name__ == "__main__":

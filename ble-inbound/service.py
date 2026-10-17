@@ -30,6 +30,7 @@ class BLEInboundService:
   # BLE sensors
   def _get_sensors(self):
     for device in self.ble_sensors:
+      ble_link = None
       try:
         print("connecting", device)
         # Connect to device
@@ -56,6 +57,7 @@ class BLEInboundService:
         ble_link.waitForNotifications(5)
         # Disconnect
         ble_link.disconnect()
+        ble_link = None
         # Update timestamp
         self.last_update[device] = time.time()
       except btle.BTLEDisconnectError:
@@ -66,6 +68,12 @@ class BLEInboundService:
               self.mqtt_client.publish("notificacion/text/alert", device + " inaccesible")
             logging.warning("Device offline: " + device)
             self.homeware.execute(device,"online",False)
+      finally:
+        if ble_link is not None:
+          try:
+            ble_link.disconnect()
+          except Exception as exc:
+            logging.warning("Fail to disconnect from BLE device %s: %s", device, exc)
 
   # BLE presence
   def _verify_presence(self):

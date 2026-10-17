@@ -31,21 +31,27 @@ async def lifespan(app):
     subscriptions=TOPICS,
     message_handler=service._handle_message
   )
-  service.initialize(mqtt_client)
-  mqtt_events_task = asyncio.create_task(service.dispatch_mqtt_events())
+  mqtt_events_task = None
   try:
+    service.initialize(mqtt_client)
+    mqtt_events_task = asyncio.create_task(service.dispatch_mqtt_events())
     mqtt_client.loop_start()
     logging.info("Starting " + settings.service_id)
     yield
   finally:
     request_stop()
-    mqtt_client.disconnect()
-    mqtt_client.loop_stop()
-    mqtt_events_task.cancel()
     try:
-      await mqtt_events_task
-    except asyncio.CancelledError:
-      pass
+      mqtt_client.loop_stop()
+    finally:
+      try:
+        mqtt_client.disconnect()
+      finally:
+        if mqtt_events_task is not None:
+          mqtt_events_task.cancel()
+          try:
+            await mqtt_events_task
+          except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(lifespan=lifespan)

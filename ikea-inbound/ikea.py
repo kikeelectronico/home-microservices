@@ -41,6 +41,11 @@ class Ikea:
         ws_app.run_forever(sslopt=sslopt)
       except Exception as exc:
         logging.warning("IKEA WebSocket stopped with error: %s", exc)
+      finally:
+        try:
+          ws_app.close()
+        except Exception as exc:
+          logging.warning("Fail to close IKEA WebSocket: %s", exc)
       if stop_requested():
         break
       logging.warning("IKEA WebSocket disconnected. Reconnecting in %ss", WEBSOCKET_RECONNECT_DELAY)

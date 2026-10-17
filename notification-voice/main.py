@@ -44,18 +44,24 @@ def main():
   service.initialize(homeware, voice)
 
   # Wake up alert
-  service.send_wakeup_message()
+  try:
+    service.send_wakeup_message()
 
-  # Main loop
-  mqtt_client.loop_start()
-  while not stop_requested():
-    wait_for_stop(1)
-
-  # Clean shutdown
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+    # Main loop
+    mqtt_client.loop_start()
+    while not stop_requested():
+      wait_for_stop(1)
+  finally:
+    # Clean shutdown
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      try:
+        mqtt_client.disconnect()
+      finally:
+        voice.close()
+        logging.info("Shutdown completed.")
 
 if __name__ == "__main__":
   main()

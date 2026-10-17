@@ -23,6 +23,7 @@ class HueSensorsAlertsService:
 
   def _listen_for_events(self):
     while not stop_requested():
+      client = None
       try:
         # Connect to Hue bridge
         client = self.hue.getEventStreamClient()
@@ -38,12 +39,16 @@ class HueSensorsAlertsService:
         if stop_requested():
           break
         logging.warning("Hue SSE stream closed. Reconnecting in 5s...")
-        wait_for_stop(5)
 
       except Exception:
         if stop_requested():
           break
         logging.exception("Hue SSE stream failed. Reconnecting in 5s...")
+      finally:
+        if client is not None:
+          client.close()
+
+      if not stop_requested():
         wait_for_stop(5)
 
   def _handle_message(self, message_data):

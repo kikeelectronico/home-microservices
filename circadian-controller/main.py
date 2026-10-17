@@ -36,15 +36,17 @@ def main():
   )
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
   service = CircadianControllerService()
-  mqtt_client.loop_start()
-  service.initialize(settings, mqtt_client, homeware)
-
-  service.run()
-
-  logging.info("Disconnecting from the MQTT broker.")
-  mqtt_client.loop_stop()
-  mqtt_client.disconnect()
-  logging.info("Shutdown completed.")
+  try:
+    mqtt_client.loop_start()
+    service.initialize(settings, mqtt_client, homeware)
+    service.run()
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
 
 if __name__ == "__main__":
