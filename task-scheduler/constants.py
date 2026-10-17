@@ -8,4 +8,7 @@ ENV_VARS = [
 ]
 
 SERVICE_NAME = "task-scheduler"
-TOPICS = ["tasks", "heartbeats/system"]
+TASK_TOPIC = "tasks"
+TASK_ACK_TOPIC = "tasks/ack"
+HEARTBEAT_TOPIC = "heartbeats/system"
+TOPICS = [TASK_TOPIC, HEARTBEAT_TOPIC]
