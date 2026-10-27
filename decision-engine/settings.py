@@ -19,9 +19,6 @@ class Settings():
 			from dotenv import load_dotenv
 			load_dotenv(dotenv_path="../.env")
 
-		# Set service
-		self._settings["service_id"] = f"{SERVICE_NAME}-{self._settings['env']}"
-
 		# Load env vars
 		vars_not_set = []
 		for var in ENV_VARS:
@@ -34,6 +31,9 @@ class Settings():
 				self._settings[var.lower()] = env_var
 			else:
 				vars_not_set.append(var)
+
+		# Set service
+		self._settings["service_id"] = f"{SERVICE_NAME}-{self._settings["priority"]}-{self._settings["env"]}"
 
 		if len(vars_not_set) > 0:
 			logging.error(f"The following env vars are not set: {', '.join(vars_not_set)}")
