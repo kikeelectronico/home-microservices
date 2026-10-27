@@ -1,5 +1,5 @@
 from engine.engine import Engine
-from engine.registry import build_handlers
+from engine.registry import low_priority_handlers, high_priority_handlers
 from infrastructure.inbound.mqtt_parser import mqtt_to_event
 from infrastructure.outbound.mqtt_publisher import publish_actions
 from shared.context import Context
@@ -22,7 +22,8 @@ class DecisionEngineService:
                 self.settings.homeware_api_url,
                 self.settings.homeware_api_key
             )
-            engine = Engine(handlers=build_handlers())
+            handlers = high_priority_handlers() if self.settings.priority == "high" else low_priority_handlers()
+            engine = Engine(handlers=handlers)
             actions = engine.handle(event, context)
 
             publish_actions(actions, self.mqtt_client)

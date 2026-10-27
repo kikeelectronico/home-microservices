@@ -4,7 +4,8 @@ ENV_VARS = [
 	"MQTT_USER",
 	"MQTT_PASS",
 	"HOMEWARE_API_URL",
-	"HOMEWARE_API_KEY"
+	"HOMEWARE_API_KEY",
+    "PRIORITY"
 ]
 
 SERVICE_NAME = "decision-engine"
