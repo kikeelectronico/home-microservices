@@ -1,6 +1,7 @@
 from google.cloud import texttospeech
 import threading
 import os
+import subprocess
 
 DEVICES_IPS = {
   "livingroom": "192.168.10.15",
@@ -44,23 +45,39 @@ class Voice:
 
   # Stream the mp3 to the smart speakers
   def playFile(self, file_path):
-    class runCommandThread(threading.Thread):
-      def __init__(self, command):
-        threading.Thread.__init__(self)
-        self.cmd = command
+    class RunCommandThread(threading.Thread):
+      def __init__(self, device_ip, file_path):
+        super().__init__()
+        self.device_ip = device_ip
+        self.file_path = file_path
 
       def run(self):
-        os.system(self.cmd)
+        try:
+          subprocess.run(
+            [
+              "catt",
+              "-d", self.device_ip,
+              "cast",
+              self.file_path
+            ],
+            check=True
+          )
+        except subprocess.CalledProcessError as e:
+          print(f"Error al reproducir en {self.device_ip}: {e}")
+        except FileNotFoundError:
+          print("Error: no se encuentra el comando 'catt'.")
 
-    threads = []
     if self.speakers == "all":
-      for device in DEVICES_IPS:
-        threads.append(runCommandThread("catt -d " + DEVICES_IPS[device] + " cast " + file_path))
-        threads[-1].start()
+      devices = DEVICES_IPS.values()
     else:
       device = self.getRoom()
-      threads.append(runCommandThread("catt -d " + DEVICES_IPS[device] + " cast " + file_path))
-      threads[-1].start()
+      devices = [DEVICES_IPS[device]]
+
+    threads = []
+    for device_ip in devices:
+      thread = RunCommandThread(device_ip, file_path)
+      threads.append(thread)
+      thread.start()
     
   def getRoom(self):
     if self.homeware.get("c8bd20a2-69a5-4946-b6d6-3423b560ffa9", "currentToggleSettings")["last_seen"]:
