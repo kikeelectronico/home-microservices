@@ -29,7 +29,7 @@ env:
 jobs:
   path-filter:
     name: Filter ${{ inputs.service }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.tag == 'main' && 'ci-runner' || 'ubuntu-latest' }}
     outputs:
         changed: ${{ steps.filter.outputs.changed }}
     steps:
