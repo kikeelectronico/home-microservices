@@ -62,19 +62,10 @@ class TimerService:
 
   def _run_time_blocks(self, today, hour):
     # Time blocks
-    # if hour == "03:00:00" and not hour == self.just_executed:
-    #   self.just_executed = hour
-    #   self.homeware.execute("hue_8", "on", False)
     if hour == "04:00:00" and not hour == self.just_executed:
       self.just_executed = hour
       self._update_astro_data()
       self.homeware.execute("scene_circadian_controller_enable", "enable", True)
-    # elif hour == "06:00:00" and not hour == self.just_executed:
-    #   self.just_executed = hour
-    #   self.homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
-    # elif hour == "07:00:00" and not hour == self.just_executed:
-    #   self.just_executed = hour
-    #   self.homeware.execute("thermostat_livingroom", "thermostatMode", "off")
     elif hour == "08:30:00" and not hour == self.just_executed:
       self.just_executed = hour
       weekday = today.weekday()
@@ -86,13 +77,6 @@ class TimerService:
           self.homeware.execute("thermostat_livingroom", "thermostatMode", "heat")
           self.homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
           self.homeware.execute("thermostat_bathroom", "thermostatMode", "heat")
-    elif hour == "08:00:00" and not hour == self.just_executed:
-      self.just_executed = hour
-      weekday = today.weekday()
-      if weekday in [0,1,2,3,4] and self.homeware.get("switch_at_home", "on") and (not self.homeware.get("scene_on_vacation", "enable")):
-        if self.homeware.get("scene_summer", "enable"):
-          self.homeware.execute("thermostat_livingroom", "thermostatTemperatureSetpoint", 26.5)
-          # self.homeware.execute("thermostat_livingroom", "thermostatMode", "cool")
     elif hour == "08:55:00" and not hour == self.just_executed:
       self.just_executed = hour
       weekday = today.weekday()
@@ -107,8 +91,6 @@ class TimerService:
           self.homeware.execute("thermostat_dormitorio", "thermostatMode", "heat")
           self.homeware.execute("thermostat_livingroom", "thermostatTemperatureSetpoint", 22)
           self.homeware.execute("thermostat_bathroom", "thermostatTemperatureSetpoint", 21)
-        # elif self.homeware.get("scene_summer", "enable"):
-        #   self.homeware.execute("thermostat_livingroom", "thermostatMode", "off")
     elif hour == "10:00:00" and not hour == self.just_executed:
       self.just_executed = hour
       weekday = today.weekday()
