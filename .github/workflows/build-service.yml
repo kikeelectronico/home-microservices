@@ -158,7 +158,7 @@ jobs:
     if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
     steps:
       - name: Install kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
         with:
           version: 'latest'
       - name: Redeploy service in Kubernetes
