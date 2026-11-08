@@ -37,3 +37,23 @@ def isHigherPriorityDeviceOn(context: Context, id: str) -> bool:
             logging.warning(f"Fail to get highest_priority_device_power from lower_priority_device_id {highest_priority_device_id} for device {id} ")
             return False
         return highest_priority_device_power > ON_POWER_THRESHOLD
+
+def getLowerPriorityDevicesToTurnOff(context: Context, id: str, required_power) -> list:
+    if not id in POWER_PRIORITY:
+        return []
+
+    device_index = POWER_PRIORITY.index(id)
+    devices_to_turn_off = []
+    freed_power = 0
+
+    for lower_priority_device_id in reversed(POWER_PRIORITY[:device_index]):
+        lower_priority_device_power = context.get(lower_priority_device_id, "power")
+        if lower_priority_device_power is None:
+            logging.warning(f"Fail to get lower_priority_device_power from lower_priority_device_id {lower_priority_device_id} for device {id} ")
+        elif lower_priority_device_power > ON_POWER_THRESHOLD:
+            devices_to_turn_off.append(lower_priority_device_id)
+            freed_power += lower_priority_device_power
+            if canAddPowerLoad(context, required_power - freed_power):
+                return devices_to_turn_off
+
+    return []
