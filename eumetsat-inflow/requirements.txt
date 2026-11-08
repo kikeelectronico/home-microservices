@@ -1,5 +1,5 @@
 eumdac
-paho-mqtt==2.1.0
+paho-mqtt==2.2.0
 xarray
 h5netcdf
 pandas
