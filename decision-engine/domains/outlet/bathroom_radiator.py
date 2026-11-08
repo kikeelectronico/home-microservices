@@ -1,6 +1,6 @@
 from typing import List
 from shared.context import Context
-from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn
+from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn, getLowerPriorityDevicesToTurnOff
 
 BATHROOM_RADIATOR_POWER = 2000
 
@@ -68,11 +68,36 @@ class BathroomRadiatorOutlethHandler:
         else:
             desired_on = shouldHeat(context, "thermostat_bathroom", "9339195d-75c3-4fc1-aeac-03f8af899e40_1")
             if context.get("9339195d-75c3-4fc1-aeac-03f8af899e40_1", "on") != desired_on:
-                actions.append({
-                    "type": "device_param_update",
-                    "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
-                    "param": "on",
-                    "value": desired_on
-                })
+                if desired_on:
+                    if canAddPowerLoad(context, BATHROOM_RADIATOR_POWER):
+                        actions.append({
+                            "type": "device_param_update",
+                            "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+                            "param": "on",
+                            "value": True
+                        })
+                    else:
+                        devices_to_turn_off = getLowerPriorityDevicesToTurnOff(context, "9339195d-75c3-4fc1-aeac-03f8af899e40_1", BATHROOM_RADIATOR_POWER)
+                        if len(devices_to_turn_off) > 0:
+                            for device_to_turn_off in devices_to_turn_off:
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": device_to_turn_off,
+                                    "param": "on",
+                                    "value": False
+                                })
+                            actions.append({
+                                "type": "device_param_update",
+                                "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+                                "param": "on",
+                                "value": True
+                            })
+                else:
+                    actions.append({
+                        "type": "device_param_update",
+                        "device_id": "9339195d-75c3-4fc1-aeac-03f8af899e40_1",
+                        "param": "on",
+                        "value": desired_on
+                    })
 
         return actions
