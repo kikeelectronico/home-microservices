@@ -27,10 +27,6 @@ def is_alert_active(start_text: str, end_text: str) -> bool:
 
 
 def getWarnings(rss_url, area, timeout=10):
-  if rss_url == "no_set" or area == "no_set":
-    logging.error("Warnings env vars aren't set")
-    return None
-
   try:
     response = requests.get(rss_url, timeout=timeout)
     if response.status_code == 200:

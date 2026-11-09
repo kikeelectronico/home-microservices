@@ -1,0 +1,21 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"WHEATHER_API_KEY",
+	"WHEATHER_QUERY",
+	"AEMET_RSS",
+	"AEMET_AREA"
+]
+
+SERVICE_NAME = "meteo-inflow"
+REQUEST_TIMEOUT = 10
+SLEEP_TIME = 10
+WARNINGS_INTERVAL = 1800
+WEATHER_INTERVAL = 1800
+HEARTBEAT_TOPIC = "heartbeats"
+WARNINGS_TOPIC = "meteo/warnings"
+WARNINGS_REQUEST_TOPIC = "meteo/warnings/request"
+WEATHER_TOPIC = "meteo/weather"
+WEATHER_REQUEST_TOPIC = "meteo/weather/request"

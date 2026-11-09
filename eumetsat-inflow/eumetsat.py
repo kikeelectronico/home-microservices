@@ -40,6 +40,9 @@ def getProducts(consumer_key, consumer_secret, bbox, start_date, end_date, satel
 def extractFireDataFromProduct(product_obj):
 	fire_coordinates = []
 	product_identifier = str(product_obj)
+	zip_buffer = None
+	nc_bytes = None
+	ds_mwir_standard = None
 	try:
 		# Leer el contenido del producto en memoria
 		with product_obj.open() as f:
@@ -76,15 +79,6 @@ def extractFireDataFromProduct(product_obj):
 							frp_values[valid_mask]
 						):
 							fire_coordinates.append((lat, lon, frp))
-
-						del valid_mask
-						del latitudes
-						del longitudes
-						del frp_values
-						ds_mwir_standard.close()
-						del ds_mwir_standard
-						nc_bytes.close()
-						del nc_bytes
 					else:
 						logging.warning(f"No se encontraron eventos de incendio válidos en '{FRP_NETCDF_FILENAME}' para el producto: {product_identifier}")
 				else:
@@ -94,9 +88,16 @@ def extractFireDataFromProduct(product_obj):
 	except Exception as e:
 		logging.warning(f"Error procesando el producto {product_identifier}: {e}")
 	finally:
-		if 'zip_buffer' in locals():
-			zip_buffer.close()
-			del zip_buffer
+		try:
+			if ds_mwir_standard is not None:
+				ds_mwir_standard.close()
+		finally:
+			try:
+				if nc_bytes is not None:
+					nc_bytes.close()
+			finally:
+				if zip_buffer is not None:
+					zip_buffer.close()
 
 	return fire_coordinates
 

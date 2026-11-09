@@ -7,7 +7,7 @@ urllib3.disable_warnings()
 REQUEST_TIMEOUT = 10
 
 # Test both the API and the db getting the status of a device
-def homewareTest(api_url, api_key):
+def homeware_test(api_url, api_key):
   try:
     url = api_url + "/api/devices/scene_dim/states"
     headers = {
@@ -26,7 +26,7 @@ def homewareTest(api_url, api_key):
     return False
   
 # Test Hue Bridge
-def hueTest(api_url, api_token):     
+def hue_test(api_url, api_token):
   try:
     url = f"https://{api_url}/clip/v2/resource/device"
     headers = {
@@ -43,7 +43,7 @@ def hueTest(api_url, api_token):
       return False
 
 # Test Ikea Bridge
-def ikeaTest(api_url, api_token):     
+def ikea_test(api_url, api_token):
   try:
     url = f"https://{api_url}:8443/v1/devices"
     headers = {

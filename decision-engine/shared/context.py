@@ -3,7 +3,6 @@ import json
 import requests
 import logging
 
-POWER_THRESHOLD = 50
 REQUEST_TIMEOUT = 10
 
 class Context:
@@ -11,26 +10,11 @@ class Context:
     __mqtt_client = None
     __url = "localhost"
     __token = "token"
-    __power_priority = [
-        "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", # Calentador
-        "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", # Radiador
-        "9339195d-75c3-4fc1-aeac-03f8af899e40_1" # Calefactor
-    ]
 
     def __init__(self, mqtt_client, host, token) -> None:
         self.__mqtt_client = mqtt_client
         self.__url = host
         self.__token = token
-
-        fail = False
-        if self.__url == "no_set":
-            logging.error("HOMEWARE_API_URL env var isn't set")
-            fail = True
-        if self.__token == "no_set":
-            logging.error("HOMEWARE_API_KEY env var isn't set")
-            fail = True
-        if fail:
-            exit()
 
     def get(self, id: str, param: str) -> Any:
         try:
@@ -57,19 +41,3 @@ class Context:
         except (requests.ConnectionError, requests.Timeout) as exception:
             logging.warning("Fail to get Homeware device. Connection error.")
             return {}
-
-    def getLowerPriorityDevicePowerStatus(self, id: str) -> bool:
-        if not id in self.__power_priority:
-            return False
-
-        device_index = self.__power_priority.index(id)
-
-        if device_index + 1 >= len(self.__power_priority):
-            return False
-        else:
-            lower_priority_device_id = self.__power_priority[device_index+1]
-            lower_priority_device_power = self.get(lower_priority_device_id, "power")
-            if lower_priority_device_power is None:
-                logging.warning(f"Fail to get lower_priority_device_power from lower_priority_device_id {lower_priority_device_id} for device {id} ")
-                return False
-            return lower_priority_device_power > POWER_THRESHOLD
