@@ -1,0 +1,23 @@
+name: Mark commit as built
+description: Mueve un tag al commit actual sin permitir que retroceda.
+
+inputs:
+  tag:
+    description: Nombre del tag (p. ej. last-built-main)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Move tag
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+      run: |
+        CURRENT=$(git rev-parse -q --verify "refs/tags/${TAG}^{commit}" || true)
+        if [ -z "$CURRENT" ] || git merge-base --is-ancestor "$CURRENT" "$GITHUB_SHA"; then
+          git tag -f "$TAG" "$GITHUB_SHA"
+          git push -f origin "$TAG"
+        else
+          echo "$TAG ya está en un commit más reciente, no se mueve"
+        fi

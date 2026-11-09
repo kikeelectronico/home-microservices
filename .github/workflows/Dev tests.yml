@@ -3,52 +3,31 @@ name: Dev pull request
 on:
   workflow_dispatch:
   pull_request:
-    branches: 
-      - dev
+    branches: [ dev ]
+
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.detect.outputs.services }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/detect-services
+        id: detect
+
   build:
-    name: Build
+    name: ${{ matrix.service }}
+    needs: changes
+    if: needs.changes.outputs.services != '[]'
     strategy:
+      fail-fast: false
       matrix:
-        service:
-          - bigquery-outbound
-          - ble-inbound
-          - chromecast-logic-pool
-          - circadian-controller
-          - data-panel-api
-          - data-panel-front
-          - decision-engine
-          - dns-updater
-          - electricity-inflow
-          - eumetsat-inflow
-          - hue-inbound
-          - hue-logic-pool
-          - hue-outbound
-          - hue-sensors-alerts
-          - ikea-inbound
-          - ikea-outbound
-          - internet-inflow
-          - meteo-inflow
-          - monitor-cause-effect
-          - monitor-heartbeat-control
-          - monitor-heartbeat-request
-          - monitor-http-request
-          - monitor-oscillations
-          - monitor-response
-          - notification-message
-          - notification-voice
-          - task-scheduler
-          - telegram-bot
-          - timer
-          - water-inflow
+        service: ${{ fromJSON(needs.changes.outputs.services) }}
     uses: ./.github/workflows/build-service.yml
     with:
       service: ${{ matrix.service }}
       tag: test
-    secrets:
-      REGISTRY_URL: ${{secrets.REGISTRY_URL}}
-      REGISTRY_REPOSITORY: ${{secrets.REGISTRY_REPOSITORY}}
-      REGISTRY_USERNAME: ${{secrets.REGISTRY_USERNAME}}
-      REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
-      COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-      COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+    secrets: inherit
