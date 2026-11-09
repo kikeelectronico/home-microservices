@@ -1,0 +1,123 @@
+import React, { useState, useEffect } from "react";
+import "./outdoors.css"
+
+const day_map = ["Hoy", "Mañana", "Pasado mañana"]
+
+export default function Outdoors(props) {
+
+    const [time, setTime] = useState("11:20");
+
+    useEffect(() => {
+        updateTime();
+        const interval = setInterval(() => updateTime(), 1000)
+
+        return()=>clearInterval(interval)
+    }, [])
+
+    const updateTime = () => {
+        var today = new Date()
+        var hour = today.getHours()
+        var minute = today.getMinutes()
+        var time_string = (hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute)
+        setTime(time_string)
+    }
+
+  return (
+    <div className={"homeCard" + (props.playing ? " homeCardAlphaChannel" : "")}>
+        <div className="outdoorCardRow">
+            <div className="outdoorCardColumn outdoorCardClockContainer">
+                {time}
+            </div>
+            <div className="outdoorCardColumn outdoorCardWeatherContainer">
+                <div className="outdoorCardWeatherRow">
+                    <div className={"outdoorCardWeatherTemperatureContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.temp_c ?? "--.-"} ºC
+                    </div>
+                </div>
+                <div className="outdoorCardWeatherRow">
+                    <div className="outdoorCardWeatherSkyContainer">
+                        {
+                            props.meteo_weather ? 
+                                <img className="outdoorCardWeatherSkyIcon" alt="f" src={props.meteo_weather?.current.condition.icon}/>
+                            : <></>   
+                        }
+                    </div>
+                    <div className={"outdoorCardWeatherUVindexContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.uv ?? "-"}
+                    </div>
+                    <div className={"outdoorCardWeatherAQIContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                        {props.meteo_weather?.current.air_quality['us-epa-index'] ?? "-"}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div className="outdoorCardRow">
+            <div className="outdoorCardWeatherRow">
+                <div className={"outdoorCardWindContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                    {props.meteo_weather?.current.wind_kph ?? "--.-"} km/h
+                </div>
+                <div className={"outdoorCardWindContainer " + (props.meteo_weather ? "deviceOnline" : "deviceOffline")}>
+                    {props.meteo_weather?.current.wind_dir ?? "--"}
+                </div>
+            </div>
+        </div>
+        {
+            props.meteo_warnings ? 
+                [...props.meteo_warnings]
+                .sort((a, b) => {
+                    if (a.is_active !== b.is_active) {
+                        return a.is_active ? -1 : 1;
+                    }
+
+                    return a.start_offset - b.start_offset;
+                })
+                .map((warning, index) => {
+                    if (warning.start_offset >= 0) {
+                        const getStyle = () => {
+                            let severity = "alertsNormal"
+                            if (warning.level.includes("rojo")) severity = "alertsHigh"
+                            else if (warning.level.includes("naranja")) severity = "alertsMiddle"
+                            else if (warning.level.includes("amarillo")) severity = "alertsLow"
+                            return severity
+                        }
+                        
+                        return (
+                            <div className="outdoorCardRow alertAnimated" key={index}>
+                                <div className="outdoorCardWeatherRow">
+                                    <div className={"outdoorCardAlertContainer " +  getStyle()}>
+                                        {day_map[warning.start_offset] + (warning.is_active ? " - Activa" : "")}
+                                        <br/>
+                                        {warning.title + " " + warning.description}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
+                })
+            : <></>
+        }
+        {
+            props.water_volume?.level < 50 ? 
+                <div className="outdoorCardRow alertAnimated">
+                    <div className="outdoorCardWeatherRow">
+                        <div className={"outdoorCardAlertContainer " +  (props.water_volume.level < 40 ? "alertsLow" : "alertsNormal")}>
+                            {"Nivel de embalses: " + props.water_volume.level + " %"}
+                        </div>
+                    </div>
+                </div>
+            : <></>
+        }
+        {
+            props.fire_nearest?.distance < 30 ? 
+                <div className="outdoorCardRow alertAnimated">
+                    <div className="outdoorCardWeatherRow">
+                        <div className={"outdoorCardAlertContainer " +  (props.fire_nearest.distance < 2 ? "alertsHigh" : "alertsNormal")}>
+                            {"Incendio detectado a " + props.fire_nearest.distance + " km"}
+                        </div>
+                    </div>
+                </div>
+            : <></>
+        }
+    </div>
+  )
+}

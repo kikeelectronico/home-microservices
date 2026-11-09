@@ -1,0 +1,87 @@
+import React, { useState, useEffect } from "react";
+
+import Outdoors from "./components/Outdoors"
+import Livingroom from "./components/rooms/Livingroom";
+import Bathroom from "./components/rooms/Bathroom";
+import Bedroom from "./components/rooms/Bedroom";
+import Fridge from "./components/rooms/Fridge";
+import Power from "./components/Power";
+import NotAtHome from "../../components/NotAtHome"
+import Connection from "./components/Connection";
+import Spotify from "./components/Spotify";
+import { DATA_PANEL_API_URL } from "../../config";
+
+import "./home.css"
+
+export default function Home(props) {
+
+  const [internet_status, setInternetStatus] = useState(null)
+  const [home, setHome] = useState(null)
+  const [water_volume, setWaterVolume] = useState(null)
+  const [meteo_weather, setMeteoWeather] = useState(null)
+  const [meteo_warnings, setMeteoWarnings] = useState(null)
+  const [electricity_grid, setElectricityGrid] = useState(null)
+  const [fire_nearest, setFireNearest] = useState(null)
+  const [spotify, setSpotify] = useState(null)
+  const [spotify_playing, setSpotifyPlaying] = useState(false);
+  const [see_closed, setSeeClosed] = useState(false)
+
+  useEffect(() => {
+    const sse = new EventSource(DATA_PANEL_API_URL + "/stream", { withCredentials: false });
+    sse.onmessage = e => {
+      setSeeClosed(false)
+      let event = JSON.parse(e.data)
+      if (event.type === "internet-status") {setInternetStatus(event.data)}
+      else if (event.type === "home") {
+        setHome(prev => ({
+            ...prev,
+            ...event.data
+        }));
+      }
+      else if (event.type === "water-volume") {setWaterVolume(event.data);}
+      else if (event.type === "meteo-weather") {setMeteoWeather(event.data)}
+      else if (event.type === "meteo-warnings") {setMeteoWarnings(event.data);}
+      else if (event.type === "electricity-grid") {setElectricityGrid(event.data);}
+      else if (event.type === "fire-nearest") {setFireNearest(event.data);}
+    };
+    sse.onerror = () => {
+      setSeeClosed(true)
+      // sse.close();
+    }
+    return () => {
+      sse.close();
+    };
+  }, [])
+
+  useEffect(() => {
+    if (spotify) {
+      setSpotifyPlaying(spotify.playing.playing)
+      props.setBackgroundImage(
+        {
+          url: spotify.playing.image,
+          position: "0% " + spotify.playing.image_position*10 + "%"
+        }
+      )
+    }
+  }, [props.setBackgroundImage, spotify])
+
+  return (
+    <div className="homePage">
+        <div className="homeCardsContainer">
+          <div className="homeCardsColumn">
+            <Outdoors meteo_weather={meteo_weather} meteo_warnings={meteo_warnings} water_volume={water_volume} fire_nearest={fire_nearest} playing={spotify_playing}/>
+            <Power home={home} electricity_grid={electricity_grid} playing={spotify_playing}/>
+            <Connection internet_status={internet_status} see_closed={see_closed} playing={spotify_playing}/>
+            { spotify && spotify.playing.playing ? <Spotify spotify={spotify}/> : <></> } 
+          </div>
+          <div className="homeCardsColumn">
+            <Livingroom home={home} playing={spotify_playing}/>
+            <Bathroom home={home} playing={spotify_playing}/>
+            <Bedroom home={home} playing={spotify_playing}/>
+            <Fridge home={home} playing={spotify_playing}/>
+          </div>
+          <NotAtHome home={home}/>
+        </div>
+    </div>
+  )
+}

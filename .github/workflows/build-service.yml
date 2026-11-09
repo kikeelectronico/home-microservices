@@ -1,84 +1,157 @@
 name: Build service - Reusable
 
 on:
-    workflow_call:
-        inputs:
-            service:
-                required: true
-                type: string
-            tag:
-                required: true
-                type: string
-        secrets:
-            REGISTRY_REPO:
-              required: true
-            REGISTRY:
-                required: true
-            GOOGLE_APPLICATION_CREDENTIALS:
-                required: true
-  
-jobs:
-  path-filter:
-    name: Filter ${{ inputs.service }}
-    runs-on: ubuntu-latest
-    outputs:
-        changed: ${{ steps.filter.outputs.changed }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-            changed:
-            - "${{ inputs.service }}/**"
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+    secrets:
+      REGISTRY_REPOSITORY:
+        required: true
+      REGISTRY_URL:
+        required: true
+      REGISTRY_USERNAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+      COSIGN_PRIVATE_KEY:
+        required: true
+      COSIGN_PASSWORD:
+        required: true
 
-  create-rollback:
-    name: Create rollback for ${{ inputs.service }}
+env:
+  DOCKER_BUILD_RECORD_UPLOAD: false
+
+jobs:
+  unit-tests:
+    name: Test
     runs-on: ubuntu-latest
-    needs: path-filter
-    continue-on-error: true
-    permissions:
-      contents: read
-      packages: write
-    if: (needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') && inputs.tag == 'main'
-    steps:
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Tag rollback image
-        run: |
-          gcloud container images add-tag ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }} ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ inputs.service }}:${{ inputs.tag }}-rollback
-  
-  build_and_push:
-    name: Build and push ${{ inputs.service }}
-    runs-on: ubuntu-latest
-    needs: path-filter
-    permissions:
-      contents: read
-      packages: write
-    if: needs.path-filter.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v2'
-        if: inputs.tag != 'test'
-        with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Configure docker
-        if: inputs.tag != 'test'
+        uses: actions/checkout@v7
+      - name: Check for unit tests
+        id: check-tests
+        shell: bash
+        working-directory: ${{ inputs.service }}
         run: |
-          gcloud auth configure-docker ${{ secrets.REGISTRY }}
+          if [ -d tests/unit_tests ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Set up test environment
+        if: steps.check-tests.outputs.exists == 'true'
+        run: python3 -m venv "${RUNNER_TEMP}/service-test-venv"
+        working-directory: ${{ inputs.service }}
+      - name: Install service dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ -f requirements.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements.txt
+          fi
+      - name: Install test dependencies
+        if: steps.check-tests.outputs.exists == 'true'
+        shell: bash
+        working-directory: ${{ inputs.service }}
+        run: |
+          if [ -f requirements-test.txt ]; then
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install -r requirements-test.txt
+          else
+            "${RUNNER_TEMP}/service-test-venv/bin/python" -m pip install pytest
+          fi
+      - name: Run unit tests
+        if: steps.check-tests.outputs.exists == 'true'
+        working-directory: ${{ inputs.service }}
+        run: |
+          "${RUNNER_TEMP}/service-test-venv/bin/pytest" -v -s tests/unit_tests
+
+  build_and_push:
+    name: Build and push
+    runs-on: ci-runner
+    needs: unit-tests
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Verify Docker daemon
+        shell: bash
+        run: |
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "::error::docker CLI no encontrado en el runner"
+            exit 1
+          fi
+          for i in $(seq 1 30); do
+            if docker info >/dev/null 2>&1; then
+              break
+            fi
+            echo "Esperando al Docker daemon... (${i}/30)"
+            sleep 2
+          done
+          if ! docker info >/dev/null 2>&1; then
+            echo "::error::No hay Docker daemon accesible tras 60s (en ARC usa containerMode: dind)"
+            exit 1
+          fi
+          docker version
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Login to registry
+        if: inputs.tag != 'test'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Tag rollback image
+        if: inputs.tag == 'main'
+        continue-on-error: true
+        run: |
+          IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
+          docker buildx imagetools create -t "${IMAGE}:${{ inputs.tag }}-rollback" "${IMAGE}:${{ inputs.tag }}"
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        id: build
+        uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.service }}
           file: ${{ inputs.service }}/Dockerfile
           platforms: linux/amd64
           push: ${{ inputs.tag != 'test' }}
-          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY,secrets.REGISTRY_REPO, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag)}}
+          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL, secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag) }}
+      - name: Install Cosign
+        if: inputs.tag != 'test'
+        uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        if: inputs.tag != 'test'
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
+          if [ -z "${DIGEST}" ]; then
+            echo "::error::El build no devolvió digest, no se puede firmar"
+            exit 1
+          fi
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
+
+  redeploy:
+    name: Redeploy
+    runs-on: ci-runner
+    needs: build_and_push
+    if: inputs.tag == 'main'
+    steps:
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v5
+        with:
+          version: 'latest'
+      - name: Redeploy service in Kubernetes
+        run: |
+          kubectl rollout restart deployment/${{ inputs.service }} -n home
+          kubectl rollout status deployment/${{ inputs.service }} -n home --timeout=180s

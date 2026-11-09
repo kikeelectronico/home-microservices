@@ -1,0 +1,10 @@
+eumdac
+paho-mqtt==2.1.0
+xarray
+h5netcdf
+pandas
+numpy
+python-dotenv==1.2.2
+netCDF4
+requests==2.33.1
+h5py

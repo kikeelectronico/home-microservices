@@ -1,228 +1,53 @@
-import paho.mqtt.client as mqtt
-import os
-import time
-import json
-import ssl
-import threading
-import uuid
-from websocket import WebSocketApp
 import logging
 
+from mqtt import set_mqtt_client
+from ikea import Ikea
 from homeware import Homeware
-
-import urllib3
-urllib3.disable_warnings()
-
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-HOMEWARE_API_URL = os.environ.get("HOMEWARE_API_URL", "no_set")
-HOMEWARE_API_KEY = os.environ.get("HOMEWARE_API_KEY", "no_set")
-IKEA_HOST = os.environ.get("IKEA_HOST", "no_set")
-IKEA_TOKEN = os.environ.get("IKEA_TOKEN", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SERVICE = "ikea-inbound-" + ENV
-OUTLET_CURRENT_THRESHOLD = 0.2
-
-# Variables
-tasks = {}
-
-# Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-homeware = Homeware(mqtt_client, HOMEWARE_API_URL, HOMEWARE_API_KEY)
-
-voltages_map = {}
-
-def on_message(ws, message):
-  event = json.loads(message)
-  data = event["data"]
-  
-  # The action depends on deviceType
-  if data["deviceType"] == "outlet":
-    if "isReachable" in data:
-      homeware.execute(data["id"], "online", data["isReachable"])
-    if "isOn" in data["attributes"]:
-      homeware.execute(data["id"], "on", data["attributes"]["isOn"])
-    if "currentVoltage" in data["attributes"]:
-      voltages_map[data["id"]] = data["attributes"]["currentVoltage"]
-      homeware.publish(data["id"], "voltage", round(data["attributes"]["currentVoltage"],1))
-    if "currentAmps" in data["attributes"]:
-      homeware.publish(data["id"], "current", round(data["attributes"]["currentAmps"],1))
-      if voltages_map.get(data["id"]):
-        active_power = round(data["attributes"]["currentAmps"] * voltages_map.get(data["id"]))
-        homeware.publish(data["id"], "power", active_power)
-      if data["attributes"]["currentAmps"] > OUTLET_CURRENT_THRESHOLD:
-        homeware.execute(data["id"], "isRunning", True)
-        task_id = str(data["id"]) + "-" + "isRunning"
-        if task_id in tasks:
-          del tasks[task_id]
-      else:
-        task_id = str(data["id"]) + "-" + "isRunning"
-        tasks[task_id] = {
-          "time": time.time(),
-          "device_id": str(data["id"]),
-          "param": "isRunning",
-          "value": False
-        }
-  elif data["deviceType"] == "motionSensor":
-    if "isReachable" in data:
-      homeware.execute(data["id"], "online", data["isReachable"])
-    if "batteryPercentage" in data:
-      battery_level = data["batteryPercentage"]
-      if battery_level == 100: descriptiveCapacityRemaining = "FULL"
-      elif battery_level >= 70: descriptiveCapacityRemaining = "HIGH"
-      elif battery_level >= 40: descriptiveCapacityRemaining = "MEDIUM"
-      elif battery_level >= 10: descriptiveCapacityRemaining ="LOW"
-      else: descriptiveCapacityRemaining = "CRITICALLY_LOW"
-      homeware.execute(data["id"],"descriptiveCapacityRemaining", descriptiveCapacityRemaining)
-      homeware.execute(data["id"], "capacityRemaining", [{"rawValue": battery_level, "unit":"PERCENTAGE"}])
-    if "isDetected" in data["attributes"]:
-      homeware.execute(data["id"], "occupancy", "OCCUPIED" if data["attributes"]["isDetected"] else "UNOCCUPIED")
-  elif data["deviceType"] == "airPurifier":
-    if "isReachable" in data:
-      if not homeware.get(data["id"], "online") == data["isReachable"]:
-        homeware.execute(data["id"], "online", data["isReachable"])
-    if "currentPM25" in data["attributes"]:
-      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
-      updated = False
-      for sensor in homeware_current_sensors_state_data:
-        if sensor.get("name") == "PM2.5":
-          new_raw_value = data["attributes"].get("currentPM25")
-          if sensor.get("rawValue") != new_raw_value:
-            sensor["rawValue"] = new_raw_value
-            updated = True
-          break
-      if updated:
-        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "FilterLifeTime" in data["attributes"]:
-      homeware_current_sensors_state_data = homeware.get(data["id"], "currentSensorStateData")
-      updated = False
-      for sensor in homeware_current_sensors_state_data:
-        if sensor.get("name") == "FilterLifeTime":
-          lifetime = data["attributes"].get("filterLifetime")
-          elapsed = data["attributes"].get("filterElapsedTime")
-          if lifetime and lifetime > 0:
-              new_raw_value = round((elapsed / lifetime) * 100)
-          else:
-              new_raw_value = 0 
-
-          if sensor.get("rawValue") != new_raw_value:
-            sensor["rawValue"] = new_raw_value
-            match new_raw_value:
-              case p if p < 25:
-                  sensor["currentSensorState"] = "new"
-              case p if p < 90:
-                  sensor["currentSensorState"] = "good"
-              case p if p < 100:
-                  sensor["currentSensorState"] = "replace soon"
-              case p if p >= 100:
-                  sensor["currentSensorState"] = "replace now"
-              case _:
-                  sensor["currentSensorState"] = "unknown"
-            updated = True
-          break
-      if updated:
-        homeware.execute(data["id"], "currentSensorStateData", homeware_current_sensors_state_data)
-    if "fanMode" in data["attributes"]:
-      ikea_fan_mode = data["attributes"].get("fanMode", None)
-      homeware_mode = homeware.get(data["id"], "currentModeSettings")["Modo"]
-      match ikea_fan_mode:
-        case "off":
-          if homeware_mode != "Apagado":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Apagado"})
-        case "auto":
-          if homeware_mode != "Automático":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Automático"})
-        case "on":
-          if homeware_mode != "Manual":
-            homeware.execute(data["id"], "currentModeSettings", {"Modo": "Manual"})
-        case "low" | "medium" | "high":
-          if "motorState" in data["attributes"]:
-            new_homeware_fan_speed = "Baja"
-            motorState = data["attributes"]["motorState"]
-            if motorState == 10 or motorState == 20: new_homeware_fan_speed = "Baja"
-            elif motorState == 30: new_homeware_fan_speed = "Media"
-            elif motorState == 40 or motorState == 50: new_homeware_fan_speed = "Alta"
-            homeware_fan_speed = homeware.get(data["id"], "currentFanSpeedSetting")
-            if not new_homeware_fan_speed == homeware_fan_speed:
-              homeware.execute(data["id"], "currentFanSpeedSetting", new_homeware_fan_speed)
-
-  # Loop over pending tasks
-  for task_id in list(tasks.keys()):
-    task = tasks[task_id]
-    if (time.time() - task["time"]) > 10:
-      homeware.execute(task["device_id"], task["param"], task["value"])
-      del tasks[task_id]
-
-
-def on_error(ws, error):
-  logging.warning("Error: " + error)
-
-def on_close(ws, close_status_code, close_msg):
-  logging.info("Conexión cerrada")
-
-def on_open(ws):
-  logging.info("Conexión abierta")
-
-  def run():
-    while True:
-      ping_msg = {
-        "id": str(uuid.uuid4()),
-        "specversion": "1.1.0",
-        "source": "urn:lpgera:dirigera",
-        "time": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-        "type": "ping",
-        "data": None
-      }
-      ws.send(json.dumps(ping_msg))
-      time.sleep(30)
-
-    thread = threading.Thread(target=run)
-    thread.daemon = True
-    thread.start()
+from service import IkeaInboundService
+from settings import Settings
+from shutdown import register_shutdown_handlers
 
 # Main entry point
-if __name__ == "__main__":
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
+def main():
+  # Register shutdown handlers
+  register_shutdown_handlers()
 
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if HOMEWARE_API_URL == "no_set": report("HOMEWARE_API_URL env vars no set")
-  if HOMEWARE_API_KEY == "no_set": report("HOMEWARE_API_KEY env vars no set")
-  if IKEA_HOST == "no_set": report("IKEA_HOST env vars no set")
-  if IKEA_TOKEN == "no_set": report("IKEA_TOKEN env vars no set")
-  
-  # Connect to the mqtt broker
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logging.info("Starting " + SERVICE)
-  
-  # Open WebSocket
-  url = f"wss://{IKEA_HOST}:8443/v1"
-  headers = {
-    "Authorization": "Bearer " + IKEA_TOKEN
-  }
-  ws_app = WebSocketApp(
-    url,
-    header=[key + ": " + value for key, value in headers.items()],
-    on_message=on_message,
-    on_error=on_error,
-    on_close=on_close,
-    on_open=on_open,
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
   )
+  logging.info("Starting %s", settings.service_id)
 
-  # Contexto SSL para certificado autofirmado
-  sslopt = {"cert_reqs": ssl.CERT_NONE}
-  ws_app.run_forever(sslopt=sslopt)
+  # Instantiate objects
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    settings.mqtt_port,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id
+  )
+  homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
+  ikea = Ikea(settings.ikea_host, settings.ikea_token)
+  service = IkeaInboundService(ikea, homeware)
+
+  try:
+    mqtt_client.loop_start()
+    service.run()
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+  main()

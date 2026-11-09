@@ -3,6 +3,7 @@ env
 *.pyc
 docker-compose-completo.yml
 response-test/
+todo.md
 
 #alert system voice
 audio/

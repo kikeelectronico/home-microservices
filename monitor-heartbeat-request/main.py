@@ -1,44 +1,54 @@
-import paho.mqtt.client as mqtt
-import os
-import time
 import logging
 
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
-
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-SLEEP_TIME = 10
-SERVICE = "monitor-heartbeat-request-" + ENV
-
-# Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
+from mqtt import set_mqtt_client
+from constants import SLEEP_TIME
+from service import MonitorHeartbeatRequestService
+from settings import Settings
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Main entry point
-if __name__ == "__main__":
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  
-  # Connect to the mqtt broker
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logging.info("Starting " + SERVICE)
-  # Wake up alert
-  while True:
-    # Send the heartbeat request and wait
-    mqtt_client.publish("heartbeats/system", "are-you-there")
-    time.sleep(SLEEP_TIME)
+def main():
+  # Register shutdown handlers
+  register_shutdown_handlers()
 
-      
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
+  logging.info("Starting %s", settings.service_id)
+
+  # Instantiate objects
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    settings.mqtt_port,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id
+  )
+  service = MonitorHeartbeatRequestService()
+  service.initialize(mqtt_client)
+  try:
+    mqtt_client.loop_start()
+    # Wake up alert
+    while not stop_requested():
+      # Send the heartbeat request and wait
+      service.publish_heartbeat_request()
+      wait_for_stop(SLEEP_TIME)
+  finally:
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
+
+if __name__ == "__main__":
+  main()

@@ -1,60 +1,58 @@
-import paho.mqtt.client as mqtt
-import telebot
-import os
 import logging
+import telebot
 
-# Load env vars
-if os.environ.get("MQTT_PASS", "no_set") == "no_set":
-  from dotenv import load_dotenv
-  load_dotenv(dotenv_path="../.env")
+from mqtt import set_mqtt_client
+from constants import TOPICS
+from service import NotificationMessageService
+from settings import Settings
+from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-MQTT_USER = os.environ.get("MQTT_USER", "no_set")
-MQTT_PASS = os.environ.get("MQTT_PASS", "no_set")
-MQTT_HOST = os.environ.get("MQTT_HOST", "no_set")
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "no_set")
-ENRIQUE_CHAT_ID = os.environ.get("ENRIQUE_CHAT_ID", "no_set")
-ENV = os.environ.get("ENV", "dev")
-
-# Define constants
-MQTT_PORT = 1883
-TOPICS = ["message-alerts"]
-SERVICE = "notification-message-" + ENV
-
-# Instantiate objects
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=SERVICE)
-bot = telebot.TeleBot(token=BOT_TOKEN)
-
-# Suscribe to topics on connect
-def on_connect(client, userdata, flags, rc, properties):
-    for topic in TOPICS:
-        client.subscribe(topic)
-
-# Do tasks when a message is received
-def on_message(client, userdata, msg):
-  # Send the message to the Telegram API
-  payload = msg.payload.decode('utf-8').replace("\'", "\"")
-  bot.send_message(ENRIQUE_CHAT_ID, payload)
-	
 # Main entry point
-if __name__ == "__main__":
-  # Check env vars
-  def report(message):
-    print(message)
-    exit()
-  if MQTT_USER == "no_set": report("MQTT_USER env vars no set")
-  if MQTT_PASS == "no_set": report("MQTT_PASS env vars no set")
-  if MQTT_HOST == "no_set": report("MQTT_HOST env vars no set")
-  if BOT_TOKEN == "no_set": report("BOT_TOKEN env vars no set")
-  if ENRIQUE_CHAT_ID == "no_set": report("ENRIQUE_CHAT_ID env vars no set")
+def main():
+  # Register shutdown handlers
+  register_shutdown_handlers()
 
-  # Declare the callback functions
-  mqtt_client.on_message = on_message
-  mqtt_client.on_connect = on_connect
-  # Connect to the mqtt broker
-  mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
-  mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
-  logging.info("Starting " + SERVICE)
+  # Load settings
+  settings = Settings()
+  settings.load_settings()
+
+  logging.basicConfig(
+    level=logging.INFO,
+    format=(
+      "%(asctime)s %(levelname)-8s %(name)-12s %(message)s"
+      if settings.env == "dev"
+      else "%(message)s"
+    )
+  )
+  logging.info("Starting %s", settings.service_id)
+
+  bot = telebot.TeleBot(token=settings.bot_token)
+  service = NotificationMessageService(bot, settings.enrique_chat_id)
+
+  # Instantiate objects
+  mqtt_client = set_mqtt_client(
+    settings.mqtt_host,
+    settings.mqtt_port,
+    settings.mqtt_user,
+    settings.mqtt_pass,
+    settings.service_id,
+    subscriptions=TOPICS,
+    message_handler=service._handle_message
+  )
+
   # Main loop
-  mqtt_client.loop_forever()
+  try:
+    mqtt_client.loop_start()
+    while not stop_requested():
+      wait_for_stop(1)
+  finally:
+    # Clean shutdown
+    logging.info("Disconnecting from the MQTT broker.")
+    try:
+      mqtt_client.loop_stop()
+    finally:
+      mqtt_client.disconnect()
+    logging.info("Shutdown completed.")
 
-    
+if __name__ == "__main__":
+  main()
