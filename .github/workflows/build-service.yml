@@ -116,6 +116,7 @@ jobs:
           IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
           docker buildx imagetools create -t "${IMAGE}:${{ inputs.tag }}-rollback" "${IMAGE}:${{ inputs.tag }}"
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.service }}
@@ -131,9 +132,14 @@ jobs:
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           IMAGE="${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}"
-          cosign sign --key env://COSIGN_PRIVATE_KEY "${IMAGE}:${{ inputs.tag }}"
+          if [ -z "${DIGEST}" ]; then
+            echo "::error::El build no devolvió digest, no se puede firmar"
+            exit 1
+          fi
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
 
   redeploy:
     name: Redeploy
