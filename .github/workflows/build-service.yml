@@ -88,8 +88,15 @@ jobs:
             echo "::error::docker CLI no encontrado en el runner"
             exit 1
           fi
+          for i in $(seq 1 30); do
+            if docker info >/dev/null 2>&1; then
+              break
+            fi
+            echo "Esperando al Docker daemon... (${i}/30)"
+            sleep 2
+          done
           if ! docker info >/dev/null 2>&1; then
-            echo "::error::No hay Docker daemon accesible (en ARC usa containerMode: dind o monta el socket)"
+            echo "::error::No hay Docker daemon accesible tras 60s (en ARC usa containerMode: dind)"
             exit 1
           fi
           docker version
