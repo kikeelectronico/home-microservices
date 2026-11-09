@@ -37,6 +37,7 @@ from domains.outlet.bathroom_radiator import BathroomRadiatorOutlethHandler
 from domains.outlet.bedroom_fan import BedroomFanHandler
 from domains.outlet.bedroom_radiator import BedroomRadiatorOutlethHandler
 from domains.outlet.office_table import OfficeTableOutlethHandler
+from domains.outlet.tv import TvOutlethHandler
 from domains.outlet.water_heater import WaterHeaterOutlethHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
@@ -95,6 +96,7 @@ def high_priority_handlers() -> List[Handler]:
         # BedroomFanHandler(),
         # BedroomRadiatorOutlethHandler(),
         OfficeTableOutlethHandler(),
+        # TvOutlethHandler(),
         # WaterHeaterOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
@@ -151,6 +153,7 @@ def low_priority_handlers() -> List[Handler]:
         BedroomFanHandler(),
         BedroomRadiatorOutlethHandler(),
         # OfficeTableOutlethHandler(),
+        TvOutlethHandler(),
         WaterHeaterOutlethHandler(),
         # BathroomPresenceHandler(),
         # BedroomPresenceHandler(),
