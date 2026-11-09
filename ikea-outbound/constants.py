@@ -16,4 +16,5 @@ TOPICS = [
 	"device/9339195d-75c3-4fc1-aeac-03f8af899e40_1",
 	"device/fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
 	"device/24b34328-7f20-4e52-a4ae-387006a6b040_1"
+	"device/a1c72ed9-2a75-4ea4-b35b-5eae2945fdad_1"
 ]
