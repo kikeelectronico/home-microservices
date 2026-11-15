@@ -157,6 +157,17 @@ jobs:
         with:
           version: 'latest'
       - name: Redeploy service in Kubernetes
+        shell: bash
         run: |
-          kubectl rollout restart deployment/${{ inputs.service }} -n home
-          kubectl rollout status deployment/${{ inputs.service }} -n home --timeout=180s
+          DEPLOYMENT="${{ inputs.service }}"
+          NAMESPACE="home"
+
+          FOUND=$(kubectl get deployment "${DEPLOYMENT}" -n "${NAMESPACE}" --ignore-not-found -o name)
+
+          if [ -z "${FOUND}" ]; then
+            echo "::warning::El deployment ${DEPLOYMENT} no existe en el namespace ${NAMESPACE}, se omite el redeploy"
+            exit 0
+          fi
+
+          kubectl rollout restart "${FOUND}" -n "${NAMESPACE}"
+          kubectl rollout status "${FOUND}" -n "${NAMESPACE}" --timeout=180s
