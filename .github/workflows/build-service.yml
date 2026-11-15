@@ -25,6 +25,7 @@ on:
 
 env:
   DOCKER_BUILD_RECORD_UPLOAD: false
+  PYTHON_VERSION: "3.13"
 
 jobs:
   unit-tests:
@@ -43,6 +44,10 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Set up test environment
         if: steps.check-tests.outputs.exists == 'true'
         run: python3 -m venv "${RUNNER_TEMP}/service-test-venv"

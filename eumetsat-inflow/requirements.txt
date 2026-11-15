@@ -1,10 +1,10 @@
 eumdac
-paho-mqtt==2.1.0
+paho-mqtt==2.2.0
 xarray
 h5netcdf
 pandas
 numpy
-python-dotenv==1.2.2
+python-dotenv==1.2.4
 netCDF4
-requests==2.33.1
+requests==2.34.2
 h5py
