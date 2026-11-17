@@ -36,6 +36,7 @@ def main():
   )
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
   service = CircadianControllerService()
+  
   try:
     mqtt_client.loop_start()
     service.initialize(settings, mqtt_client, homeware)
