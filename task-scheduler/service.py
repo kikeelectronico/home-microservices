@@ -33,7 +33,7 @@ class TaskSchedulerService:
           self.mqtt_client.publish(TASK_ACK_TOPIC, json.dumps(new_task))
 
   def _process_due_tasks(self):
-    for index, task in enumerate(self.tasks):
+    for task in self.tasks.copy():
       if task["time"] < time.time():
         assert_pass = True
         for condition in task["asserts"]:
@@ -46,4 +46,4 @@ class TaskSchedulerService:
             task["target"]["param"],
             task["target"]["value"]
           )
-        del self.tasks[index]
+        self.tasks.remove(task)
