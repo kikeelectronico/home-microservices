@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 BATTER_LEVEL_THRESHOLD = 10

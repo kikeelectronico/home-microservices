@@ -1,4 +1,5 @@
 from typing import List
+
 from domains.air.quality.bathroom import BathroomAirQualityHandler
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
 from domains.air.temperature.bathroom import BathroomAirTemperatureHandler
@@ -37,7 +38,9 @@ from domains.outlet.bathroom_radiator import BathroomRadiatorOutlethHandler
 from domains.outlet.bedroom_fan import BedroomFanHandler
 from domains.outlet.bedroom_radiator import BedroomRadiatorOutlethHandler
 from domains.outlet.office_table import OfficeTableOutlethHandler
+from domains.outlet.tv import TvOutlethHandler
 from domains.outlet.water_heater import WaterHeaterOutlethHandler
+from domains.outlet.water_heater_oscillation import WaterHeaterOscillationOutletHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
@@ -51,17 +54,15 @@ from domains.scenes.shower_initiated import ShowerInitiatedSceneHandler
 from domains.scenes.shower_waiting import ShowerWaitingSceneHandler
 from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
-
 from engine.engine import Handler
 
-
-def build_handlers() -> List[Handler]:
+def high_priority_handlers() -> List[Handler]:
     return [
-        BathroomAirQualityHandler(),
-        LivingroomAirQualityHandler(),
-        BathroomAirTemperatureHandler(),
-        BedroomAirTemperatureHandler(),
-        LivingroomAirTemperatureHandler(),
+        # BathroomAirQualityHandler(),
+        # LivingroomAirQualityHandler(),
+        # BathroomAirTemperatureHandler(),
+        # BedroomAirTemperatureHandler(),
+        # LivingroomAirTemperatureHandler(),
         BathroomBrightnessLightHandler(),
         BathroomColorLightHandler(),
         BathroomMirrorLightHandler(),
@@ -82,6 +83,64 @@ def build_handlers() -> List[Handler]:
         OfficeBrightnessLightHandler(),
         OfficeLightHandler(),
         WorkbenchLightHandler(),
+        # BatteryNotificationMessageHandler(),
+        # PowerAlertNotificationMessageHandler(),
+        # WaterLeakNotificationMessageHandler(),
+        # BatteryNotificationVoiceHandler(),
+        # NightTimeVoiceNotificationHandler(),
+        # OscillationNotificationVoiceHandler(),
+        # PowerAlertNotificationVoiceHandler(),
+        # ShowerVoiceNotificationHandler(),
+        # WaterLeakVoiceNotificationHandler(),
+        # BathroomRadiatorOutlethHandler(),
+        # BedroomFanHandler(),
+        # BedroomRadiatorOutlethHandler(),
+        OfficeTableOutlethHandler(),
+        # TvOutlethHandler(),
+        # WaterHeaterOscillationOutletHandler(),
+        # WaterHeaterOutlethHandler(),
+        BathroomPresenceHandler(),
+        BedroomPresenceHandler(),
+        LivingroomPresenceHandler(),
+        # AwakeSceneHandler(),
+        # DimSceneHandler(),
+        # PowerAlertSceneHandler(),
+        # PowerPrealertSceneHandler(),
+        # SensorsSceneHandler(),
+        # ShowerInformedSceneHandler(),
+        # ShowerInitiatedSceneHandler(),
+        # ShowerWaitingSceneHandler(),
+        # ShowerSceneHandler(),
+        # PrepareHomeSwitchHandler(),
+    ]
+
+def low_priority_handlers() -> List[Handler]:
+    return [
+        BathroomAirQualityHandler(),
+        LivingroomAirQualityHandler(),
+        BathroomAirTemperatureHandler(),
+        BedroomAirTemperatureHandler(),
+        LivingroomAirTemperatureHandler(),
+        # BathroomBrightnessLightHandler(),
+        # BathroomColorLightHandler(),
+        # BathroomMirrorLightHandler(),
+        # BathroomLightHandler(),
+        # BedroomColorLightHandler(),
+        # BedroomBrightnessLightHandler(),
+        # BedroomLightHandler(),
+        # HallwayBrightnessLightHandler(),
+        # HallwayLightHandler(),
+        # KitchenColorLightHandler(),
+        # KitchenLightHandler(),
+        # LivingroomFairyBrightneesLightHandler(),
+        # LivingroomPyramidLightHandler(),
+        # LivingroomSofaLightHandler(),
+        # LivingroomTableBrightnessLightHandler(),
+        # LivingroomTableColorLightHandler(),
+        # LivingroomLightHandler(),
+        # OfficeBrightnessLightHandler(),
+        # OfficeLightHandler(),
+        # WorkbenchLightHandler(),
         BatteryNotificationMessageHandler(),
         PowerAlertNotificationMessageHandler(),
         WaterLeakNotificationMessageHandler(),
@@ -94,11 +153,13 @@ def build_handlers() -> List[Handler]:
         BathroomRadiatorOutlethHandler(),
         BedroomFanHandler(),
         BedroomRadiatorOutlethHandler(),
-        OfficeTableOutlethHandler(),
+        # OfficeTableOutlethHandler(),
+        TvOutlethHandler(),
+        WaterHeaterOscillationOutletHandler(),
         WaterHeaterOutlethHandler(),
-        BathroomPresenceHandler(),
-        BedroomPresenceHandler(),
-        LivingroomPresenceHandler(),
+        # BathroomPresenceHandler(),
+        # BedroomPresenceHandler(),
+        # LivingroomPresenceHandler(),
         AwakeSceneHandler(),
         DimSceneHandler(),
         PowerAlertSceneHandler(),

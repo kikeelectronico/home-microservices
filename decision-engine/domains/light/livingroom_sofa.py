@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 MIN_LIVINGROOM_DARKNESS_TRIGGER = 15

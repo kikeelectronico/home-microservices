@@ -1,4 +1,5 @@
 import logging
+
 import requests
 
 API_URL = "https://api.weatherapi.com/v1/forecast.json"

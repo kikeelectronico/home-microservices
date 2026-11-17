@@ -1,6 +1,7 @@
 import json
-import requests
 import logging
+
+import requests
 
 REQUEST_TIMEOUT = 10
 
@@ -14,16 +15,6 @@ class Homeware:
     self.__mqtt_client = mqtt_client
     self.__url = host
     self.__token = token
-
-    fail = False
-    if self.__url == "no_set":
-      logging.error("HOMEWARE_API_URL env var isn't set")
-      fail = True
-    if self.__token == "no_set":
-      logging.error("HOMEWARE_API_KEY env var isn't set")
-      fail = True
-    if fail:
-      exit()
 
   # Make an execution request to Homeware API
   def execute(self, id, param, value):    
