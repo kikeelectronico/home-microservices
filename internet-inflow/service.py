@@ -1,6 +1,6 @@
 import json
 
-from Internet import getInternetStatus
+from internet import getInternetStatus
 from constants import STATUS_REQUEST_TOPIC, STATUS_TOPIC
 
 
