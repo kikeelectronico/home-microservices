@@ -1,6 +1,6 @@
-import functions
 import requests
 
+import functions
 
 def test_get_public_ip_returns_response_text(mocker, monkeypatch):
     get = mocker.MagicMock(return_value=mocker.MagicMock(text="203.0.113.10"))

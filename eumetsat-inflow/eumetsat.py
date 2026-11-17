@@ -2,11 +2,11 @@ import io
 import zipfile
 import logging
 from datetime import datetime, timedelta
+from math import radians, sin, cos, sqrt, atan2
 
 import eumdac
 import xarray as xr
 import numpy as np
-from math import radians, sin, cos, sqrt, atan2
 
 COLLECTION_ID = "EO:EUM:DAT:0417"  # SLSTR Level 2 Fire Radiative Power - Sentinel-3
 FRP_NETCDF_FILENAME = 'FRP_MWIR1km_standard.nc'

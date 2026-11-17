@@ -1,4 +1,5 @@
 from typing import List
+
 from domains.air.quality.bathroom import BathroomAirQualityHandler
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
 from domains.air.temperature.bathroom import BathroomAirTemperatureHandler
@@ -53,9 +54,7 @@ from domains.scenes.shower_initiated import ShowerInitiatedSceneHandler
 from domains.scenes.shower_waiting import ShowerWaitingSceneHandler
 from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
-
 from engine.engine import Handler
-
 
 def high_priority_handlers() -> List[Handler]:
     return [

@@ -1,4 +1,5 @@
 import logging
+
 from google.cloud import bigquery
 
 from mqtt import set_mqtt_client

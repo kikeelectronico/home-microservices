@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 HUMIDITY_TRIGGER_OFFSET = 5
