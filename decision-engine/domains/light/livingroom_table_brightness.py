@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 MAX_LIVINGROOM_LIGHT_BRIGHTNESS = 100

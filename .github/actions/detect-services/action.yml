@@ -1,0 +1,53 @@
+name: Detect changed services
+description: Devuelve en JSON los servicios (carpetas con Dockerfile) que han cambiado.
+
+inputs:
+  last-built-tag:
+    description: Tag con el último commit construido (solo para push). Vacío usa github.event.before.
+    required: false
+    default: ''
+
+outputs:
+  services:
+    description: Lista JSON de servicios a construir
+    value: ${{ steps.detect.outputs.services }}
+
+runs:
+  using: composite
+  steps:
+    - name: Compute services to build
+      id: detect
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        BEFORE: ${{ github.event.before }}
+        PR_BASE: ${{ github.event.pull_request.base.sha }}
+        LAST_TAG: ${{ inputs.last-built-tag }}
+      run: |
+        ALL=$(for d in */; do [ -f "${d}Dockerfile" ] && echo "${d%/}"; done | jq -R . | jq -sc .)
+
+        BASE=""
+        case "$EVENT" in
+          pull_request)
+            BASE="$PR_BASE"
+            ;;
+          push)
+            if [ -n "$LAST_TAG" ]; then
+              BASE=$(git rev-parse -q --verify "refs/tags/${LAST_TAG}^{commit}" || true)
+            fi
+            if [ -z "$BASE" ]; then BASE="$BEFORE"; fi
+            ;;
+        esac
+
+        # workflow_dispatch, base desconocida o inaccesible: todos los servicios
+        if [ -z "$BASE" ] || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+          SERVICES="$ALL"
+        else
+          SERVICES=$(git diff --name-only "$BASE" "$GITHUB_SHA" \
+            | cut -d/ -f1 | sort -u \
+            | jq -R . | jq -sc --argjson all "$ALL" 'map(select(. as $s | $all | index($s)))')
+        fi
+
+        echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
+        echo "Base: ${BASE:-none}"
+        echo "Services: $SERVICES"

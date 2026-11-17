@@ -1,0 +1,14 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"HOMEWARE_API_URL",
+	"HOMEWARE_API_KEY"
+]
+
+SERVICE_NAME = "task-scheduler"
+TASK_TOPIC = "tasks"
+TASK_ACK_TOPIC = "tasks/ack"
+HEARTBEAT_TOPIC = "heartbeats/system"
+TOPICS = [TASK_TOPIC, HEARTBEAT_TOPIC]
