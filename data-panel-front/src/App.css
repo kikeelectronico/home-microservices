@@ -40,3 +40,19 @@ html, body {
 .deviceOffline {
   color: #888;
 }
+
+.alertsNormal {
+    color: white;
+}
+
+.alertsLow {
+    color: yellow;
+}
+
+.alertsMiddle {
+    color: orange;
+}
+
+.alertsHigh {
+    color: red;
+}

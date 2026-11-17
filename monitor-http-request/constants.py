@@ -1,0 +1,19 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"HOMEWARE_API_URL",
+	"HOMEWARE_API_KEY",
+	"HUE_HOST",
+	"HUE_TOKEN",
+	"IKEA_HOST",
+	"IKEA_TOKEN"
+]
+
+SERVICE_NAME = "monitor-http-request"
+SLEEP_TIME = 10
+BLOCK_TIME = 300
+HEARTBEAT_TOPIC = "heartbeats"
+VOICE_ALERT_TOPIC = "notificacion/voice/alert"
+TEXT_ALERT_TOPIC = "notificacion/text/alert"

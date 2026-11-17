@@ -5,59 +5,50 @@ on:
   push:
     branches: [ main ]
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.detect.outputs.services }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/detect-services
+        id: detect
+        with:
+          last-built-tag: last-built-main
+
   build:
-    name: Build
+    name: ${{ matrix.service }}
+    needs: changes
+    if: needs.changes.outputs.services != '[]'
     strategy:
+      fail-fast: false
       matrix:
-        service:
-          - bigquery-outbound
-          - ble-inbound
-          - chromecast-logic-pool
-          - circadian-controller
-          - data-panel-api
-          - data-panel-front
-          - decision-engine
-          - device-controller
-          - dns-updater
-          - hue-inbound
-          - hue-logic-pool
-          - hue-outbound
-          - hue-sensors-alerts
-          - ikea-inbound
-          - ikea-outbound
-          - logic-pool
-          - timer
-          - monitor-heartbeat-control
-          - monitor-heartbeat-request
-          - monitor-http-request
-          - notification-message
-          - notification-voice
-          - task-scheduler
-          - telegram-bot
+        service: ${{ fromJSON(needs.changes.outputs.services) }}
     uses: ./.github/workflows/build-service.yml
     with:
       service: ${{ matrix.service }}
       tag: main
-    secrets:
-      REGISTRY: ${{secrets.REGISTRY}}
-      REGISTRY_REPO: ${{secrets.REGISTRY_REPO}}
-      GOOGLE_APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+    secrets: inherit
 
-  # deploy:
-  #   name: Deploy to production environment
-  #   runs-on: ubuntu-latest
-  #   needs: 
-  #     - build
-  #   if: ${{ always() && !failure() && !cancelled() }}
-  #   steps:
-  #     - name: Request update
-  #       uses: fjogeleit/http-request-action@v1
-  #       with:
-  #         url: ${{ secrets.DIP_URL }}
-  #         method: "POST"
-  #         bearerToken: ${{ secrets.DIP_TOKEN }}
+  mark-built:
+    name: Mark commit as built
+    runs-on: ubuntu-latest
+    needs: [changes, build]
+    if: ${{ !failure() && !cancelled() }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/mark-built
+        with:
+          tag: last-built-main

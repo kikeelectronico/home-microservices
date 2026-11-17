@@ -1,6 +1,6 @@
 from typing import Iterable, List, Protocol
-from shared.context import Context
 
+from shared.context import Context
 
 class Handler(Protocol):
     def can_handle(self, event: dict) -> bool:
