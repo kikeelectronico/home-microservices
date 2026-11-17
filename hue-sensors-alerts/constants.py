@@ -1,0 +1,12 @@
+ENV_VARS = [
+	"MQTT_HOST",
+	"MQTT_PORT",
+	"MQTT_USER",
+	"MQTT_PASS",
+	"HOMEWARE_API_URL",
+	"HOMEWARE_API_KEY",
+	"HUE_HOST",
+	"HUE_TOKEN"
+]
+
+SERVICE_NAME = "hue-sensors-alerts"

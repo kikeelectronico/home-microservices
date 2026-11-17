@@ -1,6 +1,7 @@
 import logging
-import requests
 from datetime import datetime, timedelta
+
+import requests
 
 API_URL = "https://api.esios.ree.es/indicators"
 REQUEST_TIMEOUT = 10

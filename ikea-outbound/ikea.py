@@ -1,7 +1,8 @@
-import requests
 import logging
 
+import requests
 import urllib3
+
 urllib3.disable_warnings()
 
 REQUEST_TIMEOUT = 10
@@ -15,16 +16,6 @@ class Ikea:
     self.__host = host
     self.__token = token
 
-    fail = False
-    if self.__host == "no_set":
-      logging.error("IKEA_HOST env var isn't set")
-      fail = True
-    if self.__token == "no_set":
-      logging.error("IKEA_TOKEN env var isn't set")
-      fail = True
-    if fail:
-      exit()
-      
   # Get devices
   def getDevices(self):
     try:

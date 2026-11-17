@@ -31,6 +31,7 @@ TOPICS = [
     "device/scene_awake/enable",
     "device/scene_dim/enable",
     "device/current001/brightness",
+    "device/scene_power_prealert/enable",
     "device/scene_power_alert/enable",
     "device/scene_ducha/enable",
     "device/fc553d8b-1f45-4337-84ab-5c80a84e61ff_1/isRunning",

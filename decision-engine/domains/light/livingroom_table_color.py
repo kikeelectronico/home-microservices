@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 LIVINGROOM_TABLE_LIGHT_TEMP_COLOR = 2200

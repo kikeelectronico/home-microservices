@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 
 BATHROOM_HUMIDITY_DELTA = 10

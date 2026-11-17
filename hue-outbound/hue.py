@@ -1,8 +1,9 @@
-import requests
 import logging
 import json
 
+import requests
 import urllib3
+
 urllib3.disable_warnings()
 
 REQUEST_TIMEOUT = 10
@@ -16,16 +17,6 @@ class Hue:
     self.__url = url
     self.__token = token
 
-    fail = False
-    if self.__url == "no_set":
-      logging.error("HUE_HOST env var isn't set")
-      fail = True
-    if self.__token == "no_set":
-      logging.error("HUE_TOKEN env var isn't set")
-      fail = True
-    if fail:
-      exit()
-      
   # Get services
   def getServices(self, type="device"):
     try:
