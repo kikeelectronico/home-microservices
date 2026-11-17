@@ -83,9 +83,18 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+      - name: Compute version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ inputs.tag }}" = "main" ]; then
+            echo "version=v${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Verify Docker daemon
         shell: bash
         run: |
@@ -128,7 +137,9 @@ jobs:
           file: ${{ inputs.service }}/Dockerfile
           platforms: linux/amd64
           push: ${{ inputs.tag != 'test' }}
-          tags: ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL, secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag) }}
+          tags: |
+            ${{ inputs.tag != 'test' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL, secrets.REGISTRY_REPOSITORY, inputs.service, inputs.tag) || format('{0}:{1}', inputs.service, inputs.tag) }}
+            ${{ steps.version.outputs.version != '' && format('{0}/{1}/{2}:{3}', secrets.REGISTRY_URL, secrets.REGISTRY_REPOSITORY, inputs.service, steps.version.outputs.version) || '' }}
       - name: Install Cosign
         if: inputs.tag != 'test'
         uses: sigstore/cosign-installer@v3
