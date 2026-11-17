@@ -16,6 +16,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -24,9 +25,9 @@ def main():
       else "%(message)s"
     )
   )
-  logging.info(f"Starting {settings.service_id}.")
+  logging.info("Starting %s", settings.service_id)
 
-  # Create mqtt client
+  # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
     settings.mqtt_port,
@@ -34,13 +35,12 @@ def main():
     settings.mqtt_pass,
     settings.service_id
   )
-  
-  # Create homeware object
+
   homeware = Homeware(mqtt_client, settings.homeware_api_url, settings.homeware_api_key)
   service = MonitorCauseEffectService(homeware, mqtt_client, RULES)
 
-  # Main loop
   try:
+    # Main loop
     mqtt_client.loop_start()
     while not stop_requested():
       # Evaluate rules

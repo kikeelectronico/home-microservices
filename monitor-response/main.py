@@ -16,6 +16,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -26,12 +27,12 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  # Instantiate objects
   bigquery_client = bigquery.Client()
   mqtt_client = None
   try:
     service = MonitorResponseService(settings, bigquery_client)
 
-    # Instantiate objects
     mqtt_client = set_mqtt_client(
       settings.mqtt_host,
       settings.mqtt_port,
@@ -42,6 +43,7 @@ def main():
       message_handler=service._handle_message
     )
 
+    # Main loop
     mqtt_client.loop_start()
     while not stop_requested():
       mqtt_client.publish(HEARTBEAT_TOPIC, "are-you-there")
@@ -49,6 +51,7 @@ def main():
   finally:
     try:
       if mqtt_client is not None:
+        # Clean shutdown
         logging.info("Disconnecting from the MQTT broker.")
         try:
           mqtt_client.loop_stop()

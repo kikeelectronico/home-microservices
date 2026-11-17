@@ -5,7 +5,6 @@ from service import DNSUpdaterService
 from settings import Settings
 from shutdown import register_shutdown_handlers
 
-
 # Main entry point
 def main():
   # Register shutdown handlers
@@ -15,6 +14,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -36,16 +36,17 @@ def main():
   service = DNSUpdaterService()
   service.initialize(settings, mqtt_client)
   try:
+    # Main loop
     mqtt_client.loop_start()
     service.run()
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()
     finally:
       mqtt_client.disconnect()
     logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

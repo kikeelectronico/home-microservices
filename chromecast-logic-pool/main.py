@@ -6,7 +6,6 @@ from service import ChromecastLogicPoolService
 from settings import Settings
 from shutdown import register_shutdown_handlers
 
-
 # Main entry point
 def main():
   # Register shutdown handlers
@@ -25,7 +24,7 @@ def main():
       else "%(message)s"
     )
   )
-  logging.info("Starting " + settings.service_id)
+  logging.info("Starting %s", settings.service_id)
 
   # Instantiate objects
   mqtt_client = set_mqtt_client(
@@ -40,16 +39,17 @@ def main():
   service.initialize(settings, mqtt_client, homeware)
 
   try:
+    # Main loop
     mqtt_client.loop_start()
     service.run()
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()
     finally:
       mqtt_client.disconnect()
     logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

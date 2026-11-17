@@ -8,7 +8,6 @@ from service import TelegramBotService
 from settings import Settings
 from shutdown import register_shutdown_handlers, wait_for_stop
 
-
 # Main entry point
 def main():
   # Register shutdown handlers
@@ -18,6 +17,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -43,6 +43,7 @@ def main():
     while not wait_for_stop(1):
       pass
   finally:
+    # Clean shutdown
     try:
       bot.stop_polling()
     finally:
@@ -52,7 +53,6 @@ def main():
       finally:
         storage_client.close()
         logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

@@ -16,6 +16,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -39,10 +40,12 @@ def main():
   service = HueInboundService(hue, homeware)
 
   try:
+    # Main loop
     mqtt_client.loop_start()
     service.initialize()
     service.run()
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()
