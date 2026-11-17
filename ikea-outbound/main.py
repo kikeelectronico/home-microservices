@@ -16,6 +16,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -40,9 +41,11 @@ def main():
   )
 
   try:
+    # Main loop
     mqtt_client.loop_start()
     service.run()
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()

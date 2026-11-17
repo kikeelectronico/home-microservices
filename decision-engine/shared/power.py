@@ -1,4 +1,5 @@
 import logging
+
 from shared.context import Context
 from shared.constants import HOME_POWER_LIMIT, HOME_POWER_MULTIPLIER, ON_POWER_THRESHOLD, POWER_PRIORITY
 

@@ -8,7 +8,6 @@ from service import BigQueryOutboundService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
-
 # Main entry point
 def main():
   # Register shutdown handlers
@@ -18,6 +17,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -51,6 +51,7 @@ def main():
   finally:
     try:
       if mqtt_client is not None:
+        # Clean shutdown
         logging.info("Disconnecting from the MQTT broker.")
         try:
           mqtt_client.loop_stop()
@@ -59,7 +60,6 @@ def main():
     finally:
       bigquery_client.close()
       logging.info("Shutdown completed.")
-
 
 if __name__ == "__main__":
   main()

@@ -1,4 +1,5 @@
 from typing import List
+
 from shared.context import Context
 from shared.power import canAddPowerLoad, isLowerPriorityDeviceOn, isHigherPriorityDeviceOn, getLowerPriorityDevicesToTurnOff
 

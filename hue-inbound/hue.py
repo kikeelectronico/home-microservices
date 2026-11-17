@@ -1,9 +1,11 @@
-import requests
 import logging
+
+import requests
 from sseclient import SSEClient
+import urllib3
+
 from shutdown import stop_requested, wait_for_stop
 
-import urllib3
 urllib3.disable_warnings()
 
 REQUEST_TIMEOUT = 10

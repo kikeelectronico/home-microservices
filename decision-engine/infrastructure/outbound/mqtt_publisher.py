@@ -1,8 +1,8 @@
 from typing import Any, Dict, Tuple
-import paho.mqtt.client as mqtt
 import json
 import logging
 
+import paho.mqtt.client as mqtt
 
 def action_to_mqtt_message(action: Dict) -> Tuple[str, str]:
     match action["type"]:

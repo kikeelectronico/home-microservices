@@ -15,6 +15,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -36,13 +37,14 @@ def main():
   service = MonitorHeartbeatRequestService()
   service.initialize(mqtt_client)
   try:
+    # Main loop
     mqtt_client.loop_start()
-    # Wake up alert
     while not stop_requested():
       # Send the heartbeat request and wait
       service.publish_heartbeat_request()
       wait_for_stop(SLEEP_TIME)
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()

@@ -1,7 +1,7 @@
 import json
+
 import pytest
 import requests
-
 import support
 
 support.add_service_to_path()

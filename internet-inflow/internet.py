@@ -1,4 +1,5 @@
 import logging
+
 import requests
 
 REQUEST_TIMEOUT = 10

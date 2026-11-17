@@ -1,6 +1,6 @@
 from typing import List
-from shared.context import Context
 
+from shared.context import Context
 
 class BedroomBrightnessLightHandler:
     def can_handle(self, event: dict) -> bool:

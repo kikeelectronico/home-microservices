@@ -1,4 +1,5 @@
 from typing import List
+
 from domains.air.quality.bathroom import BathroomAirQualityHandler
 from domains.air.quality.livingroom import LivingroomAirQualityHandler
 from domains.air.temperature.bathroom import BathroomAirTemperatureHandler
@@ -39,6 +40,7 @@ from domains.outlet.bedroom_radiator import BedroomRadiatorOutlethHandler
 from domains.outlet.office_table import OfficeTableOutlethHandler
 from domains.outlet.tv import TvOutlethHandler
 from domains.outlet.water_heater import WaterHeaterOutlethHandler
+from domains.outlet.water_heater_oscillation import WaterHeaterOscillationOutletHandler
 from domains.presence.bathroom import BathroomPresenceHandler
 from domains.presence.bedroom import BedroomPresenceHandler
 from domains.presence.livingroom import LivingroomPresenceHandler
@@ -52,9 +54,7 @@ from domains.scenes.shower_initiated import ShowerInitiatedSceneHandler
 from domains.scenes.shower_waiting import ShowerWaitingSceneHandler
 from domains.scenes.shower import ShowerSceneHandler
 from domains.switch.prepare_home import PrepareHomeSwitchHandler
-
 from engine.engine import Handler
-
 
 def high_priority_handlers() -> List[Handler]:
     return [
@@ -97,6 +97,7 @@ def high_priority_handlers() -> List[Handler]:
         # BedroomRadiatorOutlethHandler(),
         OfficeTableOutlethHandler(),
         # TvOutlethHandler(),
+        # WaterHeaterOscillationOutletHandler(),
         # WaterHeaterOutlethHandler(),
         BathroomPresenceHandler(),
         BedroomPresenceHandler(),
@@ -154,6 +155,7 @@ def low_priority_handlers() -> List[Handler]:
         BedroomRadiatorOutlethHandler(),
         # OfficeTableOutlethHandler(),
         TvOutlethHandler(),
+        WaterHeaterOscillationOutletHandler(),
         WaterHeaterOutlethHandler(),
         # BathroomPresenceHandler(),
         # BedroomPresenceHandler(),

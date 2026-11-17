@@ -1,7 +1,8 @@
-from google.cloud import texttospeech
 import threading
 import os
 import subprocess
+
+from google.cloud import texttospeech
 
 DEVICES_IPS = {
   "livingroom": "192.168.10.15",

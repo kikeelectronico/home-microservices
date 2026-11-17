@@ -1,4 +1,5 @@
 import logging
+
 import telebot
 
 from mqtt import set_mqtt_client
@@ -16,6 +17,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -26,10 +28,10 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  # Instantiate objects
   bot = telebot.TeleBot(token=settings.bot_token)
   service = NotificationMessageService(bot, settings.enrique_chat_id)
 
-  # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
     settings.mqtt_port,
@@ -40,8 +42,8 @@ def main():
     message_handler=service._handle_message
   )
 
-  # Main loop
   try:
+    # Main loop
     mqtt_client.loop_start()
     while not stop_requested():
       wait_for_stop(1)

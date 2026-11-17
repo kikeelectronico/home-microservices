@@ -1,7 +1,6 @@
 import logging
 import time
 
-
 from mqtt import set_mqtt_client
 from constants import HEARTBEAT_TOPIC, SLEEP_TIME, STATUS_REQUEST_TOPIC
 from settings import Settings
@@ -17,6 +16,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -27,9 +27,9 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  # Instantiate objects
   service = InternetInflowService()
 
-  # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host,
     settings.mqtt_port,
@@ -41,6 +41,7 @@ def main():
   )
   service.initialize(mqtt_client)
   try:
+    # Main loop
     mqtt_client.loop_start()
 
     while not stop_requested():
@@ -50,6 +51,7 @@ def main():
 
       wait_for_stop(SLEEP_TIME)
   finally:
+    # Clean shutdown
     logging.info("Disconnecting from the MQTT broker.")
     try:
       mqtt_client.loop_stop()

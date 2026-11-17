@@ -17,6 +17,7 @@ def main():
   settings = Settings()
   settings.load_settings()
 
+  # Configure logging
   logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -27,9 +28,9 @@ def main():
   )
   logging.info("Starting %s", settings.service_id)
 
+  # Instantiate objects
   service = NotificationVoiceService()
 
-  # Instantiate objects
   mqtt_client = set_mqtt_client(
     settings.mqtt_host_network,
     settings.mqtt_port,

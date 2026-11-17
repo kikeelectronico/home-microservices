@@ -1,4 +1,5 @@
 import logging
+
 import paho.mqtt.client as mqtt
 
 from shutdown import stop_requested, wait_for_stop

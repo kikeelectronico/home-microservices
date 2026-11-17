@@ -1,8 +1,9 @@
-import requests
 import logging
 import json
 
+import requests
 import urllib3
+
 urllib3.disable_warnings()
 
 REQUEST_TIMEOUT = 10
