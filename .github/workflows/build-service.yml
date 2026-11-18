@@ -157,7 +157,7 @@ jobs:
           fi
           cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
 
-  redeploy:
+  Deploy:
     name: Deploy
     runs-on: ci-runner
     needs: build_and_push
