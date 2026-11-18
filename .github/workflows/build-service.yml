@@ -158,7 +158,7 @@ jobs:
           cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
 
   redeploy:
-    name: Redeploy
+    name: Deploy
     runs-on: ci-runner
     needs: build_and_push
     if: inputs.tag == 'main'
@@ -167,7 +167,15 @@ jobs:
         uses: azure/setup-kubectl@v5
         with:
           version: 'latest'
-      - name: Redeploy service in Kubernetes
+      - name: Deploy new version in Kubernetes
+        env:
+          IMAGE: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_REPOSITORY }}/${{ inputs.service }}
+          VERSION: ${{ needs.build_and_push.outputs.version }}
+          SERVICE: ${{ inputs.service }}
         run: |
-          kubectl rollout restart deployment/${{ inputs.service }} -n home
-          kubectl rollout status deployment/${{ inputs.service }} -n home --timeout=180s
+          if [ -z "${VERSION}" ]; then
+            echo "::error::No hay versión calculada, no se puede desplegar"
+            exit 1
+          fi
+          kubectl set image "deployment/${SERVICE}" "${SERVICE}=${IMAGE}:${VERSION}" -n home
+          kubectl rollout status "deployment/${SERVICE}" -n home --timeout=180s
