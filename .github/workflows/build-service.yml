@@ -177,5 +177,5 @@ jobs:
             echo "::error::No hay versión calculada, no se puede desplegar"
             exit 1
           fi
-          kubectl set image "deployment/${SERVICE}" "${SERVICE}=${IMAGE}:${VERSION}" -n home
+          kubectl set image "deployment/${SERVICE}" "*=${IMAGE}:${VERSION}" -n home
           kubectl rollout status "deployment/${SERVICE}" -n home --timeout=180s
