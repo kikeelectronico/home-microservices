@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-import service
 from constants import WATER_INTERVAL, WATER_REQUEST_TOPIC, WATER_TOPIC
+import service
 
 
 @pytest.fixture

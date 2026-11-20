@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-import service
 from constants import STATUS_REQUEST_TOPIC, STATUS_TOPIC
+import service
 
 
 @pytest.fixture

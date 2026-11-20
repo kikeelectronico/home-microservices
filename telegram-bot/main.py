@@ -1,8 +1,8 @@
 import logging
 import threading
 
-import telebot
 from google.cloud import storage
+import telebot
 
 from service import TelegramBotService
 from settings import Settings

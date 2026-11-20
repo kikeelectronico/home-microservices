@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-import service
 from constants import HEARTBEAT_TOPIC, TASK_ACK_TOPIC
+import service
 
 
 @pytest.fixture

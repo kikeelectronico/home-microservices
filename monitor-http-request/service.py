@@ -1,6 +1,5 @@
 import logging
 
-import functions
 from constants import (
   BLOCK_TIME,
   HEARTBEAT_TOPIC,
@@ -8,6 +7,7 @@ from constants import (
   TEXT_ALERT_TOPIC,
   VOICE_ALERT_TOPIC
 )
+import functions
 
 
 class MonitorHttpRequestService:

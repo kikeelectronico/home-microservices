@@ -1,5 +1,5 @@
-import signal
 import logging
+import signal
 import threading
 
 _stop_event = threading.Event()

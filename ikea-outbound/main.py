@@ -1,8 +1,8 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import TOPICS
 from ikea import Ikea
+from mqtt import set_mqtt_client
 from service import IkeaOutboundService
 from settings import Settings
 from shutdown import register_shutdown_handlers

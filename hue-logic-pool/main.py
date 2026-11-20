@@ -1,8 +1,8 @@
 import logging
 
-from mqtt import set_mqtt_client
-from hue import Hue
 from homeware import Homeware
+from hue import Hue
+from mqtt import set_mqtt_client
 from service import HueLogicPoolService
 from settings import Settings
 from shutdown import register_shutdown_handlers

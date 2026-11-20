@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-import service
 from constants import POWER_CONSTANT
+import service
 
 
 @pytest.fixture

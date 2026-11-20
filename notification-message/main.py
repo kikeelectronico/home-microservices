@@ -2,8 +2,8 @@ import logging
 
 import telebot
 
-from mqtt import set_mqtt_client
 from constants import TOPICS
+from mqtt import set_mqtt_client
 from service import NotificationMessageService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop

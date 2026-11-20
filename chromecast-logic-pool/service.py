@@ -3,8 +3,8 @@ import time
 
 import pychromecast
 
-import logic
 from constants import HEARTBEAT_TOPIC
+import logic
 from shutdown import stop_requested, wait_for_stop
 
 

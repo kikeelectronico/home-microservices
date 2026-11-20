@@ -1,9 +1,9 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import GRID_REQUEST_TOPIC, HEARTBEAT_TOPIC, SLEEP_TIME
-from settings import Settings
+from mqtt import set_mqtt_client
 from service import ElectricityInflowService
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Main entry point

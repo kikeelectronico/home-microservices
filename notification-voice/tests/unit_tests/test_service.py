@@ -1,7 +1,7 @@
 import pytest
 
-import service
 from constants import TOPICS
+import service
 
 
 @pytest.fixture

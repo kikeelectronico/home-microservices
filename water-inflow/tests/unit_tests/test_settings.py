@@ -1,8 +1,8 @@
 import pytest
 
-import settings as settings_module
 from constants import ENV_VARS, SERVICE_NAME
 from settings import Settings
+import settings as settings_module
 
 
 @pytest.fixture(autouse=True)

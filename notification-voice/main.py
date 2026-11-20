@@ -1,12 +1,12 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import TOPICS
 from Homeware import Homeware
-from Voice import Voice
+from mqtt import set_mqtt_client
 from service import NotificationVoiceService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
+from Voice import Voice
 
 # Main entry point
 def main():

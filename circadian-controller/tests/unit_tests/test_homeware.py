@@ -2,8 +2,8 @@ import json
 
 import requests
 
-import homeware
 from homeware import Homeware
+import homeware
 
 
 def test_execute_publishes_device_control_payload(mocker):

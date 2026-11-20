@@ -1,7 +1,7 @@
-import io
-import zipfile
 from datetime import datetime
+import io
 from types import SimpleNamespace
+import zipfile
 
 import numpy as np
 import pytest

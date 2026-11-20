@@ -1,6 +1,6 @@
-from typing import Any, Dict, Tuple
 import json
 import logging
+from typing import Any, Dict, Tuple
 
 import paho.mqtt.client as mqtt
 

@@ -1,7 +1,7 @@
+from asyncio import sleep
 import asyncio
 import json
 import logging
-from asyncio import sleep
 from queue import Empty, Queue
 
 from shutdown import stop_requested

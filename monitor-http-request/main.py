@@ -1,8 +1,8 @@
 import logging
 
 from mqtt import set_mqtt_client
-from settings import Settings
 from service import MonitorHttpRequestService
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Main entry point

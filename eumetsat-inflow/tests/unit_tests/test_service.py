@@ -3,8 +3,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import service
 from constants import NEAREST_FIRE_INTERVAL, NEAREST_FIRE_REQUEST_TOPIC, NEAREST_FIRE_TOPIC
+import service
 
 
 @pytest.fixture

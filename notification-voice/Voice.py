@@ -1,6 +1,6 @@
-import threading
 import os
 import subprocess
+import threading
 
 from google.cloud import texttospeech
 

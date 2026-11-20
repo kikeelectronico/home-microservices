@@ -1,7 +1,7 @@
 import json
 
-from internet import getInternetStatus
 from constants import STATUS_REQUEST_TOPIC, STATUS_TOPIC
+from internet import getInternetStatus
 
 
 class InternetInflowService:

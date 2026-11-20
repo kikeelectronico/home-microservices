@@ -1,8 +1,8 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import TOPICS
 from homeware import Homeware
+from mqtt import set_mqtt_client
 from service import TaskSchedulerService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop

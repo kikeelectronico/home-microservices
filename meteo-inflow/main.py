@@ -1,14 +1,14 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import (
   HEARTBEAT_TOPIC,
   SLEEP_TIME,
   WARNINGS_REQUEST_TOPIC,
   WEATHER_REQUEST_TOPIC
 )
-from settings import Settings
+from mqtt import set_mqtt_client
 from service import MeteoInflowService
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Main entry point

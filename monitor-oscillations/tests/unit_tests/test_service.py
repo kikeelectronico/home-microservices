@@ -1,5 +1,5 @@
-import service
 from constants import HEARTBEAT_TOPIC, OSCILLATION_THRESHOLD
+import service
 
 
 def test_first_device_message_initializes_tracking_state(mocker, monkeypatch):

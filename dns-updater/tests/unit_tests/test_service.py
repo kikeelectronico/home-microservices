@@ -1,8 +1,8 @@
 import pytest
 import requests
 
-import service
 from constants import HEARTBEAT_TOPIC, REQUEST_TIMEOUT, SLEEP_TIME
+import service
 
 
 @pytest.fixture

@@ -1,10 +1,10 @@
 import logging
 import time
 
-from mqtt import set_mqtt_client
 from constants import HEARTBEAT_TOPIC, SLEEP_TIME, STATUS_REQUEST_TOPIC
-from settings import Settings
+from mqtt import set_mqtt_client
 from service import InternetInflowService
+from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop
 
 # Main entry point

@@ -1,5 +1,5 @@
-import service
 from constants import HEARTBEAT_TOPIC
+import service
 
 
 def test_initialize_sets_homeware_reference():

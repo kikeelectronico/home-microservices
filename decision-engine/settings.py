@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 import sys
 
 from constants import ENV_VARS, SERVICE_NAME
