@@ -2,8 +2,8 @@ import logging
 
 from google.cloud import bigquery
 
-from mqtt import set_mqtt_client
 from constants import HEARTBEAT_TOPIC, SLEEP_TIME
+from mqtt import set_mqtt_client
 from service import MonitorResponseService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop

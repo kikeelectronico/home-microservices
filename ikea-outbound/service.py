@@ -1,8 +1,8 @@
 import json
 import logging
 
-import state_handlers
 from shutdown import stop_requested, wait_for_stop
+import state_handlers
 
 
 STATE_HANDLERS = {

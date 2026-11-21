@@ -1,5 +1,5 @@
-import service
 from constants import HEARTBEAT_REQUEST_TOPIC
+import service
 
 
 def test_initialize_stores_mqtt_client():

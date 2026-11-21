@@ -1,7 +1,7 @@
 import logging
 
-import requests
 from lxml import html
+import requests
 
 WATER_URL = "https://www.embalses.net/comunidad-13-comunidad-de-madrid.html"
 REQUEST_TIMEOUT = 10

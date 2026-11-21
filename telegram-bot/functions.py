@@ -1,8 +1,8 @@
-import os
 import logging
+import os
 
-import requests
 from pytube import YouTube, Playlist
+import requests
 
 REQUEST_TIMEOUT = 10
 

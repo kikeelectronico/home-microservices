@@ -1,7 +1,7 @@
 import logging
 
-from mqtt import set_mqtt_client
 from hue import Hue
+from mqtt import set_mqtt_client
 from service import HueOutboundService
 from settings import Settings
 from shutdown import register_shutdown_handlers

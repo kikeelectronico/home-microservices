@@ -3,8 +3,8 @@ import json
 import pytest
 import requests
 
-import homeware
 from homeware import Homeware
+import homeware
 
 
 def test_execute_publishes_homeware_control_payload(mocker):

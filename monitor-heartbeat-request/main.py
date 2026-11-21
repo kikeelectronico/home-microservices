@@ -1,7 +1,7 @@
 import logging
 
-from mqtt import set_mqtt_client
 from constants import SLEEP_TIME
+from mqtt import set_mqtt_client
 from service import MonitorHeartbeatRequestService
 from settings import Settings
 from shutdown import register_shutdown_handlers, stop_requested, wait_for_stop

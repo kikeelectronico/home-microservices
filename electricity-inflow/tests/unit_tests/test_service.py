@@ -3,8 +3,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import service
 from constants import ESIOS_INTERVAL, GRID_REQUEST_TOPIC, GRID_TOPIC
+import service
 
 
 @pytest.fixture

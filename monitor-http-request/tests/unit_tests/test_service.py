@@ -2,8 +2,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import service
 from constants import BLOCK_TIME, HEARTBEAT_TOPIC, SLEEP_TIME, TEXT_ALERT_TOPIC, VOICE_ALERT_TOPIC
+import service
 
 
 @pytest.fixture

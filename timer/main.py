@@ -1,7 +1,7 @@
 import logging
 
-from homeware import Homeware
 from Alert import Alert
+from homeware import Homeware
 from mqtt import set_mqtt_client
 from service import TimerService
 from settings import Settings

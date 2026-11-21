@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-import service
 from service import DataPanelService
+import service
 
 
 @pytest.fixture

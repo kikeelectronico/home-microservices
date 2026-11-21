@@ -1,7 +1,7 @@
 import logging
 
-from mqtt import set_mqtt_client
 from homeware import Homeware
+from mqtt import set_mqtt_client
 from service import ChromecastLogicPoolService
 from settings import Settings
 from shutdown import register_shutdown_handlers

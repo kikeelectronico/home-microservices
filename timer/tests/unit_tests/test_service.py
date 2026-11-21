@@ -2,8 +2,8 @@ import datetime
 
 import pytest
 
-import service
 from constants import HEARTBEAT_TOPIC
+import service
 
 
 @pytest.fixture

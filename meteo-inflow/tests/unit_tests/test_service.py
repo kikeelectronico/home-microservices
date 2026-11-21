@@ -3,7 +3,6 @@ from types import SimpleNamespace
 
 import pytest
 
-import service
 from constants import (
     WEATHER_INTERVAL,
     WEATHER_REQUEST_TOPIC,
@@ -12,6 +11,7 @@ from constants import (
     WARNINGS_REQUEST_TOPIC,
     WARNINGS_TOPIC,
 )
+import service
 
 
 @pytest.fixture

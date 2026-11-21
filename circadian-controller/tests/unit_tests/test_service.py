@@ -3,8 +3,8 @@ import datetime
 import pytest
 import requests
 
-import service
 from constants import HEARTBEAT_TOPIC
+import service
 
 
 @pytest.fixture
