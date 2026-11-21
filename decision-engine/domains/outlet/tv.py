@@ -13,7 +13,7 @@ class TvOutlethHandler:
 
         actions.append({
             "type": "device_param_update",
-            "device_id": "hue_12",
+            "device_id": "a1c72ed9-2a75-4ea4-b35b-5eae2945fdad_1",
             "param": "on",
             "value": event.get("value")
         })
