@@ -31,7 +31,7 @@ class WaterHeaterOutlethHandler:
                 desired_on = not context.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning")
                 if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                     if desired_on:
-                        if context.get("scene_saving_session", "enable"):
+                        if not context.get("scene_saving_session", "enable"):
                             if isHigherPriorityDeviceOn(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
                                 if canAddPowerLoad(context, WATER_HEATER_POWER):
                                     actions.append({
@@ -51,7 +51,7 @@ class WaterHeaterOutlethHandler:
             desired_on = not event.get("value")
             if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                 if desired_on:
-                    if context.get("scene_saving_session", "enable"):
+                    if not context.get("scene_saving_session", "enable"):
                         if canAddPowerLoad(context, WATER_HEATER_POWER):
                             actions.append({
                                 "type": "device_param_update",
