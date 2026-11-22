@@ -52,14 +52,15 @@ class BedroomRadiatorOutlethHandler:
                 desired_on = shouldHeat(context, "thermostat_dormitorio", "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)
                 if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on") != desired_on:
                     if desired_on:
-                        if isHigherPriorityDeviceOn(context, "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"):
-                            if canAddPowerLoad(context, BEDROOM_RADIATOR_POWER):
-                                actions.append({
-                                    "type": "device_param_update",
-                                    "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
-                                    "param": "on",
-                                    "value": True
-                                })
+                        if context.get("scene_saving_session", "enable"):
+                            if isHigherPriorityDeviceOn(context, "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1"):
+                                if canAddPowerLoad(context, BEDROOM_RADIATOR_POWER):
+                                    actions.append({
+                                        "type": "device_param_update",
+                                        "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
+                                        "param": "on",
+                                        "value": True
+                                    })
                     else:
                         actions.append({
                             "type": "device_param_update",
@@ -72,29 +73,30 @@ class BedroomRadiatorOutlethHandler:
             desired_on = shouldHeat(context, "thermostat_dormitorio", "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "e6c2e2bd-5057-49bc-821f-a4b10e415ac6", rule_14)
             if context.get("fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", "on") != desired_on:
                 if desired_on:
-                    if canAddPowerLoad(context, BEDROOM_RADIATOR_POWER):
-                        actions.append({
-                            "type": "device_param_update",
-                            "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
-                            "param": "on",
-                            "value": True
-                        })
-                    else:
-                        devices_to_turn_off = getLowerPriorityDevicesToTurnOff(context, "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", BEDROOM_RADIATOR_POWER)
-                        if len(devices_to_turn_off) > 0:
-                            for device_to_turn_off in devices_to_turn_off:
-                                actions.append({
-                                    "type": "device_param_update",
-                                    "device_id": device_to_turn_off,
-                                    "param": "on",
-                                    "value": False
-                                })
+                    if context.get("scene_saving_session", "enable"):
+                        if canAddPowerLoad(context, BEDROOM_RADIATOR_POWER):
                             actions.append({
                                 "type": "device_param_update",
                                 "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
                                 "param": "on",
                                 "value": True
                             })
+                        else:
+                            devices_to_turn_off = getLowerPriorityDevicesToTurnOff(context, "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1", BEDROOM_RADIATOR_POWER)
+                            if len(devices_to_turn_off) > 0:
+                                for device_to_turn_off in devices_to_turn_off:
+                                    actions.append({
+                                        "type": "device_param_update",
+                                        "device_id": device_to_turn_off,
+                                        "param": "on",
+                                        "value": False
+                                    })
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "fecf95fe-7cf3-4cc1-87bc-98e5669320f8_1",
+                                    "param": "on",
+                                    "value": True
+                                })
                 else:
                     actions.append({
                         "type": "device_param_update",

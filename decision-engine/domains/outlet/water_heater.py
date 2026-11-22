@@ -31,14 +31,15 @@ class WaterHeaterOutlethHandler:
                 desired_on = not context.get("fc553d8b-1f45-4337-84ab-5c80a84e61ff_1", "isRunning")
                 if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                     if desired_on:
-                        if isHigherPriorityDeviceOn(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
-                            if canAddPowerLoad(context, WATER_HEATER_POWER):
-                                actions.append({
-                                    "type": "device_param_update",
-                                    "device_id": "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
-                                    "param": "on",
-                                    "value": True
-                                }) 
+                        if context.get("scene_saving_session", "enable"):
+                            if isHigherPriorityDeviceOn(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1"):
+                                if canAddPowerLoad(context, WATER_HEATER_POWER):
+                                    actions.append({
+                                        "type": "device_param_update",
+                                        "device_id": "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
+                                        "param": "on",
+                                        "value": True
+                                    }) 
                     else:
                         actions.append({
                             "type": "device_param_update",
@@ -50,29 +51,30 @@ class WaterHeaterOutlethHandler:
             desired_on = not event.get("value")
             if context.get("b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", "on") != desired_on:
                 if desired_on:
-                    if canAddPowerLoad(context, WATER_HEATER_POWER):
-                        actions.append({
-                            "type": "device_param_update",
-                            "device_id": "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
-                            "param": "on",
-                            "value": True
-                        })
-                    else:
-                        devices_to_turn_off = getLowerPriorityDevicesToTurnOff(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", WATER_HEATER_POWER)
-                        if len(devices_to_turn_off) > 0:
-                            for device_to_turn_off in devices_to_turn_off:
-                                actions.append({
-                                    "type": "device_param_update",
-                                    "device_id": device_to_turn_off,
-                                    "param": "on",
-                                    "value": False
-                                })
+                    if context.get("scene_saving_session", "enable"):
+                        if canAddPowerLoad(context, WATER_HEATER_POWER):
                             actions.append({
                                 "type": "device_param_update",
                                 "device_id": "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
                                 "param": "on",
                                 "value": True
                             })
+                        else:
+                            devices_to_turn_off = getLowerPriorityDevicesToTurnOff(context, "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1", WATER_HEATER_POWER)
+                            if len(devices_to_turn_off) > 0:
+                                for device_to_turn_off in devices_to_turn_off:
+                                    actions.append({
+                                        "type": "device_param_update",
+                                        "device_id": device_to_turn_off,
+                                        "param": "on",
+                                        "value": False
+                                    })
+                                actions.append({
+                                    "type": "device_param_update",
+                                    "device_id": "b0e9f8e8-e670-4f6f-a697-a45014d08b4b_1",
+                                    "param": "on",
+                                    "value": True
+                                })
                 else:
                     actions.append({
                         "type": "device_param_update",
