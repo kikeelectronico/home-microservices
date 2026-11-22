@@ -13,7 +13,8 @@ def outlet(homeware, data, tasks, voltages_map):
     homeware.execute(data["id"], "online", data["isReachable"])
   if "isOn" in attributes:
     if homeware.get(data["id"], "oscillating") is not True:
-      homeware.execute(data["id"], "on", attributes["isOn"])
+      if homeware.get(data["id"], "on") != attributes["isOn"]:
+        homeware.execute(data["id"], "on", attributes["isOn"])
   if "currentVoltage" in attributes:
     voltages_map[data["id"]] = attributes["currentVoltage"]
     homeware.execute(data["id"], "voltage", round(attributes["currentVoltage"], 1))
