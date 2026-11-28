@@ -8,6 +8,8 @@ class LivingroomAirQualityHandler:
             (( event.get("device_id") == "scene_headphones" and \
             event.get("param") == "enable" ) or \
             ( event.get("device_id") == "9260ed68-0542-4248-9f23-babfae1db2a1_1" and \
+            event.get("param") == "occupancy" ) or \
+            ( event.get("device_id") == "pressure001" and \
             event.get("param") == "occupancy" ))
 
     def handle(self, event: dict, context: Context) -> List[dict]:
@@ -18,21 +20,22 @@ class LivingroomAirQualityHandler:
 
         if current_mode_settings:
             if event.get("device_id") == "scene_headphones":
-                if not current_mode_settings.get("Modo") == "Manual" if event.get("value") else "Automático":
-                    actions = [
-                        {
-                            "type": "device_param_update",
-                            "device_id": "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
-                            "param": "currentModeSettings",
-                            "value": {
-                                "Modo": "Manual" if event.get("value") else "Automático"
+                if context.get("pressure001", "occupancy") == "UNOCCUPIED":
+                    if not current_mode_settings.get("Modo") == "Manual" if event.get("value") else "Automático":
+                        actions = [
+                            {
+                                "type": "device_param_update",
+                                "device_id": "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
+                                "param": "currentModeSettings",
+                                "value": {
+                                    "Modo": "Manual" if event.get("value") else "Automático"
+                                }
                             }
-                        }
-                    ]
-            else:
+                        ]
+            elif event.get("device_id") == "9260ed68-0542-4248-9f23-babfae1db2a1_1":
                 if not current_mode_settings.get("Modo") == "Manual" if event.get("value") == "OCCUPIED" else "Automático":
                     if context.get("scene_ducha", "enable"):
-                            actions = [
+                        actions = [
                             {
                                 "type": "device_param_update",
                                 "device_id": "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
@@ -42,5 +45,18 @@ class LivingroomAirQualityHandler:
                                 }
                             }
                     ]
+            elif event.get("device_id") == "pressure001":
+                if event.get("value") == "OCCUPIED":
+                    if not current_mode_settings.get("Modo") == "Automático":
+                        actions = [
+                            {
+                                "type": "device_param_update",
+                                "device_id": "df31ac85-be3f-48db-ab5e-483001f3ad27_1",
+                                "param": "currentModeSettings",
+                                "value": {
+                                    "Modo": "Automático"
+                                }
+                            }
+                        ]
 
         return actions
